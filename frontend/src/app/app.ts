@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SidebarComponent } from './components/sidebar/sidebar';
-import { RouterOutlet, RouterModule } from '@angular/router';
+import { RouterOutlet, RouterModule, Router, NavigationEnd } from '@angular/router';
 import { TopBarComponent } from './components/top-bar/top-bar';
+import { filter, map, startWith } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -12,5 +13,11 @@ import { TopBarComponent } from './components/top-bar/top-bar';
   styleUrl: './app.css'
 })
 export class AppComponent {
-  title = 'Smart Life Manager';
+  private router = inject(Router);
+
+  isAuthPage$ = this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd),
+      map(() => this.router.url === '/login'),
+      startWith(this.router.url === '/login')
+  );
 }

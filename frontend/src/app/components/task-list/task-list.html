@@ -1,44 +1,45 @@
-<div style="display: flex; height: 100vh; background-color: #f9fafb;">
-    <app-sidebar></app-sidebar>
+<div class="p-6">
+    <h2 class="text-2xl font-bold mb-6 text-gray-800">
+        {{ currentBoard?.title || 'Loading Board...' }}
+    </h2>
 
-    <div style="flex-grow: 1; padding: 20px; font-family: sans-serif; overflow-y: auto;">
-        <h2>{{ currentBoard?.title }}</h2>
-
-        <div style="display: flex; gap: 20px; overflow-x: auto; padding-top: 10px;">
-
-            @for (status of statuses; track status.id) {
-                <div style="background: #e5e7eb; border-radius: 8px; width: 300px; min-width: 300px; padding: 15px; min-height: 500px;">
-                    <h3 style="margin-top: 0; color: #374151;">{{ status.name }}</h3>
-
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
-
-                        @for (task of getTasksForStatus(status.id); track task.id) {
-                            <div style="background: white; padding: 15px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                                <h4 style="margin: 0 0 10px 0; color: #111827;">{{ task.title }}</h4>
-
-                                <div style="font-size: 12px; color: #6b7280; display: flex; justify-content: space-between;">
-                                    <span style="background: #f3f4f6; padding: 2px 6px; border-radius: 4px;">{{ task.type_name }}</span>
-                                    <span style="font-weight: bold;">{{ task.priority_name }}</span>
-                                </div>
-
-                                <div style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 5px;">
-                                    @for (s of statuses; track s.id) {
-                                        @if (s.id !== status.id) {
-                                            <button
-                                                    (click)="moveTask(task, s.id)"
-                                                    style="font-size: 11px; padding: 4px 8px; background: #e5e7eb; border: none; border-radius: 4px; cursor: pointer; color: #374151;">
-                                                {{ s.name }}
-                                            </button>
-                                        }
-                                    }
-                                </div>
-                            </div>
-                        }
-
-                    </div>
+    <div class="flex gap-6 overflow-x-auto pb-4">
+        @for (status of statuses; track status.id) {
+            <div class="bg-gray-100 rounded-xl w-80 min-w-[320px] p-4 flex flex-col min-h-[70vh]">
+                <div class="flex justify-between items-center mb-4 px-1">
+                    <h3 class="font-bold text-gray-700 uppercase text-sm tracking-wider">
+                        {{ status.name }}
+                    </h3>
+                    <span class="bg-gray-200 text-gray-600 text-xs px-2 py-1 rounded-full">
+                        {{ getTasksForStatus(status.id).length }}
+                    </span>
                 </div>
-            }
 
-        </div>
+                <div class="flex flex-col gap-3">
+                    @for (task of getTasksForStatus(status.id); track task.id) {
+                        <div class="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer group">
+                            <h4 class="font-semibold text-gray-800 mb-3">{{ task.title }}</h4>
+
+                            <div class="flex justify-between items-center text-[10px] font-bold uppercase tracking-tighter">
+                                <span class="text-blue-600 bg-blue-50 px-2 py-1 rounded">{{ task.type_name }}</span>
+                                <span class="text-gray-500">{{ task.priority_name }}</span>
+                            </div>
+
+                            <div class="mt-4 pt-3 border-t border-gray-50 flex flex-wrap gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                @for (s of statuses; track s.id) {
+                                    @if (s.id !== status.id) {
+                                        <button
+                                                (click)="moveTask(task, s.id)"
+                                                class="text-[9px] px-2 py-1 bg-gray-50 hover:bg-blue-600 hover:text-white rounded transition-colors border border-gray-200">
+                                            Move to {{ s.name }}
+                                        </button>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
     </div>
 </div>

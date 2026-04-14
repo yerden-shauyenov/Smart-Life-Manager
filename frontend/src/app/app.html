@@ -1,11 +1,15 @@
 <div class="flex flex-col h-screen w-screen overflow-hidden">
-  <app-top-bar class="block w-full"></app-top-bar>
+    @if (!(isAuthPage$ | async)) {
+        <app-top-bar class="block w-full"></app-top-bar>
+    }
 
-  <div class="flex flex-1 overflow-hidden">
-    <app-sidebar class="h-full"></app-sidebar>
+    <div class="flex flex-1 overflow-hidden">
+        @if (!(isAuthPage$ | async)) {
+            <app-sidebar class="h-full"></app-sidebar>
+        }
 
-    <main class="flex-1 overflow-y-auto bg-gray-50 p-4">
-      <router-outlet></router-outlet>
-    </main>
-  </div>
+        <main class="flex-1 overflow-y-auto bg-gray-50 p-4">
+            <router-outlet></router-outlet>
+        </main>
+    </div>
 </div>

@@ -1,39 +1,44 @@
-<div style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #111827;">
-    <div style="background-color: #1f2937; padding: 40px; border-radius: 8px; width: 100%; max-width: 400px; color: white;">
-        <h2 style="margin-top: 0; margin-bottom: 20px; text-align: center;">Login to AgileBoard</h2>
+<div class="flex justify-center items-center h-screen bg-gray-900">
+    <div class="bg-gray-800 p-10 rounded-2xl w-full max-w-md shadow-2xl border border-gray-700">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-blue-400 mb-2">AgileBoard</h1>
+            <p class="text-gray-400 text-sm">Enter your credentials to continue</p>
+        </div>
 
-        <form (ngSubmit)="onSubmit()">
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 5px; font-size: 14px;">Username</label>
+        <form (ngSubmit)="onSubmit()" class="space-y-6">
+            <div>
+                <label class="block mb-2 text-sm font-medium text-gray-300">Username</label>
                 <input
                         type="text"
                         [(ngModel)]="credentials.username"
                         name="username"
                         required
-                        style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #374151; background-color: #111827; color: white; box-sizing: border-box;"
+                        class="w-full p-3 rounded-lg border border-gray-600 bg-gray-900 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                        placeholder="admin"
                 >
             </div>
 
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 5px; font-size: 14px;">Password</label>
+            <div>
+                <label class="block mb-2 text-sm font-medium text-gray-300">Password</label>
                 <input
                         type="password"
                         [(ngModel)]="credentials.password"
                         name="password"
                         required
-                        style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #374151; background-color: #111827; color: white; box-sizing: border-box;"
+                        class="w-full p-3 rounded-lg border border-gray-600 bg-gray-900 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                        placeholder="••••••••"
                 >
             </div>
 
             @if (errorMessage) {
-                <div style="color: #ef4444; margin-bottom: 15px; font-size: 14px; text-align: center;">
+                <div class="bg-red-900/30 text-red-400 p-3 rounded-lg text-sm text-center border border-red-800">
                     {{ errorMessage }}
                 </div>
             }
 
             <button
                     type="submit"
-                    style="width: 100%; padding: 10px; background-color: #2563eb; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">
+                    class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold shadow-lg shadow-blue-900/20 transition-all active:scale-[0.98]">
                 Sign In
             </button>
         </form>
