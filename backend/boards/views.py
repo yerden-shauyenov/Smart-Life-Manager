@@ -1,12 +1,12 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
 from django.db.models import Q
 
 from .models import Board, Task
 from .serializers import BoardSerializer, TaskSerializer
 from .permissions import IsBoardMemberOrPublicReadOnly
+from .services import initialize_board_defaults
 
 
 class BoardViewSet(viewsets.ModelViewSet):
@@ -21,7 +21,8 @@ class BoardViewSet(viewsets.ModelViewSet):
         ).distinct()
 
     def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+        board = serializer.save(owner=self.request.user)
+        initialize_board_defaults(board)
 
 
 class TaskViewSet(viewsets.ModelViewSet):
