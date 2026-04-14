@@ -111,3 +111,15 @@ class CanManageTasks(permissions.BasePermission):
             return role.can_delete_tasks
 
         return False
+
+
+class IsCommentAuthorOrBoardAdmin(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        if request.user == obj.author:
+            return True
+
+        role = get_user_role(request.user, obj.task.board)
+        return role is not None and role.can_manage_board

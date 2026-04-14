@@ -1,17 +1,17 @@
 from rest_framework import viewsets, status
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 from django.db.models import Q
 
-from .models import Board, Task, Sprint, TaskStatus, TaskPriority, TaskType, BoardRole, BoardMembership
+from .models import Board, Task, Sprint, TaskStatus, TaskPriority, TaskType, BoardRole, BoardMembership, Comment
 from .serializers import (
     BoardSerializer, TaskSerializer, SprintSerializer,
     TaskStatusSerializer, TaskPrioritySerializer,
-    TaskTypeSerializer, BoardRoleSerializer, BoardMembershipSerializer
+    TaskTypeSerializer, BoardRoleSerializer, BoardMembershipSerializer, CommentSerializer
 )
 from .permissions import (
     IsBoardMemberOrPublicReadOnly, CanManageBoardSettings,
-    CanManageBoardMembers, CanManageTasks
+    CanManageBoardMembers, CanManageTasks, IsCommentAuthorOrBoardAdmin
 )
 from .services import initialize_board_defaults
 
@@ -95,3 +95,34 @@ class BoardRoleViewSet(BaseBoardSettingsViewSet):
 class BoardMembershipViewSet(BaseBoardSettingsViewSet):
     serializer_class = BoardMembershipSerializer
     permission_classes = [IsAuthenticated, CanManageBoardMembers]
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticated, IsCommentAuthorOrBoardAdmin]
+
+    def get_queryset(self):
+        queryset = Comment.objects.filter(
+            Q(task__board__is_public=True) |
+            Q(task__board__owner=self.request.user) |
+            Q(task__board__board_memberships__user=self.request.user)
+        ).distinct()
+
+        task_id = self.request.query_params.get('task')
+        if task_id:
+            queryset = queryset.filter(task_id=task_id)
+
+        return queryset
+
+    def perform_create(self, serializer):
+        task = serializer.validated_data.get('task')
+
+        is_member_or_owner = (
+                self.request.user == task.board.owner or
+                task.board.board_memberships.filter(user=self.request.user).exists()
+        )
+
+        if not is_member_or_owner and not task.board.is_public:
+            raise PermissionDenied("You do not have permission to comment on this task.")
+
+        serializer.save(author=self.request.user)

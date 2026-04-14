@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import Board, Task, BoardMembership, Sprint, TaskStatus, TaskPriority, TaskType, BoardRole
+from .models import Board, Task, BoardMembership, Sprint, TaskStatus, TaskPriority, TaskType, BoardRole, Comment
+
 
 class TaskStatusSerializer(serializers.ModelSerializer):
     class Meta:
@@ -82,3 +83,11 @@ class TaskSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Task type does not belong to the selected board.")
 
         return data
+
+class CommentSerializer(serializers.ModelSerializer):
+    author_username = serializers.ReadOnlyField(source='author.username')
+
+    class Meta:
+        model = Comment
+        fields = ['id', 'task', 'author', 'author_username', 'text', 'created_at', 'updated_at']
+        read_only_fields = ['author', 'created_at', 'updated_at']
