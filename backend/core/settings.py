@@ -21,6 +21,7 @@ INSTALLED_APPS = [
     'corsheaders',
 
     'users',
+    'boards',
 ]
 
 AUTH_USER_MODEL = 'users.User'
