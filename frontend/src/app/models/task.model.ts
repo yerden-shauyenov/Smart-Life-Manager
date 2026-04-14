@@ -1,24 +1,27 @@
-export interface SubTask {
-  id: number;
-  title: string;
-  isCompleted: boolean;
-  isEditing: boolean; // Added: for inline subtask title editing
-}
-
-export interface TaskGroup {
-  id: string;
-  name: string;
-  isEditing: boolean; // Updated: Made mandatory for consistent group handling
-}
-
 export interface Task {
   id: number;
-  groupId: string; 
   title: string;
   description: string;
-  dueDate: Date;
-  isCompleted: boolean;
-  priority: 'low' | 'medium' | 'high';
-  type: string;
-  subtasks: SubTask[];
+  board: number;
+  sprint: number | null;
+  status: number;
+  status_name: string;
+  priority: number | null;
+  priority_name: string;
+  task_type: number | null;
+  type_name: string;
+  author: number;
+  assignee: number | null;
+  assignee_username: string;
+  created_at: string;
+}
+
+export interface Comment {
+  id: number;
+  task: number;
+  author: number;
+  author_username: string;
+  text: string;
+  created_at: string;
+  updated_at: string;
 }
