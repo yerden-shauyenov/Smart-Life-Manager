@@ -1,4 +1,4 @@
-from .models import Board, BoardRole, TaskStatus, TaskPriority, TaskType, BoardMembership
+from .models import Board, BoardRole, TaskStatus, TaskPriority, TaskType, BoardMembership, Sprint
 
 
 def initialize_board_defaults(board):
@@ -51,3 +51,5 @@ def initialize_board_defaults(board):
     ]
     for type_data in types:
         TaskType.objects.create(board=board, **type_data)
+
+    Sprint.objects.create(board=board, name="Sprint 1")

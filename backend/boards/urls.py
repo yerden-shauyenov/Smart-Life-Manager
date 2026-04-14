@@ -1,9 +1,10 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import BoardViewSet, TaskViewSet
+from .views import BoardViewSet, TaskViewSet, SprintViewSet
 
 router = DefaultRouter()
 router.register(r'boards', BoardViewSet, basename='board')
+router.register(r'sprints', SprintViewSet, basename='sprint')
 router.register(r'tasks', TaskViewSet, basename='task')
 
 urlpatterns = [

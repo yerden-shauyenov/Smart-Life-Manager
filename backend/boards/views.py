@@ -1,10 +1,11 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
 from django.db.models import Q
 
-from .models import Board, Task
-from .serializers import BoardSerializer, TaskSerializer
+from .models import Board, Task, Sprint
+from .serializers import BoardSerializer, TaskSerializer, SprintSerializer
 from .permissions import IsBoardMemberOrPublicReadOnly
 from .services import initialize_board_defaults
 
@@ -23,6 +24,18 @@ class BoardViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         board = serializer.save(owner=self.request.user)
         initialize_board_defaults(board)
+
+
+class SprintViewSet(viewsets.ModelViewSet):
+    serializer_class = SprintSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Sprint.objects.filter(
+            Q(board__is_public=True) |
+            Q(board__owner=self.request.user) |
+            Q(board__board_memberships__user=self.request.user)
+        ).distinct()
 
 
 class TaskViewSet(viewsets.ModelViewSet):

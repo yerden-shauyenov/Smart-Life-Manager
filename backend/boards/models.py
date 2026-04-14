@@ -81,11 +81,28 @@ class TaskType(models.Model):
         return self.name
 
 
+class Sprint(models.Model):
+    board = models.ForeignKey(Board, on_delete=models.CASCADE, related_name='sprints')
+    name = models.CharField(max_length=255)
+    goal = models.TextField(blank=True)
+    start_date = models.DateTimeField(null=True, blank=True)
+    end_date = models.DateTimeField(null=True, blank=True)
+    is_active = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.name
+
+
 class Task(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
 
     board = models.ForeignKey(Board, on_delete=models.CASCADE, related_name='tasks')
+    sprint = models.ForeignKey(Sprint, on_delete=models.SET_NULL, null=True, blank=True, related_name='tasks')
     status = models.ForeignKey(TaskStatus, on_delete=models.PROTECT, related_name='tasks')
     priority = models.ForeignKey(TaskPriority, on_delete=models.SET_NULL, null=True, blank=True, related_name='tasks')
     task_type = models.ForeignKey(TaskType, on_delete=models.SET_NULL, null=True, blank=True, related_name='tasks')
