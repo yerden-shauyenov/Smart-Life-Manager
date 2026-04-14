@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { TaskService } from '../../services/task';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -10,9 +9,5 @@ import { CommonModule } from '@angular/common';
   styleUrl: './sidebar.css',
 })
 export class SidebarComponent {
-  constructor(private taskService: TaskService) {}
 
-  applyFilter(category: string) {
-    this.taskService.setFilter(category);
-  }
 }
