@@ -1,32 +1,40 @@
-<div class="h-full bg-gray-900 text-white p-6">
-    <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold">Active Sprint</h2>
-        <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors">
-            Create Task
-        </button>
-    </div>
+<div style="padding: 20px; font-family: sans-serif;">
+    <h2>{{ currentBoard?.title || 'Загрузка доски...' }}</h2>
 
-    <div class="flex gap-6 h-[calc(100vh-120px)] overflow-x-auto pb-4">
+    <div style="display: flex; gap: 20px; overflow-x: auto; padding-top: 10px;">
 
-        <div class="bg-gray-800 rounded-lg w-80 flex-shrink-0 flex flex-col">
-            <div class="p-3 border-b border-gray-700">
-                <h3 class="font-semibold text-gray-300">To Do</h3>
-            </div>
-            <div class="p-3 flex-1 overflow-y-auto space-y-3">
-                @for (task of tasks; track task.id) {
-                    <div class="bg-gray-700 p-4 rounded-md shadow hover:ring-2 hover:ring-blue-500 cursor-pointer transition-all">
-                        <div class="flex justify-between items-start mb-2">
-                            <span class="text-xs font-medium px-2 py-1 rounded bg-gray-600 text-gray-300">{{ task.type_name }}</span>
-                            <span class="text-xs font-bold text-red-400">{{ task.priority_name }}</span>
+        @for (status of statuses; track status.id) {
+            <div style="background: #f4f5f7; border-radius: 8px; width: 300px; min-width: 300px; padding: 15px; min-height: 500px;">
+                <h3 style="margin-top: 0; color: #333;">{{ status.name }}</h3>
+
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+
+                    @for (task of getTasksForStatus(status.id); track task.id) {
+                        <div style="background: white; padding: 15px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                            <h4 style="margin: 0 0 10px 0;">{{ task.title }}</h4>
+
+                            <div style="font-size: 12px; color: #666; display: flex; justify-content: space-between;">
+                                <span>{{ task.type_name }}</span>
+                                <span>{{ task.priority_name }}</span>
+                            </div>
+
+                            <div style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 5px;">
+                                @for (s of statuses; track s.id) {
+                                    @if (s.id !== status.id) {
+                                        <button
+                                                (click)="moveTask(task, s.id)"
+                                                style="font-size: 11px; padding: 4px 8px; cursor: pointer;">
+                                            В "{{ s.name }}"
+                                        </button>
+                                    }
+                                }
+                            </div>
                         </div>
-                        <h4 class="font-medium mb-2">{{ task.title }}</h4>
-                        <div class="flex justify-between items-center text-xs text-gray-400">
-                            <span>{{ task.assignee_username || 'Unassigned' }}</span>
-                        </div>
-                    </div>
-                }
+                    }
+
+                </div>
             </div>
-        </div>
+        }
 
     </div>
 </div>
