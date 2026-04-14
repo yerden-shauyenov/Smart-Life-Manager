@@ -1,0 +1,41 @@
+<div style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #111827;">
+    <div style="background-color: #1f2937; padding: 40px; border-radius: 8px; width: 100%; max-width: 400px; color: white;">
+        <h2 style="margin-top: 0; margin-bottom: 20px; text-align: center;">Login to AgileBoard</h2>
+
+        <form (ngSubmit)="onSubmit()">
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-size: 14px;">Username</label>
+                <input
+                        type="text"
+                        [(ngModel)]="credentials.username"
+                        name="username"
+                        required
+                        style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #374151; background-color: #111827; color: white; box-sizing: border-box;"
+                >
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 5px; font-size: 14px;">Password</label>
+                <input
+                        type="password"
+                        [(ngModel)]="credentials.password"
+                        name="password"
+                        required
+                        style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #374151; background-color: #111827; color: white; box-sizing: border-box;"
+                >
+            </div>
+
+            @if (errorMessage) {
+                <div style="color: #ef4444; margin-bottom: 15px; font-size: 14px; text-align: center;">
+                    {{ errorMessage }}
+                </div>
+            }
+
+            <button
+                    type="submit"
+                    style="width: 100%; padding: 10px; background-color: #2563eb; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">
+                Sign In
+            </button>
+        </form>
+    </div>
+</div>
