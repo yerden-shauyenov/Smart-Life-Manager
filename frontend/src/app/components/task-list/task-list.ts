@@ -9,8 +9,7 @@ import { Board, TaskStatus } from '../../models/board.model';
   selector: 'app-task-list',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './task-list.html',
-  styleUrls: ['./task-list.css']
+  templateUrl: './task-list.html'
 })
 export class TaskListComponent implements OnInit {
   private taskService = inject(TaskService);
@@ -21,10 +20,10 @@ export class TaskListComponent implements OnInit {
   tasks: Task[] = [];
 
   ngOnInit(): void {
-    this.loadInitialData();
+    this.fetchInitialData();
   }
 
-  loadInitialData() {
+  private fetchInitialData(): void {
     this.boardService.getBoards().subscribe(boards => {
       if (boards.length > 0) {
         this.currentBoard = boards[0];
@@ -33,25 +32,25 @@ export class TaskListComponent implements OnInit {
     });
   }
 
-  loadBoardData(boardId: number) {
-    this.boardService.getStatuses(boardId).subscribe(statuses => {
-      this.statuses = statuses.sort((a, b) => a.order - b.order);
+  private loadBoardData(boardId: number): void {
+    this.boardService.getStatuses(boardId).subscribe(data => {
+      this.statuses = data.sort((a, b) => a.order - b.order);
     });
 
-    this.taskService.getTasks().subscribe(tasks => {
-      this.tasks = tasks.filter(t => t.board === boardId);
+    this.taskService.getTasks().subscribe(data => {
+      this.tasks = data.filter(t => t.board === boardId);
     });
   }
 
-  getTasksForStatus(statusId: number): Task[] {
+  getTasksByStatus(statusId: number): Task[] {
     return this.tasks.filter(t => t.status === statusId);
   }
 
-  moveTask(task: Task, newStatusId: number) {
-    this.taskService.updateTaskStatus(task.id, newStatusId).subscribe(updatedTask => {
-      const index = this.tasks.findIndex(t => t.id === updatedTask.id);
+  moveTask(task: Task, newStatusId: number): void {
+    this.taskService.updateTaskStatus(task.id, newStatusId).subscribe(updated => {
+      const index = this.tasks.findIndex(t => t.id === updated.id);
       if (index !== -1) {
-        this.tasks[index] = updatedTask;
+        this.tasks[index] = updated;
       }
     });
   }

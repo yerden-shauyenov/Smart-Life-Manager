@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -11,22 +11,16 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './login.html'
 })
 export class LoginComponent {
-  credentials = {
-    username: '',
-    password: ''
-  };
-  errorMessage = '';
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
-  constructor(private authService: AuthService, private router: Router) {}
+  credentials = { username: '', password: '' };
+  errorMessage = '';
 
   onSubmit(): void {
     this.authService.login(this.credentials).subscribe({
-      next: () => {
-        this.router.navigate(['/tasks']);
-      },
-      error: () => {
-        this.errorMessage = 'Invalid username or password';
-      }
+      next: () => this.router.navigate(['/tasks']),
+      error: () => this.errorMessage = 'Invalid credentials'
     });
   }
 }

@@ -1,41 +1,26 @@
-<div class="p-6">
-    <h2 class="text-2xl font-bold mb-6 text-gray-800">
-        {{ currentBoard?.title || 'Loading Board...' }}
-    </h2>
+<div style="padding: 20px;">
+    <h2 style="margin-bottom: 20px;">{{ currentBoard?.title || 'Loading...' }}</h2>
 
-    <div class="flex gap-6 overflow-x-auto pb-4">
+    <div style="display: flex; gap: 20px; overflow-x: auto;">
         @for (status of statuses; track status.id) {
-            <div class="bg-gray-100 rounded-xl w-80 min-w-[320px] p-4 flex flex-col min-h-[70vh]">
-                <div class="flex justify-between items-center mb-4 px-1">
-                    <h3 class="font-bold text-gray-700 uppercase text-sm tracking-wider">
-                        {{ status.name }}
-                    </h3>
-                    <span class="bg-gray-200 text-gray-600 text-xs px-2 py-1 rounded-full">
-                        {{ getTasksForStatus(status.id).length }}
-                    </span>
-                </div>
+            <div style="background: #ebecf0; border-radius: 8px; width: 300px; padding: 10px; min-height: 400px;">
+                <h3 style="font-size: 14px; text-transform: uppercase; color: #5e6c84;">{{ status.name }}</h3>
 
-                <div class="flex flex-col gap-3">
-                    @for (task of getTasksForStatus(status.id); track task.id) {
-                        <div class="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer group">
-                            <h4 class="font-semibold text-gray-800 mb-3">{{ task.title }}</h4>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    @for (task of getTasksByStatus(status.id); track task.id) {
+                        <div style="background: white; padding: 10px; border-radius: 4px; box-shadow: 0 1px 0 rgba(9,30,66,.25);">
+                            <div style="font-weight: 500; margin-bottom: 10px;">{{ task.title }}</div>
 
-                            <div class="flex justify-between items-center text-[10px] font-bold uppercase tracking-tighter">
-                                <span class="text-blue-600 bg-blue-50 px-2 py-1 rounded">{{ task.type_name }}</span>
-                                <span class="text-gray-500">{{ task.priority_name }}</span>
-                            </div>
-
-                            <div class="mt-4 pt-3 border-t border-gray-50 flex flex-wrap gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <select
+                                    style="width: 100%; font-size: 12px;"
+                                    (change)="moveTask(task, +$any($event.target).value)">
+                                <option [value]="status.id">Change status...</option>
                                 @for (s of statuses; track s.id) {
                                     @if (s.id !== status.id) {
-                                        <button
-                                                (click)="moveTask(task, s.id)"
-                                                class="text-[9px] px-2 py-1 bg-gray-50 hover:bg-blue-600 hover:text-white rounded transition-colors border border-gray-200">
-                                            Move to {{ s.name }}
-                                        </button>
+                                        <option [value]="s.id">{{ s.name }}</option>
                                     }
                                 }
-                            </div>
+                            </select>
                         </div>
                     }
                 </div>
