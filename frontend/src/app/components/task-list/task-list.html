@@ -1,0 +1,162 @@
+<section class="board-container">
+  <header class="board-header">
+    <div class="header-left">
+      <h2>Task Boards</h2>
+      <div class="search-box">
+        <input 
+          type="text" 
+          placeholder="Search tasks..." 
+          (input)="onSearch($event)"
+        >
+      </div>
+    </div>
+    <button (click)="taskService.addGroup('New Group')" class="btn-primary">
+      + New Group
+    </button>
+  </header>
+
+  <div class="groups-wrapper">
+    @for (group of groups$ | async; track group.id) {
+      <div class="group-column">
+        <div class="group-header">
+          <div class="title-area">
+            @if (group.isEditing) {
+              <input 
+                class="inline-edit-input"
+                [value]="group.name" 
+                (blur)="updateGroupName(group, $event)" 
+                (keyup.enter)="updateGroupName(group, $event)" 
+                autofocus
+              >
+            } @else {
+              <h3 (click)="toggleGroupEdit(group)">
+                {{ group.name }} <span class="edit-icon">✎</span>
+              </h3>
+            }
+
+            <div class="group-filter-dropdown">
+              <select (change)="onGroupSortChange(group.id, $event)">
+                <option value="none">Default</option>
+                <option value="date">Due Date</option>
+                <option value="priority">Priority</option>
+              </select>
+            </div>
+          </div>
+          <button (click)="onDeleteGroup(group.id)" class="btn-delete-small" aria-label="Delete group">×</button>
+        </div>
+
+        <div class="progress-container">
+          <div class="progress-bar" [style.width.%]="getGroupProgress(group.id) | async"></div>
+        </div>
+
+        <div class="task-list">
+          @for (task of getSortedTasks(tasks$ | async, group.id); track task.id) {
+            <div class="task-card priority-{{task.priority}}" [class.completed]="task.isCompleted">
+              <div class="task-card-header">
+                <input type="checkbox" [checked]="task.isCompleted" (change)="onToggle(task.id)">
+                
+                <div class="task-actions">
+                  <button (click)="openEditTask(task)" class="action-icon" aria-label="Edit task">✎</button>
+                  <button (click)="onDeleteTask(task.id)" class="action-icon del" aria-label="Delete task">×</button>
+                </div>
+              </div>
+              
+              <h4 [class.done-text]="task.isCompleted">{{ task.title }}</h4>
+              @if (task.description) {
+                <p>{{ task.description }}</p>
+              }
+
+              <div class="subtask-section">
+                @for (sub of task.subtasks; track sub.id) {
+                  <div class="subtask-item">
+                    <input 
+                      type="checkbox" 
+                      [checked]="sub.isCompleted" 
+                      (change)="onToggleSubtask(task.id, sub.id)"
+                    >
+                    
+                    @if (sub.isEditing) {
+                      <input 
+                        class="subtask-edit-input" 
+                        [value]="sub.title"
+                        (blur)="updateSubtaskTitle(task.id, sub, $event)"
+                        (keyup.enter)="updateSubtaskTitle(task.id, sub, $event)"
+                        autofocus
+                      >
+                    } @else {
+                      <span 
+                        [class.done]="sub.isCompleted" 
+                        (dblclick)="toggleSubtaskEdit(sub)"
+                        title="Double-click to edit"
+                      >
+                        {{ sub.title }}
+                      </span>
+                    }
+                    
+                    <div class="subtask-actions">
+                      <button (click)="onDeleteSubtask(task.id, sub.id)" class="sub-del" aria-label="Delete subtask">×</button>
+                    </div>
+                  </div>
+                }
+                <input 
+                  #subInput 
+                  class="subtask-add-input"
+                  placeholder="+ Add subtask" 
+                  (keyup.enter)="addSubtask(task, subInput)"
+                >
+              </div>
+
+              <span class="due-date">Due: {{ task.dueDate | date:'shortDate' }}</span>
+            </div>
+          }
+        </div>
+
+        <button (click)="openAddTask(group.id)" class="btn-add-task">
+          + Add Task
+        </button>
+      </div>
+    }
+  </div>
+</section>
+
+@if (showModal) {
+  <div class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-content" tabindex="-1">
+      <h3>{{ isEditMode ? 'Edit Task' : 'New Task' }}</h3>
+      
+      <form [formGroup]="taskForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+            <label for="title">Title</label>
+            <input id="title" formControlName="title" type="text" placeholder="What needs to be done?">
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" formControlName="description" rows="3" placeholder="Add some details..."></textarea>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+              <label for="priority">Priority</label>
+              <select id="priority" formControlName="priority">
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="dueDate">Due Date</label>
+              <input id="dueDate" formControlName="dueDate" type="date">
+            </div>
+        </div>
+
+        <div class="modal-actions">
+            <button type="button" (click)="closeModal()" class="btn-secondary">Cancel</button>
+            <button type="submit" [disabled]="taskForm.invalid" class="btn-primary">
+              {{ isEditMode ? 'Update Task' : 'Create Task' }}
+            </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
