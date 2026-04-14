@@ -1,1 +1,45 @@
-<p>habit-tracker works!</p>
+<section class="p-8 bg-gray-50 min-h-screen">
+  <header class="flex justify-between items-center mb-8">
+    <div>
+      <h2 class="text-3xl font-bold text-gray-800">Habit Tracker</h2>
+      <p class="text-gray-500">Построй свою лучшую версию день за днем</p>
+    </div>
+    <button class="bg-green-600 text-white px-5 py-2 rounded-xl hover:bg-green-700 transition shadow-lg">
+      + New Habit
+    </button>
+  </header>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    @for (habit of habits; track habit.id) {
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+        <div class="flex justify-between items-center mb-6">
+          <div class="flex items-center">
+            <h3 class="text-xl font-bold text-gray-700">{{ habit.name }}</h3>
+          </div>
+          <div class="text-right">
+            <p class="text-sm text-gray-400">Streak</p>
+            <p class="text-lg font-bold text-orange-500">{{ habit.streak }} days 🔥</p>
+          </div>
+        </div>
+
+        <div class="flex justify-between items-center">
+          @for (done of habit.completedDays; track $index) {
+            <div class="flex flex-col items-center">
+              <span class="text-xs text-gray-400 mb-2 uppercase">{{ daysOfWeek[$index] }}</span>
+              <button 
+                (click)="toggleDay(habit.id, $index)"
+                [class]="'w-10 h-10 rounded-full flex items-center justify-center transition-all ' + 
+                         (done ? 'bg-green-500 text-white shadow-md' : 'bg-gray-100 text-gray-300 hover:bg-gray-200')">
+                @if (done) { 
+                  <span class="text-sm">✓</span> 
+                } @else {
+                  <span class="text-xs font-bold">{{ $index + 1 }}</span>
+                }
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</section>
