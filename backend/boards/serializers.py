@@ -1,6 +1,38 @@
 from rest_framework import serializers
-from .models import Board, Task, BoardMembership, Sprint
+from .models import Board, Task, BoardMembership, Sprint, TaskStatus, TaskPriority, TaskType, BoardRole
 
+class TaskStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TaskStatus
+        fields = ['id', 'board', 'name', 'order']
+
+
+class TaskPrioritySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TaskPriority
+        fields = ['id', 'board', 'name', 'color_hex', 'level']
+
+
+class TaskTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TaskType
+        fields = ['id', 'board', 'name', 'icon_name']
+
+
+class BoardRoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BoardRole
+        fields = ['id', 'board', 'name', 'can_manage_board', 'can_manage_members', 'can_create_tasks', 'can_edit_tasks', 'can_delete_tasks']
+
+
+class BoardMembershipSerializer(serializers.ModelSerializer):
+    user_username = serializers.ReadOnlyField(source='user.username')
+    role_name = serializers.ReadOnlyField(source='role.name')
+
+    class Meta:
+        model = BoardMembership
+        fields = ['id', 'user', 'user_username', 'board', 'role', 'role_name', 'joined_at']
+        read_only_fields = ['joined_at']
 
 class BoardSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')
