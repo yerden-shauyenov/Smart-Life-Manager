@@ -4,13 +4,13 @@ import { TaskService } from '../../services/task.service';
 import { BoardService } from '../../services/board.service';
 import { Task } from '../../models/task.model';
 import { Board, TaskStatus } from '../../models/board.model';
+import { SidebarComponent } from '../sidebar/sidebar';
 
 @Component({
   selector: 'app-task-list',
   standalone: true,
-  imports: [CommonModule],
-  templateUrl: './task-list.html',
-  styleUrls: ['./task-list.css']
+  imports: [CommonModule, SidebarComponent],
+  templateUrl: './task-list.html'
 })
 export class TaskListComponent implements OnInit {
   currentBoard: Board | null = null;
@@ -23,14 +23,10 @@ export class TaskListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadInitialData();
-  }
-
-  loadInitialData() {
-    this.boardService.getBoards().subscribe(boards => {
-      if (boards.length > 0) {
-        this.currentBoard = boards[0];
-        this.loadBoardData(this.currentBoard.id);
+    this.boardService.selectedBoard$.subscribe(board => {
+      this.currentBoard = board;
+      if (board) {
+        this.loadBoardData(board.id);
       }
     });
   }

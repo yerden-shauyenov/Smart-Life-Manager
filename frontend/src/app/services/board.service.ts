@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
 import { Board, Sprint, TaskStatus } from '../models/board.model';
 
 @Injectable({
@@ -8,6 +8,9 @@ import { Board, Sprint, TaskStatus } from '../models/board.model';
 })
 export class BoardService {
     private apiUrl = 'http://localhost:8000/api/';
+
+    private selectedBoardSource = new BehaviorSubject<Board | null>(null);
+    selectedBoard$ = this.selectedBoardSource.asObservable();
 
     constructor(private http: HttpClient) {}
 
@@ -23,5 +26,9 @@ export class BoardService {
     getSprints(boardId: number): Observable<Sprint[]> {
         let params = new HttpParams().set('board', boardId.toString());
         return this.http.get<Sprint[]>(`${this.apiUrl}sprints/`, { params });
+    }
+
+    selectBoard(board: Board) {
+        this.selectedBoardSource.next(board);
     }
 }
