@@ -1,62 +1,49 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.exceptions import PermissionDenied
 from django.db.models import Q
 
 from .models import Board, Task
 from .serializers import BoardSerializer, TaskSerializer
-from .permissions import IsBoardMemberOrPublicReadOnly, IsTaskBoardMemberOrPublicReadOnly
+from .permissions import IsBoardMemberOrPublicReadOnly
 
 
-def get(request):
-    boards = Board.objects.filter(
-        Q(is_public=True) |
-        Q(owner=request.user) |
-        Q(board_memberships__user=request.user)
-    ).distinct()
-    serializer = BoardSerializer(boards, many=True)
-    return Response(serializer.data)
-
-
-class BoardListAPIView(APIView):
+class BoardViewSet(viewsets.ModelViewSet):
+    serializer_class = BoardSerializer
     permission_classes = [IsAuthenticated, IsBoardMemberOrPublicReadOnly]
 
-    def post(self, request):
-        serializer = BoardSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(owner=request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def get_queryset(self):
+        return Board.objects.filter(
+            Q(is_public=True) |
+            Q(owner=self.request.user) |
+            Q(board_memberships__user=self.request.user)
+        ).distinct()
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
 
-class TaskListAPIView(APIView):
+class TaskViewSet(viewsets.ModelViewSet):
+    serializer_class = TaskSerializer
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        tasks = Task.objects.filter(
+    def get_queryset(self):
+        return Task.objects.filter(
             Q(board__is_public=True) |
-            Q(board__owner=request.user) |
-            Q(board__board_memberships__user=request.user)
+            Q(board__owner=self.request.user) |
+            Q(board__board_memberships__user=self.request.user)
         ).distinct()
-        serializer = TaskSerializer(tasks, many=True)
-        return Response(serializer.data)
 
-    def post(self, request):
-        serializer = TaskSerializer(data=request.data)
-        if serializer.is_valid():
-            board = serializer.validated_data.get('board')
-            is_member_or_owner = (
-                    request.user == board.owner or
-                    board.board_memberships.filter(user=request.user).exists()
-            )
+    def perform_create(self, serializer):
+        board = serializer.validated_data.get('board')
 
-            if not is_member_or_owner:
-                return Response(
-                    {"error": "Нет прав для добавления задач на эту доску."},
-                    status=status.HTTP_403_FORBIDDEN
-                )
+        is_member_or_owner = (
+                self.request.user == board.owner or
+                board.board_memberships.filter(user=self.request.user).exists()
+        )
 
-            serializer.save(author=request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if not is_member_or_owner:
+            raise PermissionDenied("You do not have permission to add or modify tasks on this board.")
+
+        serializer.save(author=self.request.user)
