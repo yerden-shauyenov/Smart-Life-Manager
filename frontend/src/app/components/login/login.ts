@@ -19,7 +19,7 @@ export class LoginComponent {
 
   onSubmit(): void {
     this.authService.login(this.credentials).subscribe({
-      next: () => this.router.navigate(['/tasks']),
+      next: () => this.router.navigate(['/dashboard']),
       error: () => this.errorMessage = 'Invalid credentials'
     });
   }

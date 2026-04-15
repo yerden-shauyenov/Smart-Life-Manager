@@ -1,0 +1,71 @@
+<div class="p-8 bg-slate-50 min-h-screen">
+  <div class="max-w-6xl mx-auto">
+    <ng-container *ngIf="dashboardData$ | async as data; else skeleton">
+      
+      <header class="mb-10">
+        <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight">SmartLife</h1>
+        <p class="text-slate-500 mt-2 text-lg">Manage your boards, sprints, and team collaboration in one place.</p>
+      </header>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+          <div class="flex items-center justify-between mb-4">
+            <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold uppercase">Boards</span>
+          </div>
+          <p class="text-3xl font-bold text-slate-800">{{ data.boards.length }}</p>
+          <p class="text-slate-500 text-sm">Active project boards</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+          <div class="flex items-center justify-between mb-4">
+            <span class="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-xs font-bold uppercase">Tasks</span>
+          </div>
+          <p class="text-3xl font-bold text-slate-800">{{ data.tasks.length }}</p>
+          <p class="text-slate-500 text-sm">Tasks in backlog and sprints</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+          <div class="flex items-center justify-between mb-4">
+            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold uppercase">Agile</span>
+          </div>
+          <p class="text-3xl font-bold text-slate-800">Sprints</p>
+          <p class="text-slate-500 text-sm">Iterative planning active</p>
+        </div>
+      </div>
+
+      <section class="bg-indigo-900 rounded-3xl p-10 text-white shadow-2xl relative overflow-hidden">
+        <div class="relative z-10">
+          <h2 class="text-2xl font-bold mb-8">System Overview</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="flex items-start space-x-4">
+              <div class="bg-white/10 p-3 rounded-xl">🛠️</div>
+              <div>
+                <h4 class="font-bold text-lg">Custom Statuses & Priorities</h4>
+                <p class="text-indigo-200 text-sm">Fully customizable board workflows with priority levels.</p>
+              </div>
+            </div>
+            <div class="flex items-start space-x-4">
+              <div class="bg-white/10 p-3 rounded-xl">👥</div>
+              <div>
+                <h4 class="font-bold text-lg">Team Membership</h4>
+                <p class="text-indigo-200 text-sm">Assign roles and manage board permissions for your team.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </ng-container>
+
+    <ng-template #skeleton>
+      <div class="animate-pulse">
+        <div class="h-10 w-1/3 bg-slate-200 rounded mb-4"></div>
+        <div class="h-4 w-1/2 bg-slate-200 rounded mb-10"></div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="h-40 bg-slate-200 rounded-2xl"></div>
+          <div class="h-40 bg-slate-200 rounded-2xl"></div>
+          <div class="h-40 bg-slate-200 rounded-2xl"></div>
+        </div>
+      </div>
+    </ng-template>
+  </div>
+</div>
