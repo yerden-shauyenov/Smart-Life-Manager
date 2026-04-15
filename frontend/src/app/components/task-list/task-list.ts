@@ -24,10 +24,18 @@ export class TaskListComponent implements OnInit {
   }
 
   private fetchInitialData(): void {
-    this.boardService.getBoards().subscribe(boards => {
-      if (boards.length > 0) {
-        this.currentBoard = boards[0];
-        this.loadBoardData(this.currentBoard.id);
+    this.boardService.selectedBoard$.subscribe(selected => {
+      if (selected) {
+        this.currentBoard = selected;
+        this.loadBoardData(selected.id);
+      } else {
+        this.boardService.getBoards().subscribe(boards => {
+          if (boards.length > 0) {
+            this.currentBoard = boards[0];
+            this.boardService.selectBoard(boards[0]);
+            this.loadBoardData(boards[0].id);
+          }
+        });
       }
     });
   }

@@ -28,6 +28,10 @@ export class BoardService {
         return this.http.get<Sprint[]>(`${this.apiUrl}sprints/`, { params });
     }
 
+    createBoard(data: { title: string; description: string; is_public: boolean }): Observable<Board> {
+        return this.http.post<Board>(`${this.apiUrl}boards/`, data);
+    }
+
     selectBoard(board: Board) {
         this.selectedBoardSource.next(board);
     }
