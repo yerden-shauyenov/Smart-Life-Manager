@@ -100,21 +100,22 @@ class Sprint(models.Model):
 class Task(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
-
     board = models.ForeignKey(Board, on_delete=models.CASCADE, related_name='tasks')
     sprint = models.ForeignKey(Sprint, on_delete=models.SET_NULL, null=True, blank=True, related_name='tasks')
     status = models.ForeignKey(TaskStatus, on_delete=models.PROTECT, related_name='tasks')
     priority = models.ForeignKey(TaskPriority, on_delete=models.SET_NULL, null=True, blank=True, related_name='tasks')
     task_type = models.ForeignKey(TaskType, on_delete=models.SET_NULL, null=True, blank=True, related_name='tasks')
-
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='created_tasks')
     assignee = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
                                  related_name='assigned_tasks')
-
+    start_date = models.DateTimeField(null=True, blank=True)
+    due_date = models.DateTimeField(null=True, blank=True)
+    is_completed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.title
+
 
 class Comment(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='comments')

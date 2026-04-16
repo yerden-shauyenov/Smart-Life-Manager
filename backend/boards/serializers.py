@@ -35,6 +35,7 @@ class BoardMembershipSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'user_username', 'board', 'role', 'role_name', 'joined_at']
         read_only_fields = ['joined_at']
 
+
 class BoardSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')
 
@@ -66,6 +67,7 @@ class TaskSerializer(serializers.ModelSerializer):
             'priority', 'priority_name',
             'task_type', 'type_name',
             'author', 'assignee', 'assignee_username',
+            'start_date', 'due_date', 'is_completed',
             'created_at'
         ]
         read_only_fields = ['author', 'created_at']
@@ -83,6 +85,7 @@ class TaskSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Task type does not belong to the selected board.")
 
         return data
+
 
 class CommentSerializer(serializers.ModelSerializer):
     author_username = serializers.ReadOnlyField(source='author.username')
