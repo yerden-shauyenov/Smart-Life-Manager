@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { BoardService } from '../../services/board.service';
 import { AuthService } from '../../services/auth.service';
 import { Board } from '../../models/board.model';
@@ -15,8 +16,9 @@ export class SidebarComponent implements OnInit {
   selectedBoard: Board | null = null;
 
   constructor(
-      private boardService: BoardService,
-      private authService: AuthService
+    private boardService: BoardService,
+    private authService: AuthService,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -34,6 +36,11 @@ export class SidebarComponent implements OnInit {
 
   selectBoard(board: Board) {
     this.boardService.selectBoard(board);
+    this.router.navigate(['/tasks']);
+  }
+
+  goToDashboard() {
+    this.router.navigate(['/dashboard']);
   }
 
   logout() {
