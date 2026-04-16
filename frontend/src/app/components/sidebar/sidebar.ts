@@ -49,7 +49,7 @@ export class SidebarComponent implements OnInit {
 
   selectBoard(board: Board): void {
     this.boardService.selectBoard(board);
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/tasks']);
   }
 
   onBoardSettings(event: MouseEvent, board: Board): void {
