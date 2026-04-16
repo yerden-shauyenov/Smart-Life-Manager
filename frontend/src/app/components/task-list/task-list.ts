@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
-import { takeUntil, distinctUntilChanged, take } from 'rxjs/operators';
+import { takeUntil, take } from 'rxjs/operators';
 import { TaskService } from '../../services/task.service';
 import { BoardService } from '../../services/board.service';
 import { Task } from '../../models/task.model';
@@ -26,27 +26,25 @@ export class TaskListComponent implements OnInit, OnDestroy {
   statuses: TaskStatus[] = [];
   tasks: Task[] = [];
   priorities: TaskPriority[] = [];
+  loading = false;
 
-  // --- Add Group ---
   showAddGroupModal = false;
   newGroupName = '';
+  savingGroup = false;
 
-  // --- Rename Group ---
   editingGroupId: number | null = null;
   editingGroupName = '';
   openGroupMenuId: number | null = null;
 
-  // --- Add Task ---
   showAddTaskModal = false;
   addTaskForStatusId: number | null = null;
   newTask = { title: '', priority: null as number | null, start_date: '', due_date: '' };
+  savingTask = false;
 
-  // --- Rename Task ---
   editingTaskId: number | null = null;
   editingTaskTitle = '';
   openTaskMenuId: number | null = null;
 
-  // --- Board Settings ---
   showSettingsModal = false;
   settingsTab: 'general' | 'members' = 'general';
   editBoardTitle = '';
@@ -58,22 +56,24 @@ export class TaskListComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.boardService.selectedBoard$.pipe(
-      takeUntil(this.destroy$),
-      distinctUntilChanged((a, b) => a?.id === b?.id)
+      takeUntil(this.destroy$)
     ).subscribe(board => {
-      if (board) {
-        this.currentBoard = board;
-        this.statuses = [];
-        this.tasks = [];
-        this.priorities = [];
-        this.loadBoardData(board.id);
-      } else {
-        this.boardService.getBoards().pipe(take(1)).subscribe(boards => {
-          if (boards.length > 0) this.boardService.selectBoard(boards[0]);
-          else this.router.navigate(['/dashboard']);
-        });
-      }
+      this.currentBoard = board;
+      this.statuses = [];
+      this.tasks = [];
+      this.priorities = [];
+      this.loadBoardData(board.id);
     });
+
+    if (this.boardService.currentBoard) {
+      this.currentBoard = this.boardService.currentBoard;
+      this.loadBoardData(this.currentBoard.id);
+    } else {
+      this.boardService.getBoards().pipe(take(1)).subscribe(boards => {
+        if (boards.length > 0) this.boardService.selectBoard(boards[0]);
+        else this.router.navigate(['/dashboard']);
+      });
+    }
   }
 
   ngOnDestroy(): void {
@@ -82,14 +82,16 @@ export class TaskListComponent implements OnInit, OnDestroy {
   }
 
   private loadBoardData(boardId: number): void {
+    this.loading = true;
     this.boardService.getStatuses(boardId).pipe(take(1)).subscribe(data => {
-      this.statuses = data.sort((a, b) => a.order - b.order);
+      this.statuses = [...data.sort((a, b) => a.order - b.order)];
+      this.loading = false;
     });
     this.boardService.getPriorities(boardId).pipe(take(1)).subscribe(data => {
-      this.priorities = data.sort((a, b) => b.level - a.level);
+      this.priorities = [...data.sort((a, b) => b.level - a.level)];
     });
     this.taskService.getTasks().pipe(take(1)).subscribe(data => {
-      this.tasks = data.filter(t => t.board === boardId);
+      this.tasks = [...data.filter(t => t.board === boardId)];
     });
   }
 
@@ -110,18 +112,22 @@ export class TaskListComponent implements OnInit, OnDestroy {
 
   // ── Group actions ──────────────────────────────
 
-  openAddGroup(): void { this.newGroupName = ''; this.showAddGroupModal = true; }
-  closeAddGroup(): void { this.showAddGroupModal = false; }
+  openAddGroup(): void { this.newGroupName = ''; this.savingGroup = false; this.showAddGroupModal = true; }
+  closeAddGroup(): void { this.showAddGroupModal = false; this.savingGroup = false; }
 
   createGroup(): void {
-    if (!this.newGroupName.trim() || !this.currentBoard) return;
+    if (!this.newGroupName.trim() || !this.currentBoard || this.savingGroup) return;
+    this.savingGroup = true;
     this.boardService.createStatus({
       board: this.currentBoard.id,
       name: this.newGroupName.trim(),
       order: this.statuses.length + 1
-    }).pipe(take(1)).subscribe(s => {
-      this.statuses = [...this.statuses, s];
-      this.closeAddGroup();
+    }).pipe(take(1)).subscribe({
+      next: s => {
+        this.statuses = [...this.statuses, s];
+        this.closeAddGroup();
+      },
+      error: () => { this.savingGroup = false; }
     });
   }
 
@@ -139,11 +145,21 @@ export class TaskListComponent implements OnInit, OnDestroy {
 
   saveRenameGroup(status: TaskStatus): void {
     if (!this.editingGroupName.trim()) { this.editingGroupId = null; return; }
-    this.boardService.updateStatus(status.id, { name: this.editingGroupName.trim() })
-      .pipe(take(1)).subscribe(updated => {
-        const i = this.statuses.findIndex(s => s.id === updated.id);
-        if (i !== -1) this.statuses[i] = updated;
-        this.editingGroupId = null;
+    const optimisticName = this.editingGroupName.trim();
+    const prevName = status.name;
+    // Optimistic update
+    this.statuses = this.statuses.map(s =>
+      s.id === status.id ? { ...s, name: optimisticName } : s
+    );
+    this.editingGroupId = null;
+    this.boardService.updateStatus(status.id, { name: optimisticName })
+      .pipe(take(1)).subscribe({
+        error: () => {
+          // Revert on failure
+          this.statuses = this.statuses.map(s =>
+            s.id === status.id ? { ...s, name: prevName } : s
+          );
+        }
       });
   }
 
@@ -151,9 +167,16 @@ export class TaskListComponent implements OnInit, OnDestroy {
     event.stopPropagation();
     this.openGroupMenuId = null;
     if (!confirm('Delete this group and all its tasks?')) return;
-    this.boardService.deleteStatus(statusId).pipe(take(1)).subscribe(() => {
-      this.statuses = this.statuses.filter(s => s.id !== statusId);
-      this.tasks = this.tasks.filter(t => t.status !== statusId);
+    // Optimistic update
+    const prevStatuses = [...this.statuses];
+    const prevTasks = [...this.tasks];
+    this.statuses = this.statuses.filter(s => s.id !== statusId);
+    this.tasks = this.tasks.filter(t => t.status !== statusId);
+    this.boardService.deleteStatus(statusId).pipe(take(1)).subscribe({
+      error: () => {
+        this.statuses = prevStatuses;
+        this.tasks = prevTasks;
+      }
     });
   }
 
@@ -161,6 +184,7 @@ export class TaskListComponent implements OnInit, OnDestroy {
 
   openAddTask(statusId: number): void {
     this.addTaskForStatusId = statusId;
+    this.savingTask = false;
     this.newTask = {
       title: '',
       priority: this.priorities.length > 0 ? this.priorities[this.priorities.length - 1].id : null,
@@ -169,10 +193,12 @@ export class TaskListComponent implements OnInit, OnDestroy {
     };
     this.showAddTaskModal = true;
   }
-  closeAddTask(): void { this.showAddTaskModal = false; }
+
+  closeAddTask(): void { this.showAddTaskModal = false; this.savingTask = false; }
 
   createTask(): void {
-    if (!this.newTask.title.trim() || !this.currentBoard || !this.addTaskForStatusId) return;
+    if (!this.newTask.title.trim() || !this.currentBoard || !this.addTaskForStatusId || this.savingTask) return;
+    this.savingTask = true;
     const payload: Partial<Task> = {
       title: this.newTask.title.trim(),
       board: this.currentBoard.id,
@@ -182,16 +208,28 @@ export class TaskListComponent implements OnInit, OnDestroy {
       due_date: this.newTask.due_date || null,
       is_completed: false
     };
-    this.taskService.createTask(payload).pipe(take(1)).subscribe(task => {
-      this.tasks = [...this.tasks, task];
-      this.closeAddTask();
+    this.taskService.createTask(payload).pipe(take(1)).subscribe({
+      next: task => {
+        this.tasks = [...this.tasks, task];
+        this.closeAddTask();
+      },
+      error: () => { this.savingTask = false; }
     });
   }
 
   toggleTask(task: Task): void {
     const val = !task.is_completed;
-    this.taskService.updateTask(task.id, { is_completed: val }).pipe(take(1)).subscribe(() => {
-      task.is_completed = val;
+    // Optimistic update — instant UI response
+    this.tasks = this.tasks.map(t =>
+      t.id === task.id ? { ...t, is_completed: val } : t
+    );
+    this.taskService.updateTask(task.id, { is_completed: val }).pipe(take(1)).subscribe({
+      error: () => {
+        // Revert on failure
+        this.tasks = this.tasks.map(t =>
+          t.id === task.id ? { ...t, is_completed: !val } : t
+        );
+      }
     });
   }
 
@@ -209,19 +247,30 @@ export class TaskListComponent implements OnInit, OnDestroy {
 
   saveRenameTask(task: Task): void {
     if (!this.editingTaskTitle.trim()) { this.editingTaskId = null; return; }
-    this.taskService.updateTask(task.id, { title: this.editingTaskTitle.trim() })
-      .pipe(take(1)).subscribe(updated => {
-        const i = this.tasks.findIndex(t => t.id === updated.id);
-        if (i !== -1) this.tasks[i] = { ...this.tasks[i], title: updated.title };
-        this.editingTaskId = null;
-      });
+    const optimisticTitle = this.editingTaskTitle.trim();
+    const prevTitle = task.title;
+    // Optimistic update
+    this.tasks = this.tasks.map(t =>
+      t.id === task.id ? { ...t, title: optimisticTitle } : t
+    );
+    this.editingTaskId = null;
+    this.taskService.updateTask(task.id, { title: optimisticTitle }).pipe(take(1)).subscribe({
+      error: () => {
+        this.tasks = this.tasks.map(t =>
+          t.id === task.id ? { ...t, title: prevTitle } : t
+        );
+      }
+    });
   }
 
   deleteTask(taskId: number, event: MouseEvent): void {
     event.stopPropagation();
     this.openTaskMenuId = null;
-    this.taskService.deleteTask(taskId).pipe(take(1)).subscribe(() => {
-      this.tasks = this.tasks.filter(t => t.id !== taskId);
+    // Optimistic update
+    const prevTasks = [...this.tasks];
+    this.tasks = this.tasks.filter(t => t.id !== taskId);
+    this.taskService.deleteTask(taskId).pipe(take(1)).subscribe({
+      error: () => { this.tasks = prevTasks; }
     });
   }
 
@@ -243,20 +292,32 @@ export class TaskListComponent implements OnInit, OnDestroy {
 
   saveSettings(): void {
     if (!this.currentBoard) return;
-    this.boardService.updateBoard(this.currentBoard.id, {
+    const optimistic = {
+      ...this.currentBoard,
       title: this.editBoardTitle,
       description: this.editBoardDescription,
       is_public: this.editBoardPublic
-    }).pipe(take(1)).subscribe(updated => {
-      this.currentBoard = updated;
-      this.boardService.selectBoard(updated);
-      this.closeSettings();
+    };
+    const prev = { ...this.currentBoard };
+    this.currentBoard = optimistic;
+    this.boardService.currentBoard = optimistic;
+    this.closeSettings();
+    this.boardService.updateBoard(optimistic.id, {
+      title: this.editBoardTitle,
+      description: this.editBoardDescription,
+      is_public: this.editBoardPublic
+    }).pipe(take(1)).subscribe({
+      error: () => {
+        this.currentBoard = prev;
+        this.boardService.currentBoard = prev;
+      }
     });
   }
 
   deleteBoard(): void {
     if (!this.currentBoard || !confirm(`Delete "${this.currentBoard.title}"? This cannot be undone.`)) return;
     this.boardService.deleteBoard(this.currentBoard.id).pipe(take(1)).subscribe(() => {
+      this.boardService.currentBoard = null;
       this.router.navigate(['/dashboard']);
     });
   }

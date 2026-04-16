@@ -1,13 +1,18 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { Board, Sprint, TaskStatus, TaskPriority, BoardMembership } from '../models/board.model';
 
 @Injectable({ providedIn: 'root' })
 export class BoardService {
   private apiUrl = 'http://localhost:8000/api/';
-  private selectedBoardSource = new BehaviorSubject<Board | null>(null);
+
+  // Use Subject instead of BehaviorSubject — does NOT replay on subscribe
+  private selectedBoardSource = new Subject<Board>();
   selectedBoard$ = this.selectedBoardSource.asObservable();
+
+  // Keep last selected board accessible synchronously
+  currentBoard: Board | null = null;
 
   constructor(private http: HttpClient) {}
 
@@ -36,12 +41,17 @@ export class BoardService {
     return this.http.post<TaskStatus>(`${this.apiUrl}statuses/`, data);
   }
 
+  updateStatus(statusId: number, data: { name: string }): Observable<TaskStatus> {
+    return this.http.patch<TaskStatus>(`${this.apiUrl}statuses/${statusId}/`, data);
+  }
+
   deleteStatus(statusId: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}statuses/${statusId}/`);
   }
 
-  updateStatus(statusId: number, data: { name: string }): Observable<TaskStatus> {
-    return this.http.patch<TaskStatus>(`${this.apiUrl}statuses/${statusId}/`, data);
+  getPriorities(boardId: number): Observable<TaskPriority[]> {
+    const params = new HttpParams().set('board', boardId.toString());
+    return this.http.get<TaskPriority[]>(`${this.apiUrl}priorities/`, { params });
   }
 
   getSprints(boardId: number): Observable<Sprint[]> {
@@ -57,11 +67,7 @@ export class BoardService {
   }
 
   selectBoard(board: Board) {
+    this.currentBoard = board;
     this.selectedBoardSource.next(board);
-  }
-
-  getPriorities(boardId: number): Observable<TaskPriority[]> {
-    const params = new HttpParams().set('board', boardId.toString());
-    return this.http.get<TaskPriority[]>(`${this.apiUrl}priorities/`, { params });
   }
 }
