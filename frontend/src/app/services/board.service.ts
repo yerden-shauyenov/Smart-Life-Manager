@@ -1,35 +1,47 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, Subject } from 'rxjs';
-import { Board, Sprint, TaskStatus, TaskPriority, BoardMembership } from '../models/board.model';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { Board, TaskStatus, TaskPriority, Sprint, TaskType, BoardMembership } from '../models/board.model';
 
 @Injectable({ providedIn: 'root' })
 export class BoardService {
   private apiUrl = 'http://localhost:8000/api/';
 
-  // Use Subject instead of BehaviorSubject — does NOT replay on subscribe
-  private selectedBoardSource = new Subject<Board>();
-  selectedBoard$ = this.selectedBoardSource.asObservable();
-
-  // Keep last selected board accessible synchronously
-  currentBoard: Board | null = null;
+  private selectedBoardSubject = new BehaviorSubject<Board | null>(null);
+  selectedBoard$ = this.selectedBoardSubject.asObservable();
 
   constructor(private http: HttpClient) {}
+
+  get currentBoard(): Board | null {
+    return this.selectedBoardSubject.value;
+  }
+
+  set currentBoard(board: Board | null) {
+    this.selectedBoardSubject.next(board);
+  }
+
+  selectBoard(board: Board): void {
+    this.currentBoard = board;
+  }
 
   getBoards(): Observable<Board[]> {
     return this.http.get<Board[]>(`${this.apiUrl}boards/`);
   }
 
-  createBoard(data: { title: string; description: string; is_public: boolean }): Observable<Board> {
+  createBoard(data: Partial<Board>): Observable<Board> {
     return this.http.post<Board>(`${this.apiUrl}boards/`, data);
   }
 
-  updateBoard(boardId: number, data: Partial<Board>): Observable<Board> {
-    return this.http.patch<Board>(`${this.apiUrl}boards/${boardId}/`, data);
+  updateBoard(id: number, data: Partial<Board>): Observable<Board> {
+    return this.http.patch<Board>(`${this.apiUrl}boards/${id}/`, data);
   }
 
-  deleteBoard(boardId: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}boards/${boardId}/`);
+  deleteBoard(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}boards/${id}/`);
+  }
+
+  addMember(boardId: number, username: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}boards/${boardId}/add_member/`, { username });
   }
 
   getStatuses(boardId: number): Observable<TaskStatus[]> {
@@ -37,16 +49,16 @@ export class BoardService {
     return this.http.get<TaskStatus[]>(`${this.apiUrl}statuses/`, { params });
   }
 
-  createStatus(data: { board: number; name: string; order: number }): Observable<TaskStatus> {
+  createStatus(data: Partial<TaskStatus>): Observable<TaskStatus> {
     return this.http.post<TaskStatus>(`${this.apiUrl}statuses/`, data);
   }
 
-  updateStatus(statusId: number, data: { name: string }): Observable<TaskStatus> {
-    return this.http.patch<TaskStatus>(`${this.apiUrl}statuses/${statusId}/`, data);
+  updateStatus(id: number, data: Partial<TaskStatus>): Observable<TaskStatus> {
+    return this.http.patch<TaskStatus>(`${this.apiUrl}statuses/${id}/`, data);
   }
 
-  deleteStatus(statusId: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}statuses/${statusId}/`);
+  deleteStatus(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}statuses/${id}/`);
   }
 
   getPriorities(boardId: number): Observable<TaskPriority[]> {
@@ -59,15 +71,13 @@ export class BoardService {
     return this.http.get<Sprint[]>(`${this.apiUrl}sprints/`, { params });
   }
 
-  addMember(boardId: number, username: string): Observable<BoardMembership> {
-    return this.http.post<BoardMembership>(`${this.apiUrl}memberships/`, {
-      board: boardId,
-      username
-    });
+  getTaskTypes(boardId: number): Observable<TaskType[]> {
+    const params = new HttpParams().set('board', boardId.toString());
+    return this.http.get<TaskType[]>(`${this.apiUrl}types/`, { params });
   }
 
-  selectBoard(board: Board) {
-    this.currentBoard = board;
-    this.selectedBoardSource.next(board);
+  getMemberships(boardId: number): Observable<BoardMembership[]> {
+    const params = new HttpParams().set('board', boardId.toString());
+    return this.http.get<BoardMembership[]>(`${this.apiUrl}memberships/`, { params });
   }
 }

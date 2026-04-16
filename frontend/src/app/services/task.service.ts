@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Task } from '../models/task.model';
+import { Task, Comment } from '../models/task.model';
 
 @Injectable({ providedIn: 'root' })
 export class TaskService {
@@ -25,7 +25,11 @@ export class TaskService {
     return this.http.delete<void>(`${this.apiUrl}tasks/${taskId}/`);
   }
 
-  updateTaskStatus(taskId: number, statusId: number): Observable<Task> {
-    return this.http.patch<Task>(`${this.apiUrl}tasks/${taskId}/`, { status: statusId });
+  getComments(taskId: number): Observable<Comment[]> {
+    return this.http.get<Comment[]>(`${this.apiUrl}comments/?task=${taskId}`);
+  }
+
+  addComment(data: { task: number, text: string }): Observable<Comment> {
+    return this.http.post<Comment>(`${this.apiUrl}comments/`, data);
   }
 }

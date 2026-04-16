@@ -1,207 +1,123 @@
-<div class="board-container" (click)="closeAllMenus()">
-
-  <!-- Header -->
-  <div class="board-header">
-    <div class="header-left">
-      <button class="btn-back" (click)="goToDashboard()">← Dashboard</button>
-      <h2>{{ currentBoard?.title || 'Loading...' }}</h2>
+<div class="board-container">
+    <div class="board-header">
+        <div class="header-left">
+            <button class="btn-back" (click)="goToDashboard()">← Dashboard</button>
+            <h2>{{ currentBoard?.title }}</h2>
+        </div>
     </div>
-    <div style="display:flex;gap:10px;">
-      <button class="btn-settings" (click)="openSettings('general')">⚙ Settings</button>
-      <button class="btn-invite" (click)="openSettings('members')">👥 Invite</button>
-    </div>
-  </div>
 
-  <!-- Groups -->
-  <div class="groups-wrapper">
-
-    @for (status of statuses; track status.id) {
-      <div class="group-card">
-
-        <!-- Group Header -->
-        <div class="group-card-header">
-          @if (editingGroupId === status.id) {
-            <input class="inline-edit-input" [(ngModel)]="editingGroupName"
-              (keydown.enter)="saveRenameGroup(status)"
-              (keydown.escape)="editingGroupId = null"
-              (blur)="saveRenameGroup(status)"
-              autofocus />
-          } @else {
-            <span class="group-title">{{ status.name }}</span>
-          }
-
-          <div style="display:flex;align-items:center;gap:6px;">
-            <span class="group-count">{{ getTasksByStatus(status.id).length }}</span>
-            <div class="menu-wrapper">
-              <button class="btn-menu-trigger" (click)="toggleGroupMenu(status.id, $event)">⋯</button>
-              @if (openGroupMenuId === status.id) {
-                <div class="dropdown-menu">
-                  <button class="dropdown-item" (click)="startRenameGroup(status, $event)">✏️ Rename</button>
-                  <button class="dropdown-item danger" (click)="deleteGroup(status.id, $event)">🗑 Delete</button>
+    <div class="groups-wrapper">
+        @for (status of statuses; track status.id) {
+            <div class="group-card">
+                <div class="group-card-header">
+                    <span class="group-title">{{ status.name }}</span>
+                    <span class="group-count">{{ getTasksByStatus(status.id).length }}</span>
                 </div>
-              }
+
+                <div class="tasks-list">
+                    @for (task of getTasksByStatus(status.id); track task.id) {
+                        <div class="task-card" (click)="openEditTask(task)" [style.border-left-color]="getPriority(task.priority)?.color_hex || 'transparent'">
+                            <div class="task-card-main">
+                                <input type="checkbox" [checked]="task.is_completed" (click)="toggleTaskStatus(task, $event)" />
+                                <span class="task-title" [class.done]="task.is_completed">{{ task.title }}</span>
+                            </div>
+                            <div class="task-meta">
+                                @if (task.assignee_username) { <span class="meta-item">👤 {{ task.assignee_username }}</span> }
+                                @if (task.due_date) { <span class="meta-item">📅 {{ task.due_date | date:'shortDate' }}</span> }
+                            </div>
+                        </div>
+                    }
+                </div>
+                <button class="btn-add-task" (click)="openCreateTask(status.id)">+ Add Task</button>
             </div>
-          </div>
-        </div>
-
-        <!-- Progress -->
-        <div class="progress-bar-track">
-          <div class="progress-bar-fill" [style.width.%]="getProgress(status.id)"></div>
-        </div>
-
-        <!-- Tasks -->
-        @for (task of getTasksByStatus(status.id); track task.id) {
-          <div class="task-card" [style.borderLeftColor]="getPriority(task.priority)?.color_hex ?? '#e2e8f0'">
-
-            <div class="task-card-top">
-              <input type="checkbox" [checked]="task.is_completed" (change)="toggleTask(task)"
-                style="width:15px;height:15px;cursor:pointer;flex-shrink:0;" />
-
-              @if (editingTaskId === task.id) {
-                <input class="inline-edit-input" [(ngModel)]="editingTaskTitle"
-                  (keydown.enter)="saveRenameTask(task)"
-                  (keydown.escape)="editingTaskId = null"
-                  (blur)="saveRenameTask(task)"
-                  autofocus />
-              } @else {
-                <span class="task-title" [class.task-done]="task.is_completed">{{ task.title }}</span>
-              }
-
-              @if (getPriority(task.priority); as p) {
-                <span class="priority-badge"
-                  [style.background]="p.color_hex + '33'"
-                  [style.color]="p.color_hex">
-                  {{ p.name }}
-                </span>
-              }
-
-              <div class="menu-wrapper">
-                <button class="btn-menu-trigger" (click)="toggleTaskMenu(task.id, $event)">⋯</button>
-                @if (openTaskMenuId === task.id) {
-                  <div class="dropdown-menu">
-                    <button class="dropdown-item" (click)="startRenameTask(task, $event)">✏️ Rename</button>
-                    <button class="dropdown-item danger" (click)="deleteTask(task.id, $event)">🗑 Delete</button>
-                  </div>
-                }
-              </div>
-            </div>
-
-            @if (task.due_date) {
-              <div class="task-date">📅 Due: {{ task.due_date | date:'M/d/yy' }}</div>
-            }
-
-          </div>
         }
-
-        <button class="btn-add-task" (click)="openAddTask(status.id)">+ Add Task</button>
-      </div>
-    }
-
-    <button class="btn-add-group" (click)="openAddGroup()">+ Add Group</button>
-  </div>
+        <button class="btn-add-group" (click)="openAddGroup()">+ Add Group</button>
+    </div>
 </div>
 
-<!-- Add Group Modal -->
+@if (showTaskModal) {
+    <div class="modal-overlay" (click)="closeTaskModal()">
+        <div class="modal-box task-detail-modal" (click)="$event.stopPropagation()">
+            <div class="task-modal-content">
+
+                <div class="task-main-col">
+                    <input [(ngModel)]="selectedTask.title" class="title-input" placeholder="Task Title" />
+                    <label>Description</label>
+                    <textarea [(ngModel)]="selectedTask.description" placeholder="Add a more detailed description..."></textarea>
+
+                    <div class="comments-section">
+                        <h3>Comments</h3>
+                        <div class="comment-input-area">
+                            <textarea [(ngModel)]="newCommentText" placeholder="Write a comment..."></textarea>
+                            <button class="btn-primary" (click)="addComment()" [disabled]="!isEditMode">Post</button>
+                        </div>
+                        <div class="comments-list">
+                            @for (comment of taskComments; track comment.id) {
+                                <div class="comment-item">
+                                    <strong>{{ comment.author_username }}</strong>
+                                    <span>{{ comment.created_at | date:'short' }}</span>
+                                    <p>{{ comment.text }}</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="task-side-col">
+                    <div class="side-item">
+                        <label>Status</label>
+                        <select [(ngModel)]="selectedTask.status">
+                            @for (st of statuses; track st.id) { <option [ngValue]="st.id">{{ st.name }}</option> }
+                        </select>
+                    </div>
+                    <div class="side-item">
+                        <label>Priority</label>
+                        <select [(ngModel)]="selectedTask.priority">
+                            <option [ngValue]="null">None</option>
+                            @for (p of priorities; track p.id) { <option [ngValue]="p.id">{{ p.name }}</option> }
+                        </select>
+                    </div>
+                    <div class="side-item">
+                        <label>Assignee</label>
+                        <select [(ngModel)]="selectedTask.assignee">
+                            <option [ngValue]="null">Unassigned</option>
+                            @for (m of members; track m.user) { <option [ngValue]="m.user">{{ m.user_username }}</option> }
+                        </select>
+                    </div>
+                    <div class="side-item">
+                        <label>Sprint</label>
+                        <select [(ngModel)]="selectedTask.sprint">
+                            <option [ngValue]="null">Backlog</option>
+                            @for (s of sprints; track s.id) { <option [ngValue]="s.id">{{ s.name }}</option> }
+                        </select>
+                    </div>
+                    <div class="side-item">
+                        <label>Due Date</label>
+                        <input type="date" [(ngModel)]="selectedTask.due_date" />
+                    </div>
+                    <div class="modal-actions">
+                        @if (isEditMode) {
+                            <button class="btn-danger" style="background:#ef4444;color:white;border:none;border-radius:6px;cursor:pointer;" (click)="deleteTask(selectedTask.id!, $event)">Delete</button>
+                        }
+                        <button class="btn-primary" (click)="saveTask()">Save</button>
+                        <button class="btn-secondary" (click)="closeTaskModal()">Cancel</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+
 @if (showAddGroupModal) {
-  <div class="modal-overlay" (click)="closeAddGroup()">
-    <div class="modal-box" (click)="$event.stopPropagation()">
-      <h3>New Group</h3>
-      <input [(ngModel)]="newGroupName" placeholder="e.g. In Progress" class="modal-input"
-        (keydown.enter)="createGroup()" autofocus />
-      <div class="modal-actions">
-        <button class="btn-secondary" (click)="closeAddGroup()">Cancel</button>
-        <button class="btn-primary" (click)="createGroup()">Create</button>
-      </div>
+    <div class="modal-overlay" (click)="closeAddGroup()">
+        <div class="modal-box" (click)="$event.stopPropagation()">
+            <h3>New Group</h3>
+            <input [(ngModel)]="newGroupName" placeholder="e.g. In Progress" class="modal-input" (keydown.enter)="createGroup()" autofocus />
+            <div class="modal-actions">
+                <button class="btn-secondary" (click)="closeAddGroup()">Cancel</button>
+                <button class="btn-primary" (click)="createGroup()">Create</button>
+            </div>
+        </div>
     </div>
-  </div>
-}
-
-<!-- Add Task Modal -->
-@if (showAddTaskModal) {
-  <div class="modal-overlay" (click)="closeAddTask()">
-    <div class="modal-box" (click)="$event.stopPropagation()">
-      <h3>New Task</h3>
-      <div class="form-group">
-        <label>Title</label>
-        <input [(ngModel)]="newTask.title" class="modal-input" placeholder="Task title"
-          (keydown.enter)="createTask()" autofocus />
-      </div>
-
-      <div class="form-group">
-        <label>Priority</label>
-        <select [(ngModel)]="newTask.priority" class="modal-input">
-          @for (p of priorities; track p.id) {
-            <option [ngValue]="p.id">{{ p.name }}</option>
-          }
-        </select>
-      </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <div class="form-group">
-          <label>Start Date</label>
-          <input type="date" [(ngModel)]="newTask.start_date" class="modal-input" />
-        </div>
-        <div class="form-group">
-          <label>Due Date</label>
-          <input type="date" [(ngModel)]="newTask.due_date" class="modal-input" />
-        </div>
-      </div>
-
-      <div class="modal-actions">
-        <button class="btn-secondary" (click)="closeAddTask()">Cancel</button>
-        <button class="btn-primary" (click)="createTask()">Add Task</button>
-      </div>
-    </div>
-  </div>
-}
-
-<!-- Board Settings Modal -->
-@if (showSettingsModal) {
-  <div class="modal-overlay" (click)="closeSettings()">
-    <div class="modal-box modal-wide" (click)="$event.stopPropagation()">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-        <h3 style="margin:0;">Board Settings</h3>
-        <button class="btn-icon-danger" (click)="closeSettings()">✕</button>
-      </div>
-
-      <div class="settings-tabs">
-        <button [class.active]="settingsTab==='general'" (click)="settingsTab='general'">General</button>
-        <button [class.active]="settingsTab==='members'" (click)="settingsTab='members'">Members</button>
-      </div>
-
-      @if (settingsTab === 'general') {
-        <div class="form-group">
-          <label>Board Name</label>
-          <input [(ngModel)]="editBoardTitle" class="modal-input" />
-        </div>
-        <div class="form-group">
-          <label>Description</label>
-          <textarea [(ngModel)]="editBoardDescription" class="modal-input" style="height:80px;resize:none;"></textarea>
-        </div>
-        <div class="form-group" style="display:flex;align-items:center;gap:10px;">
-          <input type="checkbox" [(ngModel)]="editBoardPublic" id="pub" style="width:16px;height:16px;" />
-          <label for="pub" style="text-transform:none;font-size:14px;color:#475569;">Make board public</label>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:24px;">
-          <button class="btn-danger" (click)="deleteBoard()">🗑 Delete Board</button>
-          <div style="display:flex;gap:10px;">
-            <button class="btn-secondary" (click)="closeSettings()">Cancel</button>
-            <button class="btn-primary" (click)="saveSettings()">Save</button>
-          </div>
-        </div>
-      }
-
-      @if (settingsTab === 'members') {
-        <div class="form-group">
-          <label>Invite by Username</label>
-          <div style="display:flex;gap:8px;">
-            <input [(ngModel)]="inviteUsername" placeholder="Enter username" class="modal-input" style="flex:1;" />
-            <button class="btn-primary" (click)="inviteMember()">Add</button>
-          </div>
-          @if (inviteError) { <p style="color:#ef4444;font-size:13px;margin-top:6px;">{{ inviteError }}</p> }
-          @if (inviteSuccess) { <p style="color:#10b981;font-size:13px;margin-top:6px;">{{ inviteSuccess }}</p> }
-        </div>
-      }
-    </div>
-  </div>
 }
