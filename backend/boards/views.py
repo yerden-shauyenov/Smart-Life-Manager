@@ -1,4 +1,4 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q
@@ -10,19 +10,17 @@ from .serializers import (
     TaskTypeSerializer, BoardRoleSerializer, BoardMembershipSerializer, CommentSerializer
 )
 from .permissions import (
-    IsBoardMemberOrPublicReadOnly, CanManageBoardSettings,
-    CanManageBoardMembers, CanManageTasks, IsCommentAuthorOrBoardAdmin
+    CanManageBoardSettings, CanManageBoardMembers, CanManageTasks, IsCommentAuthorOrBoardAdmin
 )
 from .services import initialize_board_defaults
 
 
 class BoardViewSet(viewsets.ModelViewSet):
     serializer_class = BoardSerializer
-    permission_classes = [IsAuthenticated, IsBoardMemberOrPublicReadOnly]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return Board.objects.filter(
-            Q(is_public=True) |
             Q(owner=self.request.user) |
             Q(board_memberships__user=self.request.user)
         ).distinct()
@@ -38,7 +36,6 @@ class SprintViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Sprint.objects.filter(
-            Q(board__is_public=True) |
             Q(board__owner=self.request.user) |
             Q(board__board_memberships__user=self.request.user)
         ).distinct()
@@ -50,7 +47,6 @@ class TaskViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Task.objects.filter(
-            Q(board__is_public=True) |
             Q(board__owner=self.request.user) |
             Q(board__board_memberships__user=self.request.user)
         ).distinct()
@@ -64,7 +60,6 @@ class BaseBoardSettingsViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = self.serializer_class.Meta.model.objects.filter(
-            Q(board__is_public=True) |
             Q(board__owner=self.request.user) |
             Q(board__board_memberships__user=self.request.user)
         ).distinct()
@@ -103,7 +98,6 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = Comment.objects.filter(
-            Q(task__board__is_public=True) |
             Q(task__board__owner=self.request.user) |
             Q(task__board__board_memberships__user=self.request.user)
         ).distinct()
@@ -116,13 +110,10 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         task = serializer.validated_data.get('task')
-
         is_member_or_owner = (
-                self.request.user == task.board.owner or
-                task.board.board_memberships.filter(user=self.request.user).exists()
+            self.request.user == task.board.owner or
+            task.board.board_memberships.filter(user=self.request.user).exists()
         )
-
-        if not is_member_or_owner and not task.board.is_public:
+        if not is_member_or_owner:
             raise PermissionDenied("You do not have permission to comment on this task.")
-
         serializer.save(author=self.request.user)

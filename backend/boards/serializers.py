@@ -41,7 +41,7 @@ class BoardSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Board
-        fields = ['id', 'title', 'description', 'is_public', 'owner', 'created_at']
+        fields = ['id', 'title', 'description', 'owner', 'created_at']
         read_only_fields = ['owner', 'created_at']
 
 
@@ -74,7 +74,6 @@ class TaskSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         board = data.get('board')
-
         if data.get('sprint') and data['sprint'].board != board:
             raise serializers.ValidationError("Sprint does not belong to the selected board.")
         if data.get('status') and data['status'].board != board:
@@ -83,7 +82,6 @@ class TaskSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Priority does not belong to the selected board.")
         if data.get('task_type') and data['task_type'].board != board:
             raise serializers.ValidationError("Task type does not belong to the selected board.")
-
         return data
 
 

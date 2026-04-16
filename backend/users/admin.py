@@ -18,7 +18,7 @@ except admin.sites.NotRegistered:
 class OwnedBoardsInline(admin.TabularInline):
     model = Board
     extra = 0
-    fields = ('title', 'is_public', 'created_at')
+    fields = ('title', 'created_at')
     readonly_fields = ('created_at',)
     verbose_name = "Owned Board"
     verbose_name_plural = "Owned Boards"

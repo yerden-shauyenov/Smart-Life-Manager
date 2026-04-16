@@ -2,7 +2,6 @@ export interface Board {
     id: number;
     title: string;
     description: string;
-    is_public: boolean;
     owner: string;
     created_at: string;
 }

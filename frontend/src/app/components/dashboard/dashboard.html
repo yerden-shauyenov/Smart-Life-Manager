@@ -39,10 +39,6 @@
                          class="bg-white border border-slate-200 rounded-2xl p-5 cursor-pointer hover:shadow-md hover:border-indigo-300 transition">
                         <h3 class="font-bold text-slate-800 text-lg">{{ board.title }}</h3>
                         <p class="text-slate-500 text-sm mt-1">{{ board.description || 'No description' }}</p>
-                        <span class="mt-3 inline-block text-xs font-semibold px-2 py-1 rounded-full"
-                              [class]="board.is_public ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'">
-              {{ board.is_public ? 'Public' : 'Private' }}
-            </span>
                     </div>
                 </div>
             </section>
@@ -73,15 +69,10 @@
                    class="w-full border-2 border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500 transition" />
         </div>
 
-        <div class="mb-4">
+        <div class="mb-6">
             <label class="block text-sm font-semibold text-slate-600 mb-1">Description</label>
             <textarea [(ngModel)]="newBoard.description" placeholder="What is this board for?"
                       class="w-full border-2 border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500 transition resize-none h-24"></textarea>
-        </div>
-
-        <div class="mb-6 flex items-center gap-3">
-            <input type="checkbox" [(ngModel)]="newBoard.is_public" id="isPublic" class="w-4 h-4 accent-indigo-600" />
-            <label for="isPublic" class="text-sm font-medium text-slate-600">Make this board public</label>
         </div>
 
         <div class="flex justify-end gap-3">

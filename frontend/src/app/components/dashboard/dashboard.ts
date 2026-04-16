@@ -19,7 +19,7 @@ export class DashboardComponent implements OnInit {
   dashboardData$!: Observable<{ boards: Board[], tasks: Task[] }>;
 
   showModal = false;
-  newBoard = { title: '', description: '', is_public: true };
+  newBoard = { title: '', description: '' };
 
   constructor(
     public boardService: BoardService,
@@ -42,7 +42,7 @@ export class DashboardComponent implements OnInit {
   }
 
   openModal(): void {
-    this.newBoard = { title: '', description: '', is_public: true };
+    this.newBoard = { title: '', description: '' };
     this.showModal = true;
   }
 
@@ -57,7 +57,7 @@ export class DashboardComponent implements OnInit {
         this.closeModal();
         this.loadData();
         this.boardService.selectBoard(board);
-        this.router.navigate(['/tasks']);
+        this.router.navigate(['/boards', board.id]);
       },
       error: (err) => console.error('Failed to create board', err)
     });

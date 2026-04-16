@@ -7,8 +7,8 @@ from .models import (
 
 @admin.register(Board)
 class BoardAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', 'owner', 'is_public', 'created_at')
-    list_filter = ('is_public', 'created_at')
+    list_display = ('id', 'title', 'owner', 'created_at')
+    list_filter = ('created_at',)
     search_fields = ('title', 'owner__username')
     ordering = ('-created_at',)
 
