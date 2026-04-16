@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { BoardService } from '../../services/board.service';
@@ -9,12 +9,16 @@ import { Board } from '../../models/board.model';
   selector: 'app-sidebar',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './sidebar.html'
+  templateUrl: './sidebar.html',
+  styleUrl: './sidebar.css'
 })
 export class SidebarComponent implements OnInit {
   boards: Board[] = [];
   selectedBoard: Board | null = null;
-  openMenuBoardId: number | null = null;
+  username = '';
+  showUserMenu = false;
+
+  @Output() openBoardSettings = new EventEmitter<Board>();
 
   constructor(
     private boardService: BoardService,
@@ -23,18 +27,17 @@ export class SidebarComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.loadBoards();
-    this.boardService.selectedBoard$.subscribe(board => {
-      this.selectedBoard = board;
-    });
-  }
+    this.username = this.authService.getUsername();
 
-  loadBoards() {
     this.boardService.getBoards().subscribe(boards => {
       this.boards = boards;
       if (boards.length > 0 && !this.selectedBoard) {
         this.selectBoard(boards[0]);
       }
+    });
+
+    this.boardService.selectedBoard$.subscribe(board => {
+      this.selectedBoard = board;
     });
   }
 
@@ -43,34 +46,24 @@ export class SidebarComponent implements OnInit {
     this.router.navigate(['/tasks']);
   }
 
-  toggleMenu(event: MouseEvent, boardId: number) {
+  onBoardSettings(event: MouseEvent, board: Board) {
     event.stopPropagation();
-    this.openMenuBoardId = this.openMenuBoardId === boardId ? null : boardId;
-  }
-
-  deleteBoard(event: MouseEvent, board: Board) {
-    event.stopPropagation();
-    if (!confirm(`Delete "${board.title}"? This cannot be undone.`)) return;
-    this.boardService.deleteBoard(board.id).subscribe(() => {
-      if (this.selectedBoard?.id === board.id) {
-        this.boardService.selectBoard(null as any);
-        this.router.navigate(['/dashboard']);
-      }
-      this.loadBoards();
-    });
-    this.openMenuBoardId = null;
-  }
-
-  @HostListener('document:click')
-  closeMenus() {
-    this.openMenuBoardId = null;
+    this.openBoardSettings.emit(board);
   }
 
   goToDashboard() {
     this.router.navigate(['/dashboard']);
   }
 
+  toggleUserMenu() {
+    this.showUserMenu = !this.showUserMenu;
+  }
+
   logout() {
     this.authService.logout();
+  }
+
+  get userInitial(): string {
+    return this.username ? this.username[0].toUpperCase() : '?';
   }
 }
