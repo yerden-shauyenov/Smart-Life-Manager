@@ -16,10 +16,11 @@ export class AppComponent {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
 
+  readonly authRoutes = ['/login', '/register'];
   isAuthPage$ = this.router.events.pipe(
       filter(event => event instanceof NavigationEnd),
-      map(() => this.router.url === '/login'),
-      startWith(this.router.url === '/login')
+      map(() => this.authRoutes.includes(this.router.url)),
+      startWith(this.authRoutes.includes(this.router.url))
   );
 
   showSidebar = false;
