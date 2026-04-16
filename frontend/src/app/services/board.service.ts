@@ -8,7 +8,6 @@ import { Board, Sprint, TaskStatus, BoardMembership } from '../models/board.mode
 })
 export class BoardService {
     private apiUrl = 'http://localhost:8000/api/';
-
     private selectedBoardSource = new BehaviorSubject<Board | null>(null);
     selectedBoard$ = this.selectedBoardSource.asObservable();
 
@@ -22,13 +21,29 @@ export class BoardService {
         return this.http.post<Board>(`${this.apiUrl}boards/`, data);
     }
 
+    deleteBoard(boardId: number): Observable<void> {
+        return this.http.delete<void>(`${this.apiUrl}boards/${boardId}/`);
+    }
+
+    updateBoard(boardId: number, data: Partial<Board>): Observable<Board> {
+        return this.http.patch<Board>(`${this.apiUrl}boards/${boardId}/`, data);
+    }
+
     getStatuses(boardId: number): Observable<TaskStatus[]> {
-        let params = new HttpParams().set('board', boardId.toString());
+        const params = new HttpParams().set('board', boardId.toString());
         return this.http.get<TaskStatus[]>(`${this.apiUrl}statuses/`, { params });
     }
 
+    createStatus(data: { board: number; name: string; order: number }): Observable<TaskStatus> {
+        return this.http.post<TaskStatus>(`${this.apiUrl}statuses/`, data);
+    }
+
+    deleteStatus(statusId: number): Observable<void> {
+        return this.http.delete<void>(`${this.apiUrl}statuses/${statusId}/`);
+    }
+
     getSprints(boardId: number): Observable<Sprint[]> {
-        let params = new HttpParams().set('board', boardId.toString());
+        const params = new HttpParams().set('board', boardId.toString());
         return this.http.get<Sprint[]>(`${this.apiUrl}sprints/`, { params });
     }
 

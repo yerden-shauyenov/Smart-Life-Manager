@@ -1,3 +1,10 @@
+export interface Subtask {
+  id: number;
+  task: number;
+  title: string;
+  is_done: boolean;
+}
+
 export interface Task {
   id: number;
   title: string;
@@ -8,12 +15,17 @@ export interface Task {
   status_name: string;
   priority: number | null;
   priority_name: string;
+  priority_color?: string;
   task_type: number | null;
   type_name: string;
   author: number;
   assignee: number | null;
   assignee_username: string;
   created_at: string;
+  start_date?: string | null;
+  due_date?: string | null;
+  is_done?: boolean;
+  subtasks?: Subtask[];
 }
 
 export interface Comment {
