@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
@@ -28,7 +28,8 @@ export class DashboardComponent implements OnInit {
   constructor(
     public boardService: BoardService,
     public taskService: TaskService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -37,45 +38,41 @@ export class DashboardComponent implements OnInit {
 
   loadInitialData(): void {
     this.isLoading = true;
+    this.cdr.detectChanges();
 
     this.boardService.getBoards().pipe(
       tap(boards => this.boards = boards || []),
       switchMap(boards => {
         if (!boards || boards.length === 0) return of([]);
-        
-        // Создаем запросы для каждой доски
         const sprintRequests = boards.map(b => 
-          this.boardService.getSprints(b.id).pipe(
-            catchError(() => of([])) // Если одна доска упадет, остальные загрузятся
-          )
+          this.boardService.getSprints(b.id).pipe(catchError(() => of([])))
         );
         return forkJoin(sprintRequests);
       }),
       tap(sprintArrays => {
-        // 1. Собираем все спринты в один плоский массив
         const rawSprints = (sprintArrays as any[]).flat();
-        
-        // 2. Убираем дубликаты, используя Map (ключ — id спринта)
         const uniqueSprintsMap = new Map<number, Sprint>();
         rawSprints.forEach(sprint => {
           if (sprint && sprint.id) {
             uniqueSprintsMap.set(sprint.id, sprint);
           }
         });
-
-        // 3. Превращаем обратно в массив
         this.allSprints = Array.from(uniqueSprintsMap.values());
       }),
-      // После спринтов загружаем задачи
-      switchMap(() => this.taskService.getTasks().pipe(
-        catchError(() => of([]))
-      )),
-      finalize(() => this.isLoading = false)
+      switchMap(() => this.taskService.getTasks().pipe(catchError(() => of([])))),
+      finalize(() => {
+        this.isLoading = false;
+        this.cdr.detectChanges(); 
+      })
     ).subscribe({
       next: (tasks) => {
         this.myTasks = tasks || [];
       },
-      error: (err) => console.error('Ошибка загрузки дашборда:', err)
+      error: (err) => {
+        console.error('Dashboard loading Error:', err);
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -86,6 +83,7 @@ export class DashboardComponent implements OnInit {
     } else {
       this.selectedSprintIds.push(sprintId);
     }
+    this.cdr.detectChanges();
   }
 
   isSprintSelected(sprintId: number): boolean {
@@ -93,9 +91,7 @@ export class DashboardComponent implements OnInit {
   }
 
   get filteredTasks(): Task[] {
-    if (this.selectedSprintIds.length === 0) {
-      return this.myTasks;
-    }
+    if (this.selectedSprintIds.length === 0) return this.myTasks;
     return this.myTasks.filter(t => t.sprint && this.selectedSprintIds.includes(t.sprint));
   }
 
