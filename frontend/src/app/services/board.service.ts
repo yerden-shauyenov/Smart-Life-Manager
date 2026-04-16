@@ -28,6 +28,10 @@ export class BoardService {
     return this.http.get<Board[]>(`${this.apiUrl}boards/`);
   }
 
+  getBoard(id: number): Observable<Board> {
+    return this.http.get<Board>(`${this.apiUrl}boards/${id}/`);
+  }
+
   createBoard(data: Partial<Board>): Observable<Board> {
     return this.http.post<Board>(`${this.apiUrl}boards/`, data);
   }

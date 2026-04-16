@@ -13,6 +13,10 @@ export class TaskService {
     return this.http.get<Task[]>(`${this.apiUrl}tasks/`);
   }
 
+  getTask(taskId: number): Observable<Task> {
+    return this.http.get<Task>(`${this.apiUrl}tasks/${taskId}/`);
+  }
+
   createTask(data: Partial<Task>): Observable<Task> {
     return this.http.post<Task>(`${this.apiUrl}tasks/`, data);
   }

@@ -39,17 +39,13 @@ export class SidebarComponent implements OnInit {
     this.boardService.getBoards().subscribe({
       next: (boards) => {
         this.boards = boards;
-        if (boards.length > 0 && !this.selectedBoard) {
-          this.selectBoard(boards[0]);
-        }
       },
       error: () => this.boards = []
     });
   }
 
   selectBoard(board: Board): void {
-    this.boardService.selectBoard(board);
-    this.router.navigate(['/tasks']);
+    this.router.navigate(['/boards', board.id]);
   }
 
   onBoardSettings(event: MouseEvent, board: Board): void {

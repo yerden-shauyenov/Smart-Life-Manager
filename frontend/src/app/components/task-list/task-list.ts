@@ -1,9 +1,9 @@
 import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { Subject, forkJoin, of } from 'rxjs';
-import { takeUntil, take, catchError, finalize } from 'rxjs/operators';
+import { takeUntil, take, catchError, finalize, switchMap } from 'rxjs/operators';
 import { TaskService } from '../../services/task.service';
 import { BoardService } from '../../services/board.service';
 import { Task, Comment } from '../../models/task.model';
@@ -12,7 +12,7 @@ import { Board, TaskStatus, TaskPriority, Sprint, TaskType, BoardMembership } fr
 @Component({
   selector: 'app-task-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './task-list.html',
   styleUrl: './task-list.css'
 })
@@ -20,6 +20,7 @@ export class TaskListComponent implements OnInit, OnDestroy {
   private taskService = inject(TaskService);
   private boardService = inject(BoardService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
 
@@ -42,30 +43,60 @@ export class TaskListComponent implements OnInit, OnDestroy {
   newGroupName = '';
 
   ngOnInit(): void {
-    this.boardService.selectedBoard$
-        .pipe(takeUntil(this.destroy$))
-        .subscribe(board => {
-          if (board) {
-            this.currentBoard = board;
-            this.loadBoardData(board.id);
-          } else {
-            this.boardService.getBoards().pipe(take(1)).subscribe({
-              next: boards => {
-                if (boards.length > 0) {
-                  this.boardService.selectBoard(boards[0]);
-                } else {
-                  this.router.navigate(['/dashboard']);
-                }
-              },
-              error: () => this.router.navigate(['/dashboard'])
-            });
-          }
-        });
+    this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
+      const boardId = +params['id'];
+      const taskId = params['taskId'] ? +params['taskId'] : null;
+
+      if (boardId) {
+        this.loadBoardAndData(boardId, taskId);
+      }
+    });
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  private loadBoardAndData(boardId: number, taskId: number | null): void {
+    this.loading = true;
+    this.cdr.detectChanges();
+
+    this.boardService.getBoard(boardId).pipe(
+        take(1),
+        switchMap(board => {
+          this.currentBoard = board;
+          this.boardService.selectBoard(board);
+          return forkJoin({
+            statuses: this.boardService.getStatuses(boardId).pipe(catchError(() => of([]))),
+            priorities: this.boardService.getPriorities(boardId).pipe(catchError(() => of([]))),
+            tasks: this.taskService.getTasks().pipe(catchError(() => of([]))),
+            sprints: this.boardService.getSprints(boardId).pipe(catchError(() => of([]))),
+            types: this.boardService.getTaskTypes(boardId).pipe(catchError(() => of([]))),
+            members: this.boardService.getMemberships(boardId).pipe(catchError(() => of([])))
+          });
+        }),
+        finalize(() => {
+          this.loading = false;
+          this.cdr.detectChanges();
+        })
+    ).subscribe(res => {
+      this.statuses = (res.statuses as TaskStatus[]).sort((a, b) => a.order - b.order);
+      this.priorities = (res.priorities as TaskPriority[]).sort((a, b) => b.level - a.level);
+      this.tasks = (res.tasks as Task[]).filter(t => t.board === boardId);
+      this.sprints = res.sprints as Sprint[];
+      this.taskTypes = res.types as TaskType[];
+      this.members = res.members as BoardMembership[];
+
+      if (taskId) {
+        const taskToOpen = this.tasks.find(t => t.id === taskId);
+        if (taskToOpen) {
+          this.openEditTask(taskToOpen);
+        } else {
+          this.taskService.getTask(taskId).subscribe(t => this.openEditTask(t));
+        }
+      }
+    });
   }
 
   private loadBoardData(boardId: number): void {
@@ -128,6 +159,7 @@ export class TaskListComponent implements OnInit, OnDestroy {
     this.taskComments = [];
     this.loadComments(task.id);
     this.showTaskModal = true;
+    this.router.navigate(['/boards', this.currentBoard?.id, 'tasks', task.id]);
     this.cdr.detectChanges();
   }
 
@@ -204,6 +236,7 @@ export class TaskListComponent implements OnInit, OnDestroy {
     this.showTaskModal = false;
     this.selectedTask = {};
     this.newCommentText = '';
+    this.router.navigate(['/boards', this.currentBoard?.id]);
     this.cdr.detectChanges();
   }
 
