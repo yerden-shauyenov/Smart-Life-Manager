@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
-import { Board, Sprint, TaskStatus, BoardMembership } from '../models/board.model';
+import { Board, Sprint, TaskStatus, TaskPriority, BoardMembership } from '../models/board.model';
 
 @Injectable({ providedIn: 'root' })
 export class BoardService {
@@ -40,6 +40,10 @@ export class BoardService {
     return this.http.delete<void>(`${this.apiUrl}statuses/${statusId}/`);
   }
 
+  updateStatus(statusId: number, data: { name: string }): Observable<TaskStatus> {
+    return this.http.patch<TaskStatus>(`${this.apiUrl}statuses/${statusId}/`, data);
+  }
+
   getSprints(boardId: number): Observable<Sprint[]> {
     const params = new HttpParams().set('board', boardId.toString());
     return this.http.get<Sprint[]>(`${this.apiUrl}sprints/`, { params });
@@ -54,5 +58,10 @@ export class BoardService {
 
   selectBoard(board: Board) {
     this.selectedBoardSource.next(board);
+  }
+
+  getPriorities(boardId: number): Observable<TaskPriority[]> {
+    const params = new HttpParams().set('board', boardId.toString());
+    return this.http.get<TaskPriority[]>(`${this.apiUrl}priorities/`, { params });
   }
 }

@@ -8,7 +8,6 @@ export interface Task {
   status_name: string;
   priority: number | null;
   priority_name: string;
-  priority_color?: string;
   task_type: number | null;
   type_name: string;
   author: number;
@@ -18,14 +17,6 @@ export interface Task {
   start_date?: string | null;
   due_date?: string | null;
   is_completed?: boolean;
-  subtasks?: Subtask[];
-}
-
-export interface Subtask {
-  id: number;
-  task: number;
-  title: string;
-  is_completed: boolean;
 }
 
 export interface Comment {
