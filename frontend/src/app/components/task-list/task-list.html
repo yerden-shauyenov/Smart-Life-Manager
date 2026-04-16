@@ -1,88 +1,192 @@
-<div style="padding: 20px;">
+<div class="board-container">
 
-  <!-- Header -->
-  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
-    <div style="display: flex; align-items: center; gap: 12px;">
-      <button (click)="goToDashboard()"
-        style="background: #f1f5f9; border: none; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 14px; color: #475569; font-weight: 600;">
-        ←
-      </button>
-      <h2 style="margin: 0; font-size: 20px; font-weight: 700; color: #1e293b;">
-        {{ currentBoard?.title || 'Loading...' }}
-      </h2>
+  <!-- Board Header -->
+  <div class="board-header">
+    <div class="header-left">
+      <button class="btn-back" (click)="goToDashboard()">← Dashboard</button>
+      <h2>{{ currentBoard?.title || 'Loading...' }}</h2>
     </div>
-
-    <button (click)="openInvite()"
-      style="background: #6366f1; color: white; border: none; border-radius: 8px; padding: 8px 16px; cursor: pointer; font-weight: 600; font-size: 14px;">
-      👥 Invite Member
-    </button>
+    <div style="display:flex; gap:10px;">
+      <button class="btn-settings" (click)="openSettings()">⚙ Settings</button>
+      <button class="btn-invite" (click)="settingsTab='members'; openSettings()">👥 Invite</button>
+    </div>
   </div>
 
-  <!-- Kanban columns -->
-  <div style="display: flex; gap: 20px; overflow-x: auto;">
-    @for (status of statuses; track status.id) {
-      <div style="background: #ebecf0; border-radius: 8px; width: 300px; padding: 10px; min-height: 400px; flex-shrink: 0;">
-        <h3 style="font-size: 14px; text-transform: uppercase; color: #5e6c84; margin: 0 0 12px 0;">
-          {{ status.name }}
-          <span style="background: #dde1e7; border-radius: 10px; padding: 1px 8px; font-size: 11px; margin-left: 6px;">
-            {{ getTasksByStatus(status.id).length }}
-          </span>
-        </h3>
+  <!-- Groups (vertical list like image) -->
+  <div class="groups-wrapper">
 
-        <div style="display: flex; flex-direction: column; gap: 8px;">
-          @for (task of getTasksByStatus(status.id); track task.id) {
-            <div style="background: white; padding: 10px; border-radius: 4px; box-shadow: 0 1px 0 rgba(9,30,66,.25);">
-              <div style="font-weight: 500; margin-bottom: 10px;">{{ task.title }}</div>
-              <select
-                style="width: 100%; font-size: 12px;"
-                (change)="moveTask(task, +$any($event.target).value)">
-                <option [value]="status.id">Move to...</option>
-                @for (s of statuses; track s.id) {
-                  @if (s.id !== status.id) {
-                    <option [value]="s.id">{{ s.name }}</option>
-                  }
-                }
-              </select>
-            </div>
-          }
+    @for (status of statuses; track status.id) {
+      <div class="group-card" [style.borderLeftColor]="'#6366f1'">
+
+        <!-- Group Header -->
+        <div class="group-card-header">
+          <span class="group-title">{{ status.name }}</span>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <span class="group-count">{{ getTasksByStatus(status.id).length }} tasks</span>
+            <button class="btn-icon-danger" (click)="deleteGroup(status.id)" title="Delete group">✕</button>
+          </div>
         </div>
+
+        <!-- Progress bar -->
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" [style.width.%]="getProgress(status.id)"></div>
+        </div>
+
+        <!-- Tasks -->
+        @for (task of getTasksByStatus(status.id); track task.id) {
+          <div class="task-card" [style.borderLeftColor]="priorityColor(task.priority_name)">
+
+            <div class="task-card-top">
+              <input type="checkbox" [checked]="task.is_completed" (change)="toggleTask(task)"
+                style="width:16px;height:16px;cursor:pointer;flex-shrink:0;" />
+              <span class="task-title" [class.task-done]="task.is_completed">{{ task.title }}</span>
+              <span class="priority-badge" [style.background]="priorityColor(task.priority_name) + '22'"
+                [style.color]="priorityColor(task.priority_name)">
+                {{ task.priority_name || 'medium' }}
+              </span>
+              <button class="btn-icon-danger" (click)="deleteTask(task.id)">✕</button>
+            </div>
+
+            <!-- Subtasks -->
+            @if (task.subtasks && task.subtasks.length > 0) {
+              <div class="subtask-list">
+                @for (sub of task.subtasks; track sub.id) {
+                  <div class="subtask-row">
+                    <input type="checkbox" [checked]="sub.is_completed" (change)="toggleSubtask(sub)"
+                      style="width:13px;height:13px;cursor:pointer;" />
+                    <span [class.task-done]="sub.is_completed" style="font-size:13px;flex:1;">{{ sub.title }}</span>
+                    <button class="sub-del" (click)="deleteSubtask(task, sub.id)">✕</button>
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- Add subtask -->
+            <input class="subtask-add-input" placeholder="+ Add subtask"
+              (keydown.enter)="addSubtask(task, $any($event.target).value); $any($event.target).value=''" />
+
+            <!-- Dates -->
+            @if (task.due_date) {
+              <div class="task-date">📅 Due: {{ task.due_date | date:'M/d/yy' }}</div>
+            }
+
+          </div>
+        }
+
+        <!-- Add Task button -->
+        <button class="btn-add-task" (click)="openAddTask(status.id)">+ Add Task</button>
+
       </div>
     }
+
+    <!-- Add Group button -->
+    <button class="btn-add-group" (click)="openAddGroup()">+ Add Group</button>
+
   </div>
 </div>
 
-<!-- Invite Member Modal -->
-@if (showInviteModal) {
-  <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 999;">
-    <div style="background: white; border-radius: 16px; padding: 32px; width: 100%; max-width: 420px; box-shadow: 0 25px 50px rgba(0,0,0,0.2);">
-      <h3 style="margin: 0 0 20px; font-size: 20px; font-weight: 700; color: #1e293b;">
-        Invite to "{{ currentBoard?.title }}"
-      </h3>
-
-      <label style="display: block; font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 6px;">
-        Username
-      </label>
-      <input [(ngModel)]="inviteUsername"
-        placeholder="Enter their username"
-        style="width: 100%; padding: 10px 14px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; outline: none; box-sizing: border-box; margin-bottom: 12px;" />
-
-      @if (inviteError) {
-        <p style="color: #ef4444; font-size: 13px; margin: 0 0 12px;">{{ inviteError }}</p>
-      }
-      @if (inviteSuccess) {
-        <p style="color: #10b981; font-size: 13px; margin: 0 0 12px;">{{ inviteSuccess }}</p>
-      }
-
-      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px;">
-        <button (click)="closeInvite()"
-          style="padding: 9px 18px; border: 1px solid #e2e8f0; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; color: #475569;">
-          Close
-        </button>
-        <button (click)="inviteMember()"
-          style="padding: 9px 18px; background: #6366f1; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 700;">
-          Add Member
-        </button>
+<!-- ── Add Group Modal ── -->
+@if (showAddGroupModal) {
+  <div class="modal-overlay" (click)="closeAddGroup()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <h3>New Group</h3>
+      <input [(ngModel)]="newGroupName" placeholder="Group name (e.g. To Do)" class="modal-input" />
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="closeAddGroup()">Cancel</button>
+        <button class="btn-primary" (click)="createGroup()">Create</button>
       </div>
+    </div>
+  </div>
+}
+
+<!-- ── Add Task Modal ── -->
+@if (showAddTaskModal) {
+  <div class="modal-overlay" (click)="closeAddTask()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <h3>New Task</h3>
+      <div class="form-group">
+        <label>Title</label>
+        <input [(ngModel)]="newTask.title" placeholder="Task title" class="modal-input" />
+      </div>
+      <div class="form-group">
+        <label>Priority</label>
+        <select [(ngModel)]="newTask.priority" class="modal-input">
+          <option value="high">🔴 High</option>
+          <option value="medium">🟡 Medium</option>
+          <option value="low">🔵 Low</option>
+        </select>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group">
+          <label>Start Date</label>
+          <input type="date" [(ngModel)]="newTask.start_date" class="modal-input" />
+        </div>
+        <div class="form-group">
+          <label>Due Date</label>
+          <input type="date" [(ngModel)]="newTask.due_date" class="modal-input" />
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="closeAddTask()">Cancel</button>
+        <button class="btn-primary" (click)="createTask()">Add Task</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ── Board Settings Modal ── -->
+@if (showSettingsModal) {
+  <div class="modal-overlay" (click)="closeSettings()">
+    <div class="modal-box modal-wide" (click)="$event.stopPropagation()">
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <h3 style="margin:0;">Board Settings</h3>
+        <button class="btn-icon-danger" (click)="closeSettings()">✕</button>
+      </div>
+
+      <!-- Tabs -->
+      <div class="settings-tabs">
+        <button [class.active]="settingsTab==='general'" (click)="settingsTab='general'">General</button>
+        <button [class.active]="settingsTab==='members'" (click)="settingsTab='members'">Members</button>
+      </div>
+
+      <!-- General Tab -->
+      @if (settingsTab === 'general') {
+        <div class="form-group">
+          <label>Board Name</label>
+          <input [(ngModel)]="editBoardTitle" class="modal-input" />
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea [(ngModel)]="editBoardDescription" class="modal-input" style="height:80px;resize:none;"></textarea>
+        </div>
+        <div class="form-group" style="display:flex;align-items:center;gap:10px;">
+          <input type="checkbox" [(ngModel)]="editBoardPublic" id="pub" style="width:16px;height:16px;" />
+          <label for="pub" style="text-transform:none;font-size:14px;color:#475569;">Make board public</label>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:24px;">
+          <button class="btn-danger" (click)="deleteBoard()">🗑 Delete Board</button>
+          <div style="display:flex;gap:10px;">
+            <button class="btn-secondary" (click)="closeSettings()">Cancel</button>
+            <button class="btn-primary" (click)="saveSettings()">Save</button>
+          </div>
+        </div>
+      }
+
+      <!-- Members Tab -->
+      @if (settingsTab === 'members') {
+        <div class="form-group">
+          <label>Invite by Username</label>
+          <div style="display:flex;gap:8px;">
+            <input [(ngModel)]="inviteUsername" placeholder="Enter username" class="modal-input" style="flex:1;" />
+            <button class="btn-primary" (click)="inviteMember()">Add</button>
+          </div>
+          @if (inviteError) { <p style="color:#ef4444;font-size:13px;margin-top:6px;">{{ inviteError }}</p> }
+          @if (inviteSuccess) { <p style="color:#10b981;font-size:13px;margin-top:6px;">{{ inviteSuccess }}</p> }
+        </div>
+      }
+
     </div>
   </div>
 }

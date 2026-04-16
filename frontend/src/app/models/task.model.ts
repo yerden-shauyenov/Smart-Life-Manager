@@ -1,10 +1,3 @@
-export interface Subtask {
-  id: number;
-  task: number;
-  title: string;
-  is_done: boolean;
-}
-
 export interface Task {
   id: number;
   title: string;
@@ -24,8 +17,15 @@ export interface Task {
   created_at: string;
   start_date?: string | null;
   due_date?: string | null;
-  is_done?: boolean;
+  is_completed?: boolean;
   subtasks?: Subtask[];
+}
+
+export interface Subtask {
+  id: number;
+  task: number;
+  title: string;
+  is_completed: boolean;
 }
 
 export interface Comment {
