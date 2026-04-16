@@ -13,10 +13,10 @@ export interface Task {
   author: number;
   assignee: number | null;
   assignee_username: string;
+  start_date: string | null;
+  due_date: string | null;
+  is_completed: boolean;
   created_at: string;
-  start_date?: string | null;
-  due_date?: string | null;
-  is_completed?: boolean;
 }
 
 export interface Comment {
