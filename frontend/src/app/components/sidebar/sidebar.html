@@ -1,26 +1,38 @@
 <div style="width: 250px; background-color: #1f2937; color: white; height: 100vh; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box;">
-    <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 30px; color: #60a5fa;">AgileBoard</h1>
 
-    <div style="flex-grow: 1;">
-        <div style="font-size: 12px; text-transform: uppercase; color: #9ca3af; margin-bottom: 10px; font-weight: bold;">My Boards</div>
+  <!-- Logo / back to dashboard -->
+  <div (click)="goToDashboard()"
+    style="display: flex; align-items: center; gap: 8px; margin-bottom: 30px; cursor: pointer; padding: 8px 10px; border-radius: 8px; transition: background 0.2s;"
+    onmouseenter="this.style.background='#374151'" onmouseleave="this.style.background='transparent'">
+    <h1 style="font-size: 20px; font-weight: bold; color: #60a5fa; margin: 0;">SmartLife</h1>
+  </div>
 
-        <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 5px;">
-            @for (board of boards; track board.id) {
-                <li
-                        (click)="selectBoard(board)"
-                        [style.backgroundColor]="selectedBoard?.id === board.id ? '#374151' : 'transparent'"
-                        style="padding: 10px 15px; border-radius: 6px; cursor: pointer; transition: background 0.2s;">
-                    {{ board.title }}
-                </li>
-            }
-        </ul>
+  <div style="flex-grow: 1; overflow-y: auto;">
+    <div style="font-size: 12px; text-transform: uppercase; color: #9ca3af; margin-bottom: 10px; font-weight: bold; padding: 0 5px;">
+      My Boards
     </div>
 
-    <div style="border-top: 1px solid #374151; padding-top: 20px;">
-        <button
-                (click)="logout()"
-                style="width: 100%; padding: 10px; background-color: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
-            Logout
-        </button>
-    </div>
+    <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px;">
+      @for (board of boards; track board.id) {
+        <li
+          (click)="selectBoard(board)"
+          [style.backgroundColor]="selectedBoard?.id === board.id ? '#374151' : 'transparent'"
+          [style.borderLeft]="selectedBoard?.id === board.id ? '3px solid #60a5fa' : '3px solid transparent'"
+          style="padding: 10px 12px; border-radius: 6px; cursor: pointer; transition: background 0.2s; display: flex; flex-direction: column; gap: 2px;">
+          <span style="font-size: 14px; font-weight: 500;">{{ board.title }}</span>
+          <span style="font-size: 11px; color: #6b7280;">
+            {{ board.is_public ? '🌐 Public' : '🔒 Private' }}
+          </span>
+        </li>
+      }
+    </ul>
+  </div>
+
+  <div style="border-top: 1px solid #374151; padding-top: 20px; display: flex; flex-direction: column; gap: 10px;">
+    <button
+      (click)="logout()"
+      style="width: 100%; padding: 10px; background-color: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+      Logout
+    </button>
+  </div>
 </div>
