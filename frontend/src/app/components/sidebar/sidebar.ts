@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, inject, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { BoardService } from '../../services/board.service';
@@ -13,54 +13,57 @@ import { Board } from '../../models/board.model';
   styleUrl: './sidebar.css'
 })
 export class SidebarComponent implements OnInit {
-  boards: Board[] = [];
-  selectedBoard: Board | null = null;
-  username = '';
-  showUserMenu = false;
+  private readonly boardService = inject(BoardService);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
   @Output() openBoardSettings = new EventEmitter<Board>();
 
-  constructor(
-    private boardService: BoardService,
-    private authService: AuthService,
-    private router: Router
-  ) {}
+  boards: Board[] = [];
+  selectedBoard: Board | null = null;
+  username = '';
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.username = this.authService.getUsername();
 
-    this.boardService.getBoards().subscribe(boards => {
-      this.boards = boards;
-      if (boards.length > 0 && !this.selectedBoard) {
-        this.selectBoard(boards[0]);
-      }
-    });
+    if (this.authService.hasToken()) {
+      this.loadBoards();
+    }
 
     this.boardService.selectedBoard$.subscribe(board => {
       this.selectedBoard = board;
     });
   }
 
-  selectBoard(board: Board) {
-    this.boardService.selectBoard(board);
-    this.router.navigate(['/tasks']);
+  loadBoards(): void {
+    this.boardService.getBoards().subscribe({
+      next: (boards) => {
+        this.boards = boards;
+        if (boards.length > 0 && !this.selectedBoard) {
+          this.selectBoard(boards[0]);
+        }
+      },
+      error: () => this.boards = []
+    });
   }
 
-  onBoardSettings(event: MouseEvent, board: Board) {
+  selectBoard(board: Board): void {
+    this.boardService.selectBoard(board);
+    this.router.navigate(['/dashboard']);
+  }
+
+  onBoardSettings(event: MouseEvent, board: Board): void {
     event.stopPropagation();
     this.openBoardSettings.emit(board);
   }
 
-  goToDashboard() {
+  goToDashboard(): void {
     this.router.navigate(['/dashboard']);
   }
 
-  toggleUserMenu() {
-    this.showUserMenu = !this.showUserMenu;
-  }
-
-  logout() {
+  logout(): void {
     this.authService.logout();
+    this.router.navigate(['/login']);
   }
 
   get userInitial(): string {

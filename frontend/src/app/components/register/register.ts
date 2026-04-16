@@ -15,29 +15,36 @@ export class RegisterComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
+  error = '';
+
   registerForm = this.fb.group({
     username: ['', [Validators.required, Validators.minLength(3)]],
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
+    password: ['', [Validators.required, Validators.minLength(8)]],
     confirmPassword: ['', [Validators.required]]
   }, { validators: this.passwordMatchValidator });
 
-  error: string | null = null;
-
   private passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
-    const password = control.get('password');
-    const confirmPassword = control.get('confirmPassword');
-    return password && confirmPassword && password.value !== confirmPassword.value
-        ? { mismatch: true }
-        : null;
+    const password = control.get('password')?.value;
+    const confirm = control.get('confirmPassword')?.value;
+    return password === confirm ? null : { mismatch: true };
   }
 
   onSubmit(): void {
     if (this.registerForm.invalid) return;
+    const { confirmPassword, ...payload } = this.registerForm.value;
 
-    this.authService.register(this.registerForm.value).subscribe({
+    this.authService.register(payload).subscribe({
       next: () => this.router.navigate(['/login']),
-      error: (err) => this.error = err.error?.detail || 'Registration failed'
+      error: (err) => {
+        if (typeof err.error === 'object') {
+          const firstErrorKey = Object.keys(err.error)[0];
+          const errorValue = err.error[firstErrorKey];
+          this.error = Array.isArray(errorValue) ? errorValue[0] : errorValue;
+        } else {
+          this.error = 'An unexpected error occurred';
+        }
+      }
     });
   }
 }
