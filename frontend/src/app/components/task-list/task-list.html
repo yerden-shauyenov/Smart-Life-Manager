@@ -1,30 +1,88 @@
 <div style="padding: 20px;">
-    <h2 style="margin-bottom: 20px;">{{ currentBoard?.title || 'Loading...' }}</h2>
 
-    <div style="display: flex; gap: 20px; overflow-x: auto;">
-        @for (status of statuses; track status.id) {
-            <div style="background: #ebecf0; border-radius: 8px; width: 300px; padding: 10px; min-height: 400px;">
-                <h3 style="font-size: 14px; text-transform: uppercase; color: #5e6c84;">{{ status.name }}</h3>
-
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    @for (task of getTasksByStatus(status.id); track task.id) {
-                        <div style="background: white; padding: 10px; border-radius: 4px; box-shadow: 0 1px 0 rgba(9,30,66,.25);">
-                            <div style="font-weight: 500; margin-bottom: 10px;">{{ task.title }}</div>
-
-                            <select
-                                    style="width: 100%; font-size: 12px;"
-                                    (change)="moveTask(task, +$any($event.target).value)">
-                                <option [value]="status.id">Change status...</option>
-                                @for (s of statuses; track s.id) {
-                                    @if (s.id !== status.id) {
-                                        <option [value]="s.id">{{ s.name }}</option>
-                                    }
-                                }
-                            </select>
-                        </div>
-                    }
-                </div>
-            </div>
-        }
+  <!-- Header -->
+  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <button (click)="goToDashboard()"
+        style="background: #f1f5f9; border: none; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 14px; color: #475569; font-weight: 600;">
+        ←
+      </button>
+      <h2 style="margin: 0; font-size: 20px; font-weight: 700; color: #1e293b;">
+        {{ currentBoard?.title || 'Loading...' }}
+      </h2>
     </div>
+
+    <button (click)="openInvite()"
+      style="background: #6366f1; color: white; border: none; border-radius: 8px; padding: 8px 16px; cursor: pointer; font-weight: 600; font-size: 14px;">
+      👥 Invite Member
+    </button>
+  </div>
+
+  <!-- Kanban columns -->
+  <div style="display: flex; gap: 20px; overflow-x: auto;">
+    @for (status of statuses; track status.id) {
+      <div style="background: #ebecf0; border-radius: 8px; width: 300px; padding: 10px; min-height: 400px; flex-shrink: 0;">
+        <h3 style="font-size: 14px; text-transform: uppercase; color: #5e6c84; margin: 0 0 12px 0;">
+          {{ status.name }}
+          <span style="background: #dde1e7; border-radius: 10px; padding: 1px 8px; font-size: 11px; margin-left: 6px;">
+            {{ getTasksByStatus(status.id).length }}
+          </span>
+        </h3>
+
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          @for (task of getTasksByStatus(status.id); track task.id) {
+            <div style="background: white; padding: 10px; border-radius: 4px; box-shadow: 0 1px 0 rgba(9,30,66,.25);">
+              <div style="font-weight: 500; margin-bottom: 10px;">{{ task.title }}</div>
+              <select
+                style="width: 100%; font-size: 12px;"
+                (change)="moveTask(task, +$any($event.target).value)">
+                <option [value]="status.id">Move to...</option>
+                @for (s of statuses; track s.id) {
+                  @if (s.id !== status.id) {
+                    <option [value]="s.id">{{ s.name }}</option>
+                  }
+                }
+              </select>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
 </div>
+
+<!-- Invite Member Modal -->
+@if (showInviteModal) {
+  <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 999;">
+    <div style="background: white; border-radius: 16px; padding: 32px; width: 100%; max-width: 420px; box-shadow: 0 25px 50px rgba(0,0,0,0.2);">
+      <h3 style="margin: 0 0 20px; font-size: 20px; font-weight: 700; color: #1e293b;">
+        Invite to "{{ currentBoard?.title }}"
+      </h3>
+
+      <label style="display: block; font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 6px;">
+        Username
+      </label>
+      <input [(ngModel)]="inviteUsername"
+        placeholder="Enter their username"
+        style="width: 100%; padding: 10px 14px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; outline: none; box-sizing: border-box; margin-bottom: 12px;" />
+
+      @if (inviteError) {
+        <p style="color: #ef4444; font-size: 13px; margin: 0 0 12px;">{{ inviteError }}</p>
+      }
+      @if (inviteSuccess) {
+        <p style="color: #10b981; font-size: 13px; margin: 0 0 12px;">{{ inviteSuccess }}</p>
+      }
+
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px;">
+        <button (click)="closeInvite()"
+          style="padding: 9px 18px; border: 1px solid #e2e8f0; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; color: #475569;">
+          Close
+        </button>
+        <button (click)="inviteMember()"
+          style="padding: 9px 18px; background: #6366f1; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 700;">
+          Add Member
+        </button>
+      </div>
+    </div>
+  </div>
+}
