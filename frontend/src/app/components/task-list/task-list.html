@@ -8,54 +8,84 @@
 
     <div class="toolbar" style="display: flex; gap: 12px; margin: 0 24px 20px; align-items: center; flex-wrap: wrap;">
         
+        <div class="view-switcher" style="display: flex; gap: 4px; background: #f1f5f9; padding: 4px; border-radius: 10px;">
+            <button (click)="setViewMode('groups')" 
+                    [style.background]="viewMode === 'groups' ? 'white' : 'transparent'"
+                    [style.box-shadow]="viewMode === 'groups' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none'"
+                    style="padding: 6px 12px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 600;">Board</button>
+            <button (click)="setViewMode('list')" 
+                    [style.background]="viewMode === 'list' ? 'white' : 'transparent'"
+                    [style.box-shadow]="viewMode === 'list' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none'"
+                    style="padding: 6px 12px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 600;">List</button>
+        </div>
+
         <input type="text" [(ngModel)]="searchTerm" placeholder="Search tasks..." 
                style="flex: 1; min-width: 200px; padding: 8px 16px; border-radius: 10px; border: 1px solid #e2e8f0; outline: none;" />
 
-        <select [(ngModel)]="selectedPriority" style="padding: 8px; border-radius: 10px; border: 1px solid #e2e8f0; background: white; cursor: pointer;">
+        <select [(ngModel)]="selectedPriority" style="padding: 8px; border-radius: 10px; border: 1px solid #e2e8f0; background: white;">
             <option [ngValue]="null">All Priorities</option>
-            @for (p of priorities; track p.id) { 
-                <option [ngValue]="p.id">{{ p.name }}</option> 
-            }
+            @for (p of priorities; track p.id) { <option [ngValue]="p.id">{{ p.name }}</option> }
         </select>
 
-        <select [(ngModel)]="selectedSprint" style="padding: 8px; border-radius: 10px; border: 1px solid #e2e8f0; background: white; cursor: pointer;">
+        <select [(ngModel)]="selectedSprint" style="padding: 8px; border-radius: 10px; border: 1px solid #e2e8f0; background: white;">
             <option [ngValue]="null">All Sprints</option>
-            @for (s of sprints; track s.id) { 
-                <option [ngValue]="s.id">{{ s.name }}</option> 
-            }
+            @for (s of sprints; track s.id) { <option [ngValue]="s.id">{{ s.name }}</option> }
         </select>
 
-        <button (click)="resetFilters()" style="background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 13px; font-weight: 600;">
-            Reset
-        </button>
+        <button (click)="resetFilters()" style="background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 13px;">Reset</button>
     </div>
 
-    <div class="groups-wrapper">
-        @for (status of statuses; track status.id) {
-            <div class="group-card">
-                <div class="group-card-header">
-                    <span class="group-title">{{ status.name }}</span>
-                    <span class="group-count">{{ getFilteredTasks(status.id).length }}</span>
-                    <button class="btn-add-task" (click)="openCreateTask(status.id)">+</button>
+    @if (viewMode === 'groups') {
+        <div class="groups-wrapper">
+            @for (status of statuses; track status.id) {
+                <div class="group-card">
+                    <div class="group-card-header">
+                        <span class="group-title">{{ status.name }}</span>
+                        <span class="group-count">{{ getFilteredTasks(status.id).length }}</span>
+                        <button class="btn-add-task" (click)="openCreateTask(status.id)">+</button>
+                    </div>
+                    <div class="tasks-list">
+                        @for (task of getFilteredTasks(status.id); track task.id) {
+                            <div class="task-card" (click)="openEditTask(task)" [style.border-left-color]="getPriority(task.priority)?.color_hex || '#e2e8f0'">
+                                <div class="task-card-main">
+                                    <input type="checkbox" [checked]="task.is_completed" (click)="toggleTaskStatus(task, $event)" />
+                                    <span class="task-title" [class.done]="task.is_completed">{{ task.title }}</span>
+                                </div>
+                                <div class="task-meta">
+                                    @if (task.assignee_username) { <span class="meta-item">👤 {{ task.assignee_username }}</span> }
+                                </div>
+                            </div>
+                        }
+                    </div>
                 </div>
+            }
+        </div>
+    }
 
-                <div class="tasks-list">
-                    @for (task of getFilteredTasks(status.id); track task.id) {
-                        <div class="task-card" (click)="openEditTask(task)" [style.border-left-color]="getPriority(task.priority)?.color_hex || '#e2e8f0'">
-                            <div class="task-card-main">
-                                <input type="checkbox" [checked]="task.is_completed" (click)="toggleTaskStatus(task, $event)" />
-                                <span class="task-title" [class.done]="task.is_completed">{{ task.title }}</span>
-                            </div>
-                            <div class="task-meta">
-                                @if (task.assignee_username) { <span class="meta-item">👤 {{ task.assignee_username }}</span> }
-                                @if (task.due_date) { <span class="meta-item">📅 {{ task.due_date | date:'MMM d' }}</span> }
-                            </div>
-                        </div>
+    @if (viewMode === 'list') {
+        <div style="margin: 0 24px; background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                <thead style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                    <tr>
+                        <th style="padding: 12px 16px;">Task</th>
+                        <th style="padding: 12px 16px;">Status</th>
+                        <th style="padding: 12px 16px;">Priority</th>
+                        <th style="padding: 12px 16px;">Assignee</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (task of allFilteredTasks; track task.id) {
+                        <tr (click)="openEditTask(task)" style="border-bottom: 1px solid #f1f5f9; cursor: pointer;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                            <td style="padding: 12px 16px; font-weight: 500;">{{ task.title }}</td>
+                            <td style="padding: 12px 16px;"><span style="font-size: 12px; padding: 4px 8px; background: #e2e8f0; border-radius: 6px;">{{ task.status_name }}</span></td>
+                            <td style="padding: 12px 16px;">{{ task.priority_name }}</td>
+                            <td style="padding: 12px 16px;">{{ task.assignee_username || '—' }}</td>
+                        </tr>
                     }
-                </div>
-            </div>
-        }
-    </div>
+                </tbody>
+            </table>
+        </div>
+    }
 </div>
 
 @if (showTaskModal) {
