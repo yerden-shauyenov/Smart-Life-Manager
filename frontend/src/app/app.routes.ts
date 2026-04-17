@@ -4,6 +4,7 @@ import { TaskListComponent } from './components/task-list/task-list';
 import { LoginComponent } from './components/login/login';
 import { RegisterComponent } from './components/register/register';
 import { BoardSettingsComponent } from './components/board-settings/board-settings';
+import { BacklogComponent } from './components/backlog/backlog';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -17,6 +18,11 @@ export const routes: Routes = [
   {
     path: 'boards/:id',
     component: TaskListComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'boards/:id/backlog',
+    component: BacklogComponent,
     canActivate: [authGuard]
   },
   {

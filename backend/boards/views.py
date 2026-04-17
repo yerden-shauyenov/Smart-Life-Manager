@@ -14,7 +14,6 @@ from .permissions import (
 )
 from .services import initialize_board_defaults
 
-
 class BoardViewSet(viewsets.ModelViewSet):
     serializer_class = BoardSerializer
     permission_classes = [IsAuthenticated]
@@ -29,17 +28,19 @@ class BoardViewSet(viewsets.ModelViewSet):
         board = serializer.save(owner=self.request.user)
         initialize_board_defaults(board)
 
-
 class SprintViewSet(viewsets.ModelViewSet):
     serializer_class = SprintSerializer
     permission_classes = [IsAuthenticated, CanManageBoardSettings]
 
     def get_queryset(self):
-        return Sprint.objects.filter(
+        queryset = Sprint.objects.filter(
             Q(board__owner=self.request.user) |
             Q(board__board_memberships__user=self.request.user)
         ).distinct()
-
+        board_id = self.request.query_params.get('board')
+        if board_id:
+            queryset = queryset.filter(board_id=board_id)
+        return queryset
 
 class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer
@@ -50,21 +51,19 @@ class TaskViewSet(viewsets.ModelViewSet):
             Q(board__owner=self.request.user) |
             Q(board__board_memberships__user=self.request.user)
         ).distinct()
-
         board_id = self.request.query_params.get('board')
         sprint_id = self.request.query_params.get('sprint')
-
         if board_id:
             queryset = queryset.filter(board_id=board_id)
-
         if sprint_id:
             if sprint_id.lower() == 'none':
                 queryset = queryset.filter(sprint__isnull=True)
             else:
                 queryset = queryset.filter(sprint_id=sprint_id)
-
         return queryset
 
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
 
 class BaseBoardSettingsViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, CanManageBoardSettings]
@@ -74,34 +73,26 @@ class BaseBoardSettingsViewSet(viewsets.ModelViewSet):
             Q(board__owner=self.request.user) |
             Q(board__board_memberships__user=self.request.user)
         ).distinct()
-
         board_id = self.request.query_params.get('board')
         if board_id:
             queryset = queryset.filter(board_id=board_id)
-
         return queryset
-
 
 class TaskStatusViewSet(BaseBoardSettingsViewSet):
     serializer_class = TaskStatusSerializer
 
-
 class TaskPriorityViewSet(BaseBoardSettingsViewSet):
     serializer_class = TaskPrioritySerializer
-
 
 class TaskTypeViewSet(BaseBoardSettingsViewSet):
     serializer_class = TaskTypeSerializer
 
-
 class BoardRoleViewSet(BaseBoardSettingsViewSet):
     serializer_class = BoardRoleSerializer
-
 
 class BoardMembershipViewSet(BaseBoardSettingsViewSet):
     serializer_class = BoardMembershipSerializer
     permission_classes = [IsAuthenticated, CanManageBoardMembers]
-
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
@@ -112,11 +103,9 @@ class CommentViewSet(viewsets.ModelViewSet):
             Q(task__board__owner=self.request.user) |
             Q(task__board__board_memberships__user=self.request.user)
         ).distinct()
-
         task_id = self.request.query_params.get('task')
         if task_id:
             queryset = queryset.filter(task_id=task_id)
-
         return queryset
 
     def perform_create(self, serializer):

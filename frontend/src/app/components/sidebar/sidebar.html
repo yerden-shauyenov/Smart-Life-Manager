@@ -1,38 +1,54 @@
 <div class="sidebar">
 
-  <!-- Logo -->
-  <div class="sidebar-logo" (click)="goToDashboard()">SmartLife</div>
+    <div class="sidebar-logo" (click)="goToDashboard()">SmartLife</div>
 
-  <!-- Board list -->
-  <div class="sidebar-section-label">My Boards</div>
-  <ul class="board-list">
-    @for (board of boards; track board.id) {
-      <li class="board-item" [class.active]="selectedBoard?.id === board.id"
-          (click)="selectBoard(board)">
-        <span class="board-item-name">{{ board.title }}</span>
-        <button class="board-settings-btn" (click)="onBoardSettings($event, board)" title="Board settings">
-          ⚙
-        </button>
-      </li>
-    }
-  </ul>
+    <div class="sidebar-section-label">My Boards</div>
+    <ul class="board-list">
+        @for (board of boards; track board.id) {
+            <li class="board-item" [class.active]="selectedBoard?.id === board.id">
+                <div class="flex flex-col w-full">
+                    <div class="flex justify-between items-center w-full cursor-pointer" (click)="selectBoard(board)">
+                        <span class="board-item-name">{{ board.title }}</span>
+                        <button class="board-settings-btn" (click)="onBoardSettings($event, board)" title="Board settings">
+                            ⚙
+                        </button>
+                    </div>
 
-  <div style="flex:1;"></div>
+                    @if (selectedBoard?.id === board.id) {
+                        <div class="flex flex-col gap-1 mt-2 ml-4">
+                            <a [routerLink]="['/boards', board.id, 'backlog']"
+                               routerLinkActive="text-white"
+                               class="text-xs text-left text-gray-400 hover:text-white transition-colors py-1 no-underline">
+                                • Backlog
+                            </a>
+                            <a [routerLink]="['/boards', board.id]"
+                               [routerLinkActiveOptions]="{exact: true}"
+                               routerLinkActive="text-white"
+                               class="text-xs text-left text-gray-400 hover:text-white transition-colors py-1 no-underline">
+                                • Active Sprint
+                            </a>
+                        </div>
+                    }
+                </div>
+            </li>
+        }
+    </ul>
 
-  <!-- User area -->
-  <div class="user-area">
-    <div class="user-row">
-      <div class="user-avatar">{{ userInitial }}</div>
-      <span class="user-name">{{ username }}</span>
-      <button class="logout-icon-btn" (click)="logout()" title="Logout">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-          <polyline points="16 17 21 12 16 7"/>
-          <line x1="21" y1="12" x2="9" y2="12"/>
-        </svg>
-      </button>
+    <div style="flex:1;"></div>
+
+    <div class="user-area">
+        <div class="user-row">
+            <div class="user-avatar">{{ userInitial }}</div>
+            <span class="user-name">{{ username }}</span>
+            <button class="logout-icon-btn" (click)="logout()" title="Logout">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                    <polyline points="16 17 21 12 16 7"/>
+                    <line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
+            </button>
+        </div>
     </div>
-  </div>
 
 </div>

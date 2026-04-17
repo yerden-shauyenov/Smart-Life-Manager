@@ -1,0 +1,68 @@
+<div class="p-6 max-w-5xl mx-auto flex flex-col space-y-8">
+    <header class="flex justify-between items-center border-b pb-4">
+        <div>
+            <h1 class="text-2xl font-bold">Backlog</h1>
+            <p class="text-gray-500">{{ board?.title }}</p>
+        </div>
+        <button (click)="showCreateSprint = !showCreateSprint" class="bg-indigo-600 text-white px-4 py-2 rounded shadow hover:bg-indigo-700">
+            Create Sprint
+        </button>
+    </header>
+
+    <div *ngIf="showCreateSprint" class="p-4 bg-gray-50 border rounded-lg space-y-3">
+        <input [(ngModel)]="newSprint.name" placeholder="Sprint Name" class="w-full border p-2 rounded">
+        <textarea [(ngModel)]="newSprint.goal" placeholder="What is the goal of this sprint?" class="w-full border p-2 rounded"></textarea>
+        <div class="flex gap-2">
+            <button (click)="createSprint()" class="bg-green-600 text-white px-4 py-1 rounded">Save</button>
+            <button (click)="showCreateSprint = false" class="bg-gray-300 px-4 py-1 rounded">Cancel</button>
+        </div>
+    </div>
+
+    <section class="flex flex-col space-y-6">
+        <div *ngFor="let sprint of sprints" class="border rounded-lg bg-white shadow-sm overflow-hidden">
+            <div class="bg-gray-50 p-4 flex justify-between items-center border-b">
+                <div>
+                    <h3 class="font-bold flex items-center gap-2">
+                        {{ sprint.name }}
+                        <span *ngIf="sprint.is_active" class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">Active</span>
+                    </h3>
+                    <p class="text-sm text-gray-500">{{ sprint.goal }}</p>
+                </div>
+                <div class="flex gap-2">
+                    <button *ngIf="!sprint.is_active" (click)="startSprint(sprint)" class="text-sm bg-indigo-100 text-indigo-700 px-3 py-1 rounded hover:bg-indigo-200">
+                        Start Sprint
+                    </button>
+                    <span class="text-sm text-gray-400">{{ sprint.tasks?.length || 0 }} tasks</span>
+                </div>
+            </div>
+
+            <div class="flex flex-col divide-y">
+                <div *ngFor="let task of sprint.tasks" class="p-3 hover:bg-gray-50 flex justify-between items-center group">
+                    <span class="font-medium">{{ task.title }}</span>
+                    <button (click)="moveTask(task.id, null)" class="opacity-0 group-hover:opacity-100 text-xs text-gray-400 hover:text-red-500">Move to Backlog</button>
+                </div>
+                <div *ngIf="sprint.tasks?.length === 0" class="p-8 text-center text-gray-400 text-sm">
+                    Sprint is empty. Move tasks here from the backlog.
+                </div>
+            </div>
+        </div>
+
+        <div class="border rounded-lg bg-white shadow-sm">
+            <div class="bg-gray-800 text-white p-4">
+                <h3 class="font-bold">Backlog ({{ backlogTasks.length }} tasks)</h3>
+            </div>
+            <div class="flex flex-col divide-y">
+                <div *ngFor="let task of backlogTasks" class="p-3 hover:bg-gray-50 flex justify-between items-center group">
+                    <span class="font-medium">{{ task.title }}</span>
+                    <select (change)="moveTask(task.id, $any($event.target).value)" class="opacity-0 group-hover:opacity-100 text-xs border rounded p-1">
+                        <option value="">Move to...</option>
+                        <option *ngFor="let s of sprints" [value]="s.id">{{ s.name }}</option>
+                    </select>
+                </div>
+                <div *ngIf="backlogTasks.length === 0" class="p-8 text-center text-gray-400 text-sm">
+                    No tasks in backlog.
+                </div>
+            </div>
+        </div>
+    </section>
+</div>

@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { BoardService } from '../../services/board.service';
 import { AuthService } from '../../services/auth.service';
 import { Board } from '../../models/board.model';
@@ -8,7 +8,7 @@ import { Board } from '../../models/board.model';
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.css'
 })
@@ -40,24 +40,23 @@ export class SidebarComponent implements OnInit {
       next: (boards) => {
         this.boards = boards;
         this.cdr.detectChanges();
-      },
-      error: () => {
-        this.boards = [];
-        this.cdr.detectChanges();
       }
     });
   }
 
   selectBoard(board: Board): void {
+    this.boardService.selectBoard(board);
     this.router.navigate(['/boards', board.id]);
   }
 
   onBoardSettings(event: MouseEvent, board: Board): void {
     event.stopPropagation();
+    this.boardService.selectBoard(board);
     this.router.navigate(['/boards', board.id, 'settings']);
   }
 
   goToDashboard(): void {
+    this.boardService.selectBoard(null as any);
     this.router.navigate(['/dashboard']);
   }
 

@@ -73,7 +73,8 @@ class TaskSerializer(serializers.ModelSerializer):
         read_only_fields = ['author', 'created_at']
 
     def validate(self, data):
-        board = data.get('board')
+        board = data.get('board', self.instance.board if self.instance else None)
+
         if data.get('sprint') and data['sprint'].board != board:
             raise serializers.ValidationError("Sprint does not belong to the selected board.")
         if data.get('status') and data['status'].board != board:
@@ -83,7 +84,6 @@ class TaskSerializer(serializers.ModelSerializer):
         if data.get('task_type') and data['task_type'].board != board:
             raise serializers.ValidationError("Task type does not belong to the selected board.")
         return data
-
 
 class CommentSerializer(serializers.ModelSerializer):
     author_username = serializers.ReadOnlyField(source='author.username')
