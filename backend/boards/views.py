@@ -46,13 +46,24 @@ class TaskViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, CanManageTasks]
 
     def get_queryset(self):
-        return Task.objects.filter(
+        queryset = Task.objects.filter(
             Q(board__owner=self.request.user) |
             Q(board__board_memberships__user=self.request.user)
         ).distinct()
 
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        board_id = self.request.query_params.get('board')
+        sprint_id = self.request.query_params.get('sprint')
+
+        if board_id:
+            queryset = queryset.filter(board_id=board_id)
+
+        if sprint_id:
+            if sprint_id.lower() == 'none':
+                queryset = queryset.filter(sprint__isnull=True)
+            else:
+                queryset = queryset.filter(sprint_id=sprint_id)
+
+        return queryset
 
 
 class BaseBoardSettingsViewSet(viewsets.ModelViewSet):
