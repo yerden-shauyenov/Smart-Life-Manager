@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { Board, TaskStatus, TaskPriority, Sprint, TaskType, BoardMembership } from '../models/board.model';
+import {Board, TaskStatus, TaskPriority, Sprint, TaskType, BoardMembership, BoardRole} from '../models/board.model';
 
 @Injectable({ providedIn: 'root' })
 export class BoardService {
@@ -83,5 +83,54 @@ export class BoardService {
   getMemberships(boardId: number): Observable<BoardMembership[]> {
     const params = new HttpParams().set('board', boardId.toString());
     return this.http.get<BoardMembership[]>(`${this.apiUrl}memberships/`, { params });
+  }
+
+  getRoles(boardId: number): Observable<BoardRole[]> {
+    const params = new HttpParams().set('board', boardId.toString());
+    return this.http.get<BoardRole[]>(`${this.apiUrl}roles/`, { params });
+  }
+
+  createRole(data: Partial<BoardRole>): Observable<BoardRole> {
+    return this.http.post<BoardRole>(`${this.apiUrl}roles/`, data);
+  }
+
+  createPriority(data: Partial<TaskPriority>): Observable<TaskPriority> {
+    return this.http.post<TaskPriority>(`${this.apiUrl}priorities/`, data);
+  }
+
+  createTaskType(data: Partial<TaskType>): Observable<TaskType> {
+    return this.http.post<TaskType>(`${this.apiUrl}types/`, data);
+  }
+
+  updateMembership(id: number, data: Partial<BoardMembership>): Observable<BoardMembership> {
+    return this.http.patch<BoardMembership>(`${this.apiUrl}memberships/${id}/`, data);
+  }
+
+  updatePriority(id: number, data: Partial<TaskPriority>): Observable<TaskPriority> {
+    return this.http.patch<TaskPriority>(`${this.apiUrl}priorities/${id}/`, data);
+  }
+
+  deletePriority(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}priorities/${id}/`);
+  }
+
+  updateTaskType(id: number, data: Partial<TaskType>): Observable<TaskType> {
+    return this.http.patch<TaskType>(`${this.apiUrl}types/${id}/`, data);
+  }
+
+  deleteTaskType(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}types/${id}/`);
+  }
+
+  updateRole(id: number, data: Partial<BoardRole>): Observable<BoardRole> {
+    return this.http.patch<BoardRole>(`${this.apiUrl}roles/${id}/`, data);
+  }
+
+  deleteRole(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}roles/${id}/`);
+  }
+
+  deleteMembership(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}memberships/${id}/`);
   }
 }

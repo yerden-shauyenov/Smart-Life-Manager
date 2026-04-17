@@ -1,0 +1,158 @@
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
+import { forkJoin } from 'rxjs';
+import { BoardService } from '../../services/board.service';
+import { TaskStatus, TaskPriority, TaskType, BoardRole, BoardMembership } from '../../models/board.model';
+
+@Component({
+  selector: 'app-board-settings',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './board-settings.html'
+})
+export class BoardSettingsComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private boardService = inject(BoardService);
+  private cdr = inject(ChangeDetectorRef);
+
+  boardId!: number;
+  statuses: TaskStatus[] = [];
+  priorities: TaskPriority[] = [];
+  types: TaskType[] = [];
+  roles: BoardRole[] = [];
+  memberships: BoardMembership[] = [];
+
+  editingId: string | null = null;
+  editBuffer: any = {};
+
+  newStatus: Partial<TaskStatus> = { name: '', order: 0 };
+  newPriority: Partial<TaskPriority> = { name: '', color_hex: '#808080', level: 0 };
+  newType: Partial<TaskType> = { name: '', icon_name: '' };
+  newRole: Partial<BoardRole> = {
+    name: '',
+    can_manage_board: false,
+    can_manage_members: false,
+    can_create_tasks: true,
+    can_edit_tasks: true,
+    can_delete_tasks: false
+  };
+
+  ngOnInit(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.boardId = Number(id);
+      this.loadData();
+    }
+
+    this.route.paramMap.subscribe(params => {
+      const newId = Number(params.get('id'));
+      if (newId && newId !== this.boardId) {
+        this.boardId = newId;
+        this.loadData();
+      }
+    });
+  }
+
+  loadData(): void {
+    forkJoin({
+      statuses: this.boardService.getStatuses(this.boardId),
+      priorities: this.boardService.getPriorities(this.boardId),
+      types: this.boardService.getTaskTypes(this.boardId),
+      roles: this.boardService.getRoles(this.boardId),
+      memberships: this.boardService.getMemberships(this.boardId)
+    }).subscribe({
+      next: (res) => {
+        this.statuses = res.statuses;
+        this.priorities = res.priorities;
+        this.types = res.types;
+        this.roles = res.roles;
+        this.memberships = res.memberships;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  startEdit(type: string, item: any): void {
+    this.editingId = `${type}-${item.id}`;
+    this.editBuffer = { ...item };
+  }
+
+  cancelEdit(): void {
+    this.editingId = null;
+    this.editBuffer = {};
+  }
+
+  deleteItem(type: string, id: number): void {
+    const actions: Record<string, () => any> = {
+      status: () => this.boardService.deleteStatus(id),
+      priority: () => this.boardService.deletePriority(id),
+      type: () => this.boardService.deleteTaskType(id),
+      role: () => this.boardService.deleteRole(id),
+      membership: () => this.boardService.deleteMembership(id)
+    };
+
+    actions[type]().subscribe(() => this.loadData());
+  }
+
+  saveEdit(type: string): void {
+    const id = this.editBuffer.id;
+    const actions: Record<string, () => any> = {
+      status: () => this.boardService.updateStatus(id, this.editBuffer),
+      priority: () => this.boardService.updatePriority(id, this.editBuffer),
+      type: () => this.boardService.updateTaskType(id, this.editBuffer),
+      role: () => this.boardService.updateRole(id, this.editBuffer)
+    };
+
+    actions[type]().subscribe(() => {
+      this.editingId = null;
+      this.loadData();
+    });
+  }
+
+  addStatus(): void {
+    if (!this.newStatus.name) return;
+    this.boardService.createStatus({ ...this.newStatus, board: this.boardId }).subscribe(() => {
+      this.newStatus = { name: '', order: 0 };
+      this.loadData();
+    });
+  }
+
+  addPriority(): void {
+    if (!this.newPriority.name) return;
+    this.boardService.createPriority({ ...this.newPriority, board: this.boardId }).subscribe(() => {
+      this.newPriority = { name: '', color_hex: '#808080', level: 0 };
+      this.loadData();
+    });
+  }
+
+  addType(): void {
+    if (!this.newType.name) return;
+    this.boardService.createTaskType({ ...this.newType, board: this.boardId }).subscribe(() => {
+      this.newType = { name: '', icon_name: '' };
+      this.loadData();
+    });
+  }
+
+  addRole(): void {
+    if (!this.newRole.name) return;
+    this.boardService.createRole({ ...this.newRole, board: this.boardId }).subscribe(() => {
+      this.newRole = {
+        name: '',
+        can_manage_board: false,
+        can_manage_members: false,
+        can_create_tasks: true,
+        can_edit_tasks: true,
+        can_delete_tasks: false
+      };
+      this.loadData();
+    });
+  }
+
+  assignRole(membership: BoardMembership, roleId: number): void {
+    this.boardService.updateMembership(membership.id, { role: roleId }).subscribe(() => {
+      this.loadData();
+    });
+  }
+}

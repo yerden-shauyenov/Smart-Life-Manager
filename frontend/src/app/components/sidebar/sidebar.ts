@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { BoardService } from '../../services/board.service';
@@ -16,8 +16,7 @@ export class SidebarComponent implements OnInit {
   private readonly boardService = inject(BoardService);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
-
-  @Output() openBoardSettings = new EventEmitter<Board>();
+  private readonly cdr = inject(ChangeDetectorRef);
 
   boards: Board[] = [];
   selectedBoard: Board | null = null;
@@ -32,6 +31,7 @@ export class SidebarComponent implements OnInit {
 
     this.boardService.selectedBoard$.subscribe(board => {
       this.selectedBoard = board;
+      this.cdr.detectChanges();
     });
   }
 
@@ -39,8 +39,12 @@ export class SidebarComponent implements OnInit {
     this.boardService.getBoards().subscribe({
       next: (boards) => {
         this.boards = boards;
+        this.cdr.detectChanges();
       },
-      error: () => this.boards = []
+      error: () => {
+        this.boards = [];
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -50,7 +54,7 @@ export class SidebarComponent implements OnInit {
 
   onBoardSettings(event: MouseEvent, board: Board): void {
     event.stopPropagation();
-    this.openBoardSettings.emit(board);
+    this.router.navigate(['/boards', board.id, 'settings']);
   }
 
   goToDashboard(): void {
