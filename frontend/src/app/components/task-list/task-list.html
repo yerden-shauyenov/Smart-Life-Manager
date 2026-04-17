@@ -6,32 +6,55 @@
         </div>
     </div>
 
+    <div class="toolbar" style="display: flex; gap: 12px; margin: 0 24px 20px; align-items: center; flex-wrap: wrap;">
+        
+        <input type="text" [(ngModel)]="searchTerm" placeholder="Search tasks..." 
+               style="flex: 1; min-width: 200px; padding: 8px 16px; border-radius: 10px; border: 1px solid #e2e8f0; outline: none;" />
+
+        <select [(ngModel)]="selectedPriority" style="padding: 8px; border-radius: 10px; border: 1px solid #e2e8f0; background: white; cursor: pointer;">
+            <option [ngValue]="null">All Priorities</option>
+            @for (p of priorities; track p.id) { 
+                <option [ngValue]="p.id">{{ p.name }}</option> 
+            }
+        </select>
+
+        <select [(ngModel)]="selectedSprint" style="padding: 8px; border-radius: 10px; border: 1px solid #e2e8f0; background: white; cursor: pointer;">
+            <option [ngValue]="null">All Sprints</option>
+            @for (s of sprints; track s.id) { 
+                <option [ngValue]="s.id">{{ s.name }}</option> 
+            }
+        </select>
+
+        <button (click)="resetFilters()" style="background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 13px; font-weight: 600;">
+            Reset
+        </button>
+    </div>
+
     <div class="groups-wrapper">
         @for (status of statuses; track status.id) {
             <div class="group-card">
                 <div class="group-card-header">
                     <span class="group-title">{{ status.name }}</span>
-                    <span class="group-count">{{ getTasksByStatus(status.id).length }}</span>
+                    <span class="group-count">{{ getFilteredTasks(status.id).length }}</span>
+                    <button class="btn-add-task" (click)="openCreateTask(status.id)">+</button>
                 </div>
 
                 <div class="tasks-list">
-                    @for (task of getTasksByStatus(status.id); track task.id) {
-                        <div class="task-card" (click)="openEditTask(task)" [style.border-left-color]="getPriority(task.priority)?.color_hex || 'transparent'">
+                    @for (task of getFilteredTasks(status.id); track task.id) {
+                        <div class="task-card" (click)="openEditTask(task)" [style.border-left-color]="getPriority(task.priority)?.color_hex || '#e2e8f0'">
                             <div class="task-card-main">
                                 <input type="checkbox" [checked]="task.is_completed" (click)="toggleTaskStatus(task, $event)" />
                                 <span class="task-title" [class.done]="task.is_completed">{{ task.title }}</span>
                             </div>
                             <div class="task-meta">
                                 @if (task.assignee_username) { <span class="meta-item">👤 {{ task.assignee_username }}</span> }
-                                @if (task.due_date) { <span class="meta-item">📅 {{ task.due_date | date:'shortDate' }}</span> }
+                                @if (task.due_date) { <span class="meta-item">📅 {{ task.due_date | date:'MMM d' }}</span> }
                             </div>
                         </div>
                     }
                 </div>
-                <button class="btn-add-task" (click)="openCreateTask(status.id)">+ Add Task</button>
             </div>
         }
-        <button class="btn-add-group" (click)="openAddGroup()">+ Add Group</button>
     </div>
 </div>
 

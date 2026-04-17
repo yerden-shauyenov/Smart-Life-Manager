@@ -42,6 +42,11 @@ export class TaskListComponent implements OnInit, OnDestroy {
   showAddGroupModal = false;
   newGroupName = '';
 
+  searchTerm: string = '';
+  selectedPriority: number | null = null;
+  selectedSprint: number | null = null;
+  filterAssignee: string = '';
+
   ngOnInit(): void {
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
       const boardId = +params['id'];
@@ -128,6 +133,27 @@ export class TaskListComponent implements OnInit, OnDestroy {
 
   getTasksByStatus(statusId: number): Task[] {
     return this.tasks.filter(t => t.status === statusId);
+  }
+
+  getFilteredTasks(statusId: number): Task[] {
+    return this.tasks.filter(task => {
+      const matchesStatus = task.status === statusId;
+      const matchesSearch = task.title.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+                          (task.description && task.description.toLowerCase().includes(this.searchTerm.toLowerCase()));
+      const matchesPriority = this.selectedPriority ? task.priority === this.selectedPriority : true;
+      const matchesSprint = this.selectedSprint ? task.sprint === this.selectedSprint : true;
+      const matchesAssignee = this.filterAssignee ? task.assignee_username === this.filterAssignee : true;
+
+      return matchesStatus && matchesSearch && matchesPriority && matchesSprint && matchesAssignee;
+    });
+  }
+
+  resetFilters(): void {
+    this.searchTerm = '';
+    this.selectedPriority = null;
+    this.selectedSprint = null;
+    this.filterAssignee = '';
+    this.cdr.detectChanges();
   }
 
   getPriority(priorityId: number | null): TaskPriority | null {
