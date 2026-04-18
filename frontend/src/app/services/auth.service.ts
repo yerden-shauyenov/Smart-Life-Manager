@@ -18,6 +18,10 @@ export class AuthService {
         tap(response => {
           localStorage.setItem('access_token', response.access);
           localStorage.setItem('refresh_token', response.refresh);
+          
+          if (credentials.username) {
+            localStorage.setItem('username', credentials.username);
+          }
         })
     );
   }
@@ -25,6 +29,7 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
+    localStorage.removeItem('username');
   }
 
   getToken(): string | null {
@@ -36,13 +41,6 @@ export class AuthService {
   }
 
   getUsername(): string {
-    const token = this.getToken();
-    if (!token) return '';
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.username || payload.email || 'User';
-    } catch {
-      return '';
-    }
+    return localStorage.getItem('username') || '';
   }
 }
