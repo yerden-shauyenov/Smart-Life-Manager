@@ -36,4 +36,8 @@ export class TaskService {
   addComment(data: { task: number, text: string }): Observable<Comment> {
     return this.http.post<Comment>(`${this.apiUrl}comments/`, data);
   }
+
+  deleteComment(commentId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}comments/${commentId}/`);
+  }
 }

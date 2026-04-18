@@ -6,6 +6,7 @@ import { Subject, forkJoin, of } from 'rxjs';
 import { takeUntil, take, catchError, finalize, switchMap } from 'rxjs/operators';
 import { TaskService } from '../../services/task.service';
 import { BoardService } from '../../services/board.service';
+import { AuthService } from '../../services/auth.service';
 import { Task, Comment } from '../../models/task.model';
 import { Board, TaskStatus, TaskPriority, Sprint, TaskType, BoardMembership } from '../../models/board.model';
 
@@ -19,12 +20,14 @@ import { Board, TaskStatus, TaskPriority, Sprint, TaskType, BoardMembership } fr
 export class TaskListComponent implements OnInit, OnDestroy {
   private taskService = inject(TaskService);
   private boardService = inject(BoardService);
+  private authService = inject(AuthService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
 
   currentBoard: Board | null = null;
+  currentUsername = '';
   statuses: TaskStatus[] = [];
   tasks: Task[] = [];
   priorities: TaskPriority[] = [];
@@ -51,10 +54,11 @@ export class TaskListComponent implements OnInit, OnDestroy {
   filterAssignee: string = '';
 
   ngOnInit(): void {
+    this.currentUsername = this.authService.getUsername();
+
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
       const boardId = +params['id'];
       const taskId = params['taskId'] ? +params['taskId'] : null;
-
       if (boardId) {
         this.loadBoardAndData(boardId, taskId);
       }
@@ -71,23 +75,23 @@ export class TaskListComponent implements OnInit, OnDestroy {
     this.cdr.detectChanges();
 
     this.boardService.getBoard(boardId).pipe(
-        take(1),
-        switchMap(board => {
-          this.currentBoard = board;
-          this.boardService.selectBoard(board);
-          return forkJoin({
-            statuses: this.boardService.getStatuses(boardId).pipe(catchError(() => of([]))),
-            priorities: this.boardService.getPriorities(boardId).pipe(catchError(() => of([]))),
-            tasks: this.taskService.getTasks().pipe(catchError(() => of([]))),
-            sprints: this.boardService.getSprints(boardId).pipe(catchError(() => of([]))),
-            types: this.boardService.getTaskTypes(boardId).pipe(catchError(() => of([]))),
-            members: this.boardService.getMemberships(boardId).pipe(catchError(() => of([])))
-          });
-        }),
-        finalize(() => {
-          this.loading = false;
-          this.cdr.detectChanges();
-        })
+      take(1),
+      switchMap(board => {
+        this.currentBoard = board;
+        this.boardService.selectBoard(board);
+        return forkJoin({
+          statuses: this.boardService.getStatuses(boardId).pipe(catchError(() => of([]))),
+          priorities: this.boardService.getPriorities(boardId).pipe(catchError(() => of([]))),
+          tasks: this.taskService.getTasks().pipe(catchError(() => of([]))),
+          sprints: this.boardService.getSprints(boardId).pipe(catchError(() => of([]))),
+          types: this.boardService.getTaskTypes(boardId).pipe(catchError(() => of([]))),
+          members: this.boardService.getMemberships(boardId).pipe(catchError(() => of([])))
+        });
+      }),
+      finalize(() => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      })
     ).subscribe(res => {
       this.statuses = (res.statuses as TaskStatus[]).sort((a, b) => a.order - b.order);
       this.priorities = (res.priorities as TaskPriority[]).sort((a, b) => b.level - a.level);
@@ -119,11 +123,11 @@ export class TaskListComponent implements OnInit, OnDestroy {
       types: this.boardService.getTaskTypes(boardId).pipe(catchError(() => of([]))),
       members: this.boardService.getMemberships(boardId).pipe(catchError(() => of([])))
     }).pipe(
-        take(1),
-        finalize(() => {
-          this.loading = false;
-          this.cdr.detectChanges();
-        })
+      take(1),
+      finalize(() => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      })
     ).subscribe(res => {
       this.statuses = (res.statuses as TaskStatus[]).sort((a, b) => a.order - b.order);
       this.priorities = (res.priorities as TaskPriority[]).sort((a, b) => b.level - a.level);
@@ -141,11 +145,10 @@ export class TaskListComponent implements OnInit, OnDestroy {
   get allFilteredTasks(): Task[] {
     return this.tasks.filter(task => {
       const matchesSearch = task.title.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-                          (task.description && task.description.toLowerCase().includes(this.searchTerm.toLowerCase()));
+        (task.description && task.description.toLowerCase().includes(this.searchTerm.toLowerCase()));
       const matchesPriority = this.selectedPriority ? task.priority === this.selectedPriority : true;
       const matchesSprint = this.selectedSprint ? task.sprint === this.selectedSprint : true;
       const matchesAssignee = this.filterAssignee ? task.assignee_username === this.filterAssignee : true;
-
       return matchesSearch && matchesPriority && matchesSprint && matchesAssignee;
     });
   }
@@ -169,6 +172,17 @@ export class TaskListComponent implements OnInit, OnDestroy {
 
   getPriority(priorityId: number | null): TaskPriority | null {
     return this.priorities.find(p => p.id === priorityId) ?? null;
+  }
+
+  /** Returns true if the current user can delete the given comment:
+   *  - they are the comment author, OR
+   *  - they are the board owner
+   */
+  canDeleteComment(comment: Comment): boolean {
+    if (comment.id === -1) return false; // optimistic, not yet saved
+    const isAuthor = comment.author_username === this.currentUsername;
+    const isBoardOwner = this.currentBoard?.owner === this.currentUsername;
+    return isAuthor || isBoardOwner;
   }
 
   openCreateTask(statusId: number): void {
@@ -209,7 +223,6 @@ export class TaskListComponent implements OnInit, OnDestroy {
     this.cdr.detectChanges();
     this.taskService.getComments(taskId).pipe(take(1)).subscribe({
       next: (comments) => {
-        // Backend orders by -created_at (newest first), reverse for display (oldest first)
         this.taskComments = [...comments].reverse();
         this.commentLoading = false;
         this.cdr.detectChanges();
@@ -237,8 +250,8 @@ export class TaskListComponent implements OnInit, OnDestroy {
     };
 
     const request = (this.isEditMode && this.selectedTask.id)
-        ? this.taskService.updateTask(this.selectedTask.id, payload)
-        : this.taskService.createTask(payload);
+      ? this.taskService.updateTask(this.selectedTask.id, payload)
+      : this.taskService.createTask(payload);
 
     request.pipe(take(1)).subscribe({
       next: res => {
@@ -262,31 +275,43 @@ export class TaskListComponent implements OnInit, OnDestroy {
       id: -1,
       task: this.selectedTask.id,
       author: 0,
-      author_username: 'You',
+      author_username: this.currentUsername,
       text,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };
 
-    // Optimistically append to end (oldest-first display)
     this.taskComments = [...this.taskComments, optimisticComment];
     this.newCommentText = '';
     this.cdr.detectChanges();
 
-    this.taskService.addComment({
-      task: this.selectedTask.id,
-      text
-    }).pipe(take(1)).subscribe({
+    this.taskService.addComment({ task: this.selectedTask.id, text }).pipe(take(1)).subscribe({
       next: (comment) => {
-        // Replace the optimistic entry with the real one from server
         this.taskComments = this.taskComments.map(c => c.id === -1 ? comment : c);
         this.cdr.detectChanges();
       },
       error: () => {
-        // Roll back optimistic comment and restore text
         this.taskComments = this.taskComments.filter(c => c.id !== -1);
         this.newCommentText = text;
         this.commentError = 'Failed to post comment. Please try again.';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  deleteComment(comment: Comment, event: MouseEvent): void {
+    event.stopPropagation();
+    // Optimistically remove from UI
+    this.taskComments = this.taskComments.filter(c => c.id !== comment.id);
+    this.cdr.detectChanges();
+
+    this.taskService.deleteComment(comment.id).pipe(take(1)).subscribe({
+      error: () => {
+        // Roll back if server rejects
+        this.taskComments = [...this.taskComments, comment].sort(
+          (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+        );
+        this.commentError = 'Failed to delete comment.';
         this.cdr.detectChanges();
       }
     });

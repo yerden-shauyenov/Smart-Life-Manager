@@ -108,7 +108,7 @@
                         } @else {
                             <div class="comment-input-area">
                                 <textarea [(ngModel)]="newCommentText"
-                                          placeholder="Write a comment… (Ctrl+Enter to post)"
+                                          placeholder="Write a comment…"
                                           (keydown.ctrl.enter)="addComment()"></textarea>
                                 @if (commentError) {
                                     <p class="comment-error">{{ commentError }}</p>
@@ -125,8 +125,17 @@
                                 } @else {
                                     @for (comment of taskComments; track comment.id) {
                                         <div class="comment-item" [style.opacity]="comment.id === -1 ? '0.5' : '1'">
-                                            <strong>{{ comment.author_username }}</strong>
-                                            <span>{{ comment.created_at | date:'short' }}</span>
+                                            <div class="comment-item-header">
+                                                <strong>{{ comment.author_username }}</strong>
+                                                <span>{{ comment.created_at | date:'short' }}</span>
+                                                @if (canDeleteComment(comment)) {
+                                                    <button class="btn-delete-comment"
+                                                            (click)="deleteComment(comment, $event)"
+                                                            title="Delete comment">
+                                                        ✕
+                                                    </button>
+                                                }
+                                            </div>
                                             <p>{{ comment.text }}</p>
                                         </div>
                                     }
