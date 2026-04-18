@@ -23,7 +23,7 @@ export class TaskListComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-  private cdr = inject(ChangeDetectorRef);
+  cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
 
   currentBoard: Board | null = null;
@@ -43,6 +43,8 @@ export class TaskListComponent implements OnInit, OnDestroy {
   newCommentText = '';
   commentLoading = false;
   commentError = '';
+
+  selectedGroupBy: 'status' | 'priority' | 'type' = 'status';
 
   showAddGroupModal = false;
   newGroupName = '';
@@ -155,6 +157,31 @@ export class TaskListComponent implements OnInit, OnDestroy {
 
   getFilteredTasks(statusId: number): Task[] {
     return this.allFilteredTasks.filter(task => task.status === statusId);
+  }
+
+  get currentGroups(): any[] {
+    if (this.selectedGroupBy === 'priority') return this.priorities;
+    if (this.selectedGroupBy === 'type') return this.taskTypes;
+    return this.statuses;
+  }
+
+  getTasksForGroup(groupId: number): Task[] {
+    const filtered = this.allFilteredTasks;
+    if (this.selectedGroupBy === 'priority') {
+      return filtered.filter(t => t.priority === groupId);
+    }
+    if (this.selectedGroupBy === 'type') {
+      return filtered.filter(t => t.task_type === groupId);
+    }
+    return filtered.filter(t => t.status === groupId);
+  }
+
+  getPriorityName(id: number | null): string {
+    return this.priorities.find(p => p.id === id)?.name || 'No Priority';
+  }
+
+  getTypeName(id: number | null): string {
+    return this.taskTypes.find(t => t.id === id)?.name || 'No Type';
   }
 
   setViewMode(mode: 'groups' | 'list'): void {
@@ -333,6 +360,19 @@ export class TaskListComponent implements OnInit, OnDestroy {
       this.tasks = this.tasks.filter(t => t.id !== taskId);
       this.closeTaskModal();
     });
+  }
+
+  openTaskModal(task: Task): void {
+    this.selectedTask = { ...task };
+    this.isEditMode = true;
+    this.showTaskModal = true;
+    
+    this.taskService.getComments(task.id).pipe(take(1)).subscribe(comments => {
+      this.taskComments = comments;
+      this.cdr.detectChanges();
+    });
+    
+    this.cdr.detectChanges();
   }
 
   closeTaskModal(): void {
