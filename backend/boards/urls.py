@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     BoardViewSet, TaskViewSet, SprintViewSet,
     TaskStatusViewSet, TaskPriorityViewSet, TaskTypeViewSet,
-    BoardRoleViewSet, BoardMembershipViewSet
+    BoardRoleViewSet, BoardMembershipViewSet, CommentViewSet
 )
 
 router = DefaultRouter()
@@ -15,6 +15,7 @@ router.register(r'priorities', TaskPriorityViewSet, basename='priority')
 router.register(r'types', TaskTypeViewSet, basename='type')
 router.register(r'roles', BoardRoleViewSet, basename='role')
 router.register(r'memberships', BoardMembershipViewSet, basename='membership')
+router.register(r'comments', CommentViewSet, basename='comment')
 
 urlpatterns = [
     path('', include(router.urls)),

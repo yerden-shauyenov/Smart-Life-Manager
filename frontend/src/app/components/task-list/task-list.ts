@@ -38,6 +38,8 @@ export class TaskListComponent implements OnInit, OnDestroy {
   selectedTask: Partial<Task> = {};
   taskComments: Comment[] = [];
   newCommentText = '';
+  commentLoading = false;
+  commentError = '';
 
   showAddGroupModal = false;
   newGroupName = '';
@@ -184,6 +186,8 @@ export class TaskListComponent implements OnInit, OnDestroy {
       due_date: null
     };
     this.taskComments = [];
+    this.commentError = '';
+    this.newCommentText = '';
     this.showTaskModal = true;
     this.cdr.detectChanges();
   }
@@ -192,6 +196,8 @@ export class TaskListComponent implements OnInit, OnDestroy {
     this.isEditMode = true;
     this.selectedTask = { ...task };
     this.taskComments = [];
+    this.commentError = '';
+    this.newCommentText = '';
     this.loadComments(task.id);
     this.showTaskModal = true;
     this.router.navigate(['/boards', this.currentBoard?.id, 'tasks', task.id]);
@@ -199,9 +205,19 @@ export class TaskListComponent implements OnInit, OnDestroy {
   }
 
   private loadComments(taskId: number): void {
-    this.taskService.getComments(taskId).pipe(take(1)).subscribe(c => {
-      this.taskComments = c;
-      this.cdr.detectChanges();
+    this.commentLoading = true;
+    this.cdr.detectChanges();
+    this.taskService.getComments(taskId).pipe(take(1)).subscribe({
+      next: (comments) => {
+        // Backend orders by -created_at (newest first), reverse for display (oldest first)
+        this.taskComments = [...comments].reverse();
+        this.commentLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.commentLoading = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -238,14 +254,41 @@ export class TaskListComponent implements OnInit, OnDestroy {
   }
 
   addComment(): void {
-    if (!this.newCommentText.trim() || !this.selectedTask.id) return;
+    const text = this.newCommentText.trim();
+    if (!text || !this.selectedTask.id) return;
+
+    this.commentError = '';
+    const optimisticComment: Comment = {
+      id: -1,
+      task: this.selectedTask.id,
+      author: 0,
+      author_username: 'You',
+      text,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+
+    // Optimistically append to end (oldest-first display)
+    this.taskComments = [...this.taskComments, optimisticComment];
+    this.newCommentText = '';
+    this.cdr.detectChanges();
+
     this.taskService.addComment({
       task: this.selectedTask.id,
-      text: this.newCommentText.trim()
-    }).pipe(take(1)).subscribe(comment => {
-      this.taskComments = [comment, ...this.taskComments];
-      this.newCommentText = '';
-      this.cdr.detectChanges();
+      text
+    }).pipe(take(1)).subscribe({
+      next: (comment) => {
+        // Replace the optimistic entry with the real one from server
+        this.taskComments = this.taskComments.map(c => c.id === -1 ? comment : c);
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        // Roll back optimistic comment and restore text
+        this.taskComments = this.taskComments.filter(c => c.id !== -1);
+        this.newCommentText = text;
+        this.commentError = 'Failed to post comment. Please try again.';
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -271,6 +314,8 @@ export class TaskListComponent implements OnInit, OnDestroy {
     this.showTaskModal = false;
     this.selectedTask = {};
     this.newCommentText = '';
+    this.commentError = '';
+    this.taskComments = [];
     this.router.navigate(['/boards', this.currentBoard?.id]);
     this.cdr.detectChanges();
   }

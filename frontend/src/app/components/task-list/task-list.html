@@ -6,33 +6,27 @@
         </div>
     </div>
 
-    <div class="toolbar" style="display: flex; gap: 12px; margin: 0 24px 20px; align-items: center; flex-wrap: wrap;">
-        
-        <div class="view-switcher" style="display: flex; gap: 4px; background: #f1f5f9; padding: 4px; border-radius: 10px;">
-            <button (click)="setViewMode('groups')" 
-                    [style.background]="viewMode === 'groups' ? 'white' : 'transparent'"
-                    [style.box-shadow]="viewMode === 'groups' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none'"
-                    style="padding: 6px 12px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 600;">Board</button>
-            <button (click)="setViewMode('list')" 
-                    [style.background]="viewMode === 'list' ? 'white' : 'transparent'"
-                    [style.box-shadow]="viewMode === 'list' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none'"
-                    style="padding: 6px 12px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 600;">List</button>
+    <div class="toolbar">
+        <div class="view-switcher">
+            <button (click)="setViewMode('groups')" [class.active]="viewMode === 'groups'">Board</button>
+            <button (click)="setViewMode('list')" [class.active]="viewMode === 'list'">List</button>
         </div>
 
-        <input type="text" [(ngModel)]="searchTerm" placeholder="Search tasks..." 
-               style="flex: 1; min-width: 200px; padding: 8px 16px; border-radius: 10px; border: 1px solid #e2e8f0; outline: none;" />
+        <div class="search-wrap">
+            <input type="text" [(ngModel)]="searchTerm" placeholder="Search tasks..." class="search-input" />
+        </div>
 
-        <select [(ngModel)]="selectedPriority" style="padding: 8px; border-radius: 10px; border: 1px solid #e2e8f0; background: white;">
+        <select [(ngModel)]="selectedPriority" class="toolbar-select">
             <option [ngValue]="null">All Priorities</option>
             @for (p of priorities; track p.id) { <option [ngValue]="p.id">{{ p.name }}</option> }
         </select>
 
-        <select [(ngModel)]="selectedSprint" style="padding: 8px; border-radius: 10px; border: 1px solid #e2e8f0; background: white;">
+        <select [(ngModel)]="selectedSprint" class="toolbar-select">
             <option [ngValue]="null">All Sprints</option>
             @for (s of sprints; track s.id) { <option [ngValue]="s.id">{{ s.name }}</option> }
         </select>
 
-        <button (click)="resetFilters()" style="background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 13px;">Reset</button>
+        <button (click)="resetFilters()" class="btn-reset">Reset</button>
     </div>
 
     @if (viewMode === 'groups') {
@@ -46,13 +40,17 @@
                     </div>
                     <div class="tasks-list">
                         @for (task of getFilteredTasks(status.id); track task.id) {
-                            <div class="task-card" (click)="openEditTask(task)" [style.border-left-color]="getPriority(task.priority)?.color_hex || '#e2e8f0'">
+                            <div class="task-card" (click)="openEditTask(task)"
+                                 [style.border-left-color]="getPriority(task.priority)?.color_hex || '#e2e8f0'">
                                 <div class="task-card-main">
-                                    <input type="checkbox" [checked]="task.is_completed" (click)="toggleTaskStatus(task, $event)" />
+                                    <input type="checkbox" [checked]="task.is_completed"
+                                           (click)="toggleTaskStatus(task, $event)" />
                                     <span class="task-title" [class.done]="task.is_completed">{{ task.title }}</span>
                                 </div>
                                 <div class="task-meta">
-                                    @if (task.assignee_username) { <span class="meta-item">👤 {{ task.assignee_username }}</span> }
+                                    @if (task.assignee_username) {
+                                        <span class="meta-item">👤 {{ task.assignee_username }}</span>
+                                    }
                                 </div>
                             </div>
                         }
@@ -63,24 +61,27 @@
     }
 
     @if (viewMode === 'list') {
-        <div style="margin: 0 24px; background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden;">
-            <table style="width: 100%; border-collapse: collapse; text-align: left;">
-                <thead style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+        <div class="list-wrapper">
+            <table class="list-table">
+                <thead>
                     <tr>
-                        <th style="padding: 12px 16px;">Task</th>
-                        <th style="padding: 12px 16px;">Status</th>
-                        <th style="padding: 12px 16px;">Priority</th>
-                        <th style="padding: 12px 16px;">Assignee</th>
+                        <th>Task</th>
+                        <th>Status</th>
+                        <th>Priority</th>
+                        <th>Assignee</th>
                     </tr>
                 </thead>
                 <tbody>
                     @for (task of allFilteredTasks; track task.id) {
-                        <tr (click)="openEditTask(task)" style="border-bottom: 1px solid #f1f5f9; cursor: pointer;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
-                            <td style="padding: 12px 16px; font-weight: 500;">{{ task.title }}</td>
-                            <td style="padding: 12px 16px;"><span style="font-size: 12px; padding: 4px 8px; background: #e2e8f0; border-radius: 6px;">{{ task.status_name }}</span></td>
-                            <td style="padding: 12px 16px;">{{ task.priority_name }}</td>
-                            <td style="padding: 12px 16px;">{{ task.assignee_username || '—' }}</td>
+                        <tr class="list-row" (click)="openEditTask(task)">
+                            <td class="list-title">{{ task.title }}</td>
+                            <td><span class="status-pill">{{ task.status_name }}</span></td>
+                            <td>{{ task.priority_name || '—' }}</td>
+                            <td>{{ task.assignee_username || '—' }}</td>
                         </tr>
+                    }
+                    @if (allFilteredTasks.length === 0) {
+                        <tr><td colspan="4" class="list-empty">No tasks match your filters.</td></tr>
                     }
                 </tbody>
             </table>
@@ -96,23 +97,42 @@
                 <div class="task-main-col">
                     <input [(ngModel)]="selectedTask.title" class="title-input" placeholder="Task Title" />
                     <label>Description</label>
-                    <textarea [(ngModel)]="selectedTask.description" placeholder="Add a more detailed description..."></textarea>
+                    <textarea [(ngModel)]="selectedTask.description"
+                              placeholder="Add a more detailed description..."></textarea>
 
                     <div class="comments-section">
                         <h3>Comments</h3>
-                        <div class="comment-input-area">
-                            <textarea [(ngModel)]="newCommentText" placeholder="Write a comment..."></textarea>
-                            <button class="btn-primary" (click)="addComment()" [disabled]="!isEditMode">Post</button>
-                        </div>
-                        <div class="comments-list">
-                            @for (comment of taskComments; track comment.id) {
-                                <div class="comment-item">
-                                    <strong>{{ comment.author_username }}</strong>
-                                    <span>{{ comment.created_at | date:'short' }}</span>
-                                    <p>{{ comment.text }}</p>
-                                </div>
-                            }
-                        </div>
+
+                        @if (!isEditMode) {
+                            <p class="comments-hint">Save the task first to leave comments.</p>
+                        } @else {
+                            <div class="comment-input-area">
+                                <textarea [(ngModel)]="newCommentText"
+                                          placeholder="Write a comment… (Ctrl+Enter to post)"
+                                          (keydown.ctrl.enter)="addComment()"></textarea>
+                                @if (commentError) {
+                                    <p class="comment-error">{{ commentError }}</p>
+                                }
+                                <button class="btn-primary" (click)="addComment()"
+                                        [disabled]="!newCommentText.trim()">Post</button>
+                            </div>
+
+                            <div class="comments-list">
+                                @if (commentLoading) {
+                                    <p class="comments-hint">Loading comments...</p>
+                                } @else if (taskComments.length === 0) {
+                                    <p class="comments-hint">No comments yet.</p>
+                                } @else {
+                                    @for (comment of taskComments; track comment.id) {
+                                        <div class="comment-item" [style.opacity]="comment.id === -1 ? '0.5' : '1'">
+                                            <strong>{{ comment.author_username }}</strong>
+                                            <span>{{ comment.created_at | date:'short' }}</span>
+                                            <p>{{ comment.text }}</p>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        }
                     </div>
                 </div>
 
@@ -150,7 +170,9 @@
                     </div>
                     <div class="modal-actions">
                         @if (isEditMode) {
-                            <button class="btn-danger" style="background:#ef4444;color:white;border:none;border-radius:6px;cursor:pointer;" (click)="deleteTask(selectedTask.id!, $event)">Delete</button>
+                            <button class="btn-danger"
+                                    style="background:#ef4444;color:white;border:none;border-radius:6px;cursor:pointer;"
+                                    (click)="deleteTask(selectedTask.id!, $event)">Delete</button>
                         }
                         <button class="btn-primary" (click)="saveTask()">Save</button>
                         <button class="btn-secondary" (click)="closeTaskModal()">Cancel</button>
@@ -166,7 +188,8 @@
     <div class="modal-overlay" (click)="closeAddGroup()">
         <div class="modal-box" (click)="$event.stopPropagation()">
             <h3>New Group</h3>
-            <input [(ngModel)]="newGroupName" placeholder="e.g. In Progress" class="modal-input" (keydown.enter)="createGroup()" autofocus />
+            <input [(ngModel)]="newGroupName" placeholder="e.g. In Progress" class="modal-input"
+                   (keydown.enter)="createGroup()" autofocus />
             <div class="modal-actions">
                 <button class="btn-secondary" (click)="closeAddGroup()">Cancel</button>
                 <button class="btn-primary" (click)="createGroup()">Create</button>
