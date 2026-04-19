@@ -9,9 +9,6 @@
                 <div class="flex flex-col w-full">
                     <div class="flex justify-between items-center w-full cursor-pointer" (click)="selectBoard(board)">
                         <span class="board-item-name">{{ board.title }}</span>
-                        <button class="board-settings-btn" (click)="onBoardSettings($event, board)" title="Board settings">
-                            ⚙
-                        </button>
                     </div>
 
                     @if (selectedBoard?.id === board.id) {
@@ -26,6 +23,11 @@
                                routerLinkActive="text-white"
                                class="text-xs text-left text-gray-400 hover:text-white transition-colors py-1 no-underline">
                                 • Active Sprint
+                            </a>
+                            <a [routerLink]="['/boards', board.id, 'settings']"
+                                routerLinkActive="text-white font-medium"
+                                class="text-xs text-left text-gray-400 hover:text-white transition-colors py-1 no-underline">
+                                • Board Management
                             </a>
                         </div>
                     }
