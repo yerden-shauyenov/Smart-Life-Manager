@@ -47,19 +47,19 @@
                     <div class="group-card-header">
                         <span class="group-title">{{ group.name }}</span>
                         <span class="group-count">{{ getTasksForGroup(group.id).length }}</span>
-                        
+
                         @if (selectedGroupBy === 'status') {
                             <button class="btn-add-task" (click)="openCreateTask(group.id)">+</button>
                         }
                     </div>
-                    
+
                     <div class="tasks-list">
                         @for (task of getTasksForGroup(group.id); track task.id) {
                             <div class="task-card" (click)="openEditTask(task)"
-                                [style.border-left-color]="getPriority(task.priority)?.color_hex || '#e2e8f0'">
+                                 [style.border-left-color]="getPriority(task.priority)?.color_hex || '#e2e8f0'">
                                 <div class="task-card-main">
                                     <input type="checkbox" [checked]="task.is_completed"
-                                        (click)="toggleTaskStatus(task, $event)" />
+                                           (click)="toggleTaskStatus(task, $event)" />
                                     <span class="task-title" [class.done]="task.is_completed">{{ task.title }}</span>
                                 </div>
                                 <div class="task-meta">
@@ -82,17 +82,17 @@
                     <h3 style="font-size: 14px; color: #64748b; margin-bottom: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
                         {{ group.name }} — {{ getTasksForGroup(group.id).length }}
                     </h3>
-                    
+
                     <div class="list-table-container" style="background: white; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow: hidden;">
                         @for (task of getTasksForGroup(group.id); track task.id) {
-                            <div class="list-row" (click)="openTaskModal(task)" 
-                                style="display: grid; grid-template-columns: 1.5fr 120px 100px 100px 80px 40px; padding: 12px 20px; border-bottom: 1px solid #f1f5f9; cursor: pointer; align-items: center; transition: background 0.2s; gap: 15px;">
-                                
+                            <div class="list-row" (click)="openTaskModal(task)"
+                                 style="display: grid; grid-template-columns: 1.5fr 120px 100px 100px 80px 40px; padding: 12px 20px; border-bottom: 1px solid #f1f5f9; cursor: pointer; align-items: center; transition: background 0.2s; gap: 15px;">
+
                                 <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
                                     <input type="checkbox" [checked]="task.is_completed" (click)="toggleTaskStatus(task, $event)" style="cursor: pointer;" />
-                                    <span [style.text-decoration]="task.is_completed ? 'line-through' : 'none'" 
-                                        [style.color]="task.is_completed ? '#94a3b8' : '#0f172a'"
-                                        style="font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                    <span [style.text-decoration]="task.is_completed ? 'line-through' : 'none'"
+                                          [style.color]="task.is_completed ? '#94a3b8' : '#0f172a'"
+                                          style="font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                         {{ task.title }}
                                     </span>
                                 </div>
@@ -106,8 +106,7 @@
                                 </div>
 
                                 <div style="display: flex; justify-content: center;">
-                                    <span style="padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; color: #64748b; width: 100%; text-align: center;"
-                                        >
+                                    <span style="padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; color: #64748b; width: 100%; text-align: center;">
                                         {{ task.priority_name }}
                                     </span>
                                 </div>
@@ -118,8 +117,8 @@
 
                                 <div style="display: flex; justify-content: flex-end;">
                                     @if (task.assignee_username) {
-                                        <div [title]="task.assignee_username" 
-                                            style="width: 28px; height: 28px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #475569; border: 2px solid white; box-shadow: 0 0 0 1px #cbd5e1;">
+                                        <div [title]="task.assignee_username"
+                                             style="width: 28px; height: 28px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #475569; border: 2px solid white; box-shadow: 0 0 0 1px #cbd5e1;">
                                             {{ task.assignee_username.substring(0, 2).toUpperCase() }}
                                         </div>
                                     } @else {
@@ -144,9 +143,38 @@
 
                 <div class="task-main-col">
                     <input [(ngModel)]="selectedTask.title" class="title-input" placeholder="Task Title" />
+
                     <label>Description</label>
-                    <textarea [(ngModel)]="selectedTask.description"
-                              placeholder="Add a more detailed description..."></textarea>
+                    <div class="md-editor-container" style="margin-bottom: 24px;">
+                        <div class="md-header">
+                            <div class="md-tabs">
+                                <button (click)="descMode = 'edit'" [class.active]="descMode === 'edit'">Write</button>
+                                <button (click)="descMode = 'preview'" [class.active]="descMode === 'preview'">Preview</button>
+                            </div>
+
+                            @if (descMode === 'edit') {
+                                <div class="md-toolbar">
+                                    <button (click)="applyMarkdown('description', '**', '**')" title="Bold"><b>B</b></button>
+                                    <button (click)="applyMarkdown('description', '*', '*')" title="Italic"><i>I</i></button>
+                                    <button (click)="applyMarkdown('description', '~~', '~~')" title="Strikethrough"><s>S</s></button>
+                                    <span class="md-divider"></span>
+                                    <button (click)="applyMarkdown('description', '# ', '')" title="Heading 1"><b>H1</b></button>
+                                    <button (click)="applyMarkdown('description', '## ', '')" title="Heading 2"><b>H2</b></button>
+                                    <span class="md-divider"></span>
+                                    <button (click)="applyMarkdown('description', '- ', '')" title="Bullet List">•</button>
+                                    <button (click)="applyMarkdown('description', '- [ ] ', '')" title="Checklist">☑</button>
+                                </div>
+                            }
+                        </div>
+
+                        <div class="md-body">
+                            @if (descMode === 'edit') {
+                                <textarea id="descTextarea" [(ngModel)]="selectedTask.description" class="md-textarea" style="min-height: 120px;" placeholder="Add a more detailed description..."></textarea>
+                            } @else {
+                                <div class="md-preview-body markdown-body" [innerHTML]="selectedTask.description | markdown"></div>
+                            }
+                        </div>
+                    </div>
 
                     <div class="comments-section">
                         <h3>Comments</h3>
@@ -154,15 +182,37 @@
                         @if (!isEditMode) {
                             <p class="comments-hint">Save the task first to leave comments.</p>
                         } @else {
-                            <div class="comment-input-area">
-                                <textarea [(ngModel)]="newCommentText"
-                                          placeholder="Write a comment… (Ctrl+Enter to post)"
-                                          (keydown.ctrl.enter)="addComment()"></textarea>
-                                @if (commentError) {
-                                    <p class="comment-error">{{ commentError }}</p>
-                                }
-                                <button class="btn-primary" (click)="addComment()"
-                                        [disabled]="!newCommentText.trim()">Post</button>
+                            <div class="md-editor-container" style="margin-bottom: 16px;">
+                                <div class="md-header">
+                                    <div class="md-tabs">
+                                        <button (click)="commentMode = 'edit'" [class.active]="commentMode === 'edit'">Write</button>
+                                        <button (click)="commentMode = 'preview'" [class.active]="commentMode === 'preview'">Preview</button>
+                                    </div>
+
+                                    @if (commentMode === 'edit') {
+                                        <div class="md-toolbar">
+                                            <button (click)="applyMarkdown('comment', '**', '**')" title="Bold"><b>B</b></button>
+                                            <button (click)="applyMarkdown('comment', '*', '*')" title="Italic"><i>I</i></button>
+                                            <span class="md-divider"></span>
+                                            <button (click)="applyMarkdown('comment', '- ', '')" title="Bullet List">•</button>
+                                            <button (click)="applyMarkdown('comment', '- [ ] ', '')" title="Checklist">☑</button>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="md-body">
+                                    @if (commentMode === 'edit') {
+                                        <textarea id="commentTextarea" [(ngModel)]="newCommentText" (keydown.control.enter)="addComment()" class="md-textarea" style="min-height: 80px;" placeholder="Write a comment… (Ctrl+Enter to post)"></textarea>
+                                    } @else {
+                                        <div class="md-preview-body markdown-body" [innerHTML]="newCommentText | markdown"></div>
+                                    }
+                                </div>
+                            </div>
+
+                            @if (commentError) {
+                                <p class="comment-error">{{ commentError }}</p>
+                            }
+                            <div style="display: flex; justify-content: flex-end; margin-bottom: 24px;">
+                                <button class="btn-primary" (click)="addComment()" [disabled]="!newCommentText.trim()">Post Comment</button>
                             </div>
 
                             <div class="comments-list">
@@ -184,7 +234,7 @@
                                                     </button>
                                                 }
                                             </div>
-                                            <p>{{ comment.text }}</p>
+                                            <div class="markdown-body" style="margin-top: 8px; font-size: 14px;" [innerHTML]="comment.text | markdown"></div>
                                         </div>
                                     }
                                 }
@@ -218,8 +268,8 @@
                         <label>Type</label>
                         <select [(ngModel)]="selectedTask.task_type">
                             <option [ngValue]="null">No Type</option>
-                            @for (type of taskTypes; track type.id) { 
-                                <option [ngValue]="type.id">{{ type.name }}</option> 
+                            @for (type of taskTypes; track type.id) {
+                                <option [ngValue]="type.id">{{ type.name }}</option>
                             }
                         </select>
                     </div>

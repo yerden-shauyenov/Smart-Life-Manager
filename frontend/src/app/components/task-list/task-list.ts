@@ -9,11 +9,12 @@ import { BoardService } from '../../services/board.service';
 import { AuthService } from '../../services/auth.service';
 import { Task, Comment } from '../../models/task.model';
 import { Board, TaskStatus, TaskPriority, Sprint, TaskType, BoardMembership } from '../../models/board.model';
+import { MarkdownPipe } from '../../pipes/markdown.pipe';
 
 @Component({
   selector: 'app-task-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, MarkdownPipe],
   templateUrl: './task-list.html',
   styleUrl: './task-list.css'
 })
@@ -43,6 +44,9 @@ export class TaskListComponent implements OnInit, OnDestroy {
   newCommentText = '';
   commentLoading = false;
   commentError = '';
+
+  descMode: 'edit' | 'preview' = 'edit';
+  commentMode: 'edit' | 'preview' = 'edit';
 
   selectedGroupBy: 'status' | 'priority' | 'task_type' = 'status';
 
@@ -77,23 +81,23 @@ export class TaskListComponent implements OnInit, OnDestroy {
     this.cdr.detectChanges();
 
     this.boardService.getBoard(boardId).pipe(
-      take(1),
-      switchMap(board => {
-        this.currentBoard = board;
-        this.boardService.selectBoard(board);
-        return forkJoin({
-          statuses: this.boardService.getStatuses(boardId).pipe(catchError(() => of([]))),
-          priorities: this.boardService.getPriorities(boardId).pipe(catchError(() => of([]))),
-          tasks: this.taskService.getTasks().pipe(catchError(() => of([]))),
-          sprints: this.boardService.getSprints(boardId).pipe(catchError(() => of([]))),
-          taskTypes: this.boardService.getTaskTypes(boardId).pipe(catchError(() => of([]))),
-          members: this.boardService.getMemberships(boardId).pipe(catchError(() => of([])))
-        });
-      }),
-      finalize(() => {
-        this.loading = false;
-        this.cdr.detectChanges();
-      })
+        take(1),
+        switchMap(board => {
+          this.currentBoard = board;
+          this.boardService.selectBoard(board);
+          return forkJoin({
+            statuses: this.boardService.getStatuses(boardId).pipe(catchError(() => of([]))),
+            priorities: this.boardService.getPriorities(boardId).pipe(catchError(() => of([]))),
+            tasks: this.taskService.getTasks().pipe(catchError(() => of([]))),
+            sprints: this.boardService.getSprints(boardId).pipe(catchError(() => of([]))),
+            taskTypes: this.boardService.getTaskTypes(boardId).pipe(catchError(() => of([]))),
+            members: this.boardService.getMemberships(boardId).pipe(catchError(() => of([])))
+          });
+        }),
+        finalize(() => {
+          this.loading = false;
+          this.cdr.detectChanges();
+        })
     ).subscribe(res => {
       this.statuses = (res.statuses as TaskStatus[]).sort((a, b) => a.order - b.order);
       this.priorities = (res.priorities as TaskPriority[]).sort((a, b) => b.level - a.level);
@@ -125,11 +129,11 @@ export class TaskListComponent implements OnInit, OnDestroy {
       taskTypes: this.boardService.getTaskTypes(boardId).pipe(catchError(() => of([]))),
       members: this.boardService.getMemberships(boardId).pipe(catchError(() => of([])))
     }).pipe(
-      take(1),
-      finalize(() => {
-        this.loading = false;
-        this.cdr.detectChanges();
-      })
+        take(1),
+        finalize(() => {
+          this.loading = false;
+          this.cdr.detectChanges();
+        })
     ).subscribe(res => {
       this.statuses = (res.statuses as TaskStatus[]).sort((a, b) => a.order - b.order);
       this.priorities = (res.priorities as TaskPriority[]).sort((a, b) => b.level - a.level);
@@ -147,7 +151,7 @@ export class TaskListComponent implements OnInit, OnDestroy {
   get allFilteredTasks(): Task[] {
     return this.tasks.filter(task => {
       const matchesSearch = task.title.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        (task.description && task.description.toLowerCase().includes(this.searchTerm.toLowerCase()));
+          (task.description && task.description.toLowerCase().includes(this.searchTerm.toLowerCase()));
       const matchesPriority = this.selectedPriority ? task.priority === this.selectedPriority : true;
       const matchesSprint = this.selectedSprint ? task.sprint === this.selectedSprint : true;
       const matchesAssignee = this.filterAssignee ? task.assignee_username === this.filterAssignee : true;
@@ -201,12 +205,8 @@ export class TaskListComponent implements OnInit, OnDestroy {
     return this.priorities.find(p => p.id === priorityId) ?? null;
   }
 
-  /** Returns true if the current user can delete the given comment:
-   *  - they are the comment author, OR
-   *  - they are the board owner
-   */
   canDeleteComment(comment: Comment): boolean {
-    if (comment.id === -1) return false; // optimistic, not yet saved
+    if (comment.id === -1) return false;
     const isAuthor = comment.author_username === this.currentUsername;
     const isBoardOwner = this.currentBoard?.owner === this.currentUsername;
     return isAuthor || isBoardOwner;
@@ -214,6 +214,7 @@ export class TaskListComponent implements OnInit, OnDestroy {
 
   openCreateTask(statusId: number): void {
     this.isEditMode = false;
+    this.descMode = 'edit';
     this.selectedTask = {
       title: '',
       description: '',
@@ -235,6 +236,8 @@ export class TaskListComponent implements OnInit, OnDestroy {
 
   openEditTask(task: Task): void {
     this.isEditMode = true;
+    this.descMode = 'edit';
+    this.commentMode = 'edit';
     this.selectedTask = { ...task };
     this.taskComments = [];
     this.commentError = '';
@@ -277,8 +280,8 @@ export class TaskListComponent implements OnInit, OnDestroy {
     };
 
     const request = (this.isEditMode && this.selectedTask.id)
-      ? this.taskService.updateTask(this.selectedTask.id, payload)
-      : this.taskService.createTask(payload);
+        ? this.taskService.updateTask(this.selectedTask.id, payload)
+        : this.taskService.createTask(payload);
 
     request.pipe(take(1)).subscribe({
       next: res => {
@@ -310,6 +313,7 @@ export class TaskListComponent implements OnInit, OnDestroy {
 
     this.taskComments = [...this.taskComments, optimisticComment];
     this.newCommentText = '';
+    this.commentMode = 'edit';
     this.cdr.detectChanges();
 
     this.taskService.addComment({ task: this.selectedTask.id, text }).pipe(take(1)).subscribe({
@@ -328,15 +332,13 @@ export class TaskListComponent implements OnInit, OnDestroy {
 
   deleteComment(comment: Comment, event: MouseEvent): void {
     event.stopPropagation();
-    // Optimistically remove from UI
     this.taskComments = this.taskComments.filter(c => c.id !== comment.id);
     this.cdr.detectChanges();
 
     this.taskService.deleteComment(comment.id).pipe(take(1)).subscribe({
       error: () => {
-        // Roll back if server rejects
         this.taskComments = [...this.taskComments, comment].sort(
-          (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+            (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
         );
         this.commentError = 'Failed to delete comment.';
         this.cdr.detectChanges();
@@ -365,13 +367,15 @@ export class TaskListComponent implements OnInit, OnDestroy {
   openTaskModal(task: Task): void {
     this.selectedTask = { ...task };
     this.isEditMode = true;
+    this.descMode = 'edit';
+    this.commentMode = 'edit';
     this.showTaskModal = true;
-    
+
     this.taskService.getComments(task.id).pipe(take(1)).subscribe(comments => {
       this.taskComments = comments;
       this.cdr.detectChanges();
     });
-    
+
     this.cdr.detectChanges();
   }
 
@@ -381,6 +385,8 @@ export class TaskListComponent implements OnInit, OnDestroy {
     this.newCommentText = '';
     this.commentError = '';
     this.taskComments = [];
+    this.descMode = 'edit';
+    this.commentMode = 'edit';
     this.router.navigate(['/boards', this.currentBoard?.id]);
     this.cdr.detectChanges();
   }
@@ -410,5 +416,33 @@ export class TaskListComponent implements OnInit, OnDestroy {
 
   goToDashboard(): void {
     this.router.navigate(['/dashboard']);
+  }
+
+  applyMarkdown(target: 'description' | 'comment', prefix: string, suffix: string) {
+    const elementId = target === 'description' ? 'descTextarea' : 'commentTextarea';
+    const textarea = document.getElementById(elementId) as HTMLTextAreaElement;
+
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = textarea.value || '';
+
+    const before = text.substring(0, start);
+    const selected = text.substring(start, end) || (prefix === '- [ ] ' ? 'task' : 'text');
+    const after = text.substring(end);
+
+    const result = before + prefix + selected + suffix + after;
+
+    if (target === 'description') {
+      this.selectedTask.description = result;
+    } else {
+      this.newCommentText = result;
+    }
+
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(start + prefix.length, start + prefix.length + selected.length);
+    }, 0);
   }
 }
