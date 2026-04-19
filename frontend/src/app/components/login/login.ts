@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+
 
 @Component({
   selector: 'app-login',
@@ -20,7 +21,8 @@ export class LoginComponent {
 
   constructor(
       private authService: AuthService,
-      private router: Router
+      private router: Router,
+      private cdr: ChangeDetectorRef
   ) {}
 
   onSubmit() {
@@ -35,6 +37,7 @@ export class LoginComponent {
       error: (err) => {
         this.isLoading = false;
         this.error = 'Invalid username or password. Please try again.';
+        this.cdr.detectChanges();
       }
     });
   }
