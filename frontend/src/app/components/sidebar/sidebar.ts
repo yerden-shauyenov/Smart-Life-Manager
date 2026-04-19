@@ -27,6 +27,23 @@ export class SidebarComponent implements OnInit {
   selectedBoard: Board | null = null;
   username = '';
 
+  get userAvatar(): string {
+    if (!this.currentUser || !this.currentUser.avatar) {
+      return 'assets/default-avatar.png';
+    }
+
+    if (this.currentUser.avatar.startsWith('http')) {
+      return this.currentUser.avatar;
+    }
+
+    const base = this.imageBaseUrl.replace(/\/$/, '');
+    const path = this.currentUser.avatar.startsWith('/')
+        ? this.currentUser.avatar
+        : `/${this.currentUser.avatar}`;
+
+    return `${base}${path}`;
+  }
+
   ngOnInit(): void {
     this.username = this.authService.getUsername() || "null";
 
@@ -46,6 +63,11 @@ export class SidebarComponent implements OnInit {
 
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
+
+      if (user && user.username) {
+        this.username = user.username;
+      }
+      this.cdr.detectChanges();
     });
   }
 

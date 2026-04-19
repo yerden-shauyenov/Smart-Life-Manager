@@ -5,7 +5,9 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User, UserSession
-from .serializers import UserSerializer, UserSessionSerializer, ChangePasswordSerializer, RegisterSerializer
+from .serializers import UserSerializer, UserSessionSerializer, ChangePasswordSerializer, RegisterSerializer, \
+    CustomTokenObtainPairSerializer
+
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -30,6 +32,7 @@ class RegisterView(generics.CreateAPIView):
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     permission_classes = (AllowAny,)
+    serializer_class = CustomTokenObtainPairSerializer
 
 class UserProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = UserSerializer
