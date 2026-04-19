@@ -82,6 +82,12 @@ export class BoardSettingsComponent implements OnInit {
         this.types = res.types;
         this.roles = res.roles;
         this.memberships = res.memberships;
+
+        if (this.roles.length > 0 && (!this.inviteRole || this.inviteRole === 'member')) {
+          const defaultRole = this.roles.find(r => r.name === 'Developer') || this.roles[0];
+          this.inviteRole = defaultRole.name;
+        }
+
         this.cdr.detectChanges();
       }
     });

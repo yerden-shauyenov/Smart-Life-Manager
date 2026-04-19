@@ -54,6 +54,7 @@ export interface BoardMembership {
     id: number;
     user: number;
     user_username: string;
+    user_avatar: string | null;
     board: number;
     role: number;
     role_name: string;

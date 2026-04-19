@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { User, UserSession, BoardInvitation, OwnershipTransfer } from '../models/user.model';
+import {environment} from "../../environments/environment";
 
 @Injectable({
     providedIn: 'root'
 })
 export class UserService {
-    private apiUrl = `http://localhost:8000/api/users/me`;
+    private apiUrl = `${environment.apiUrl}/users/me`;
 
     constructor(private http: HttpClient) {}
 
@@ -32,18 +33,18 @@ export class UserService {
     }
 
     getInvitations(): Observable<BoardInvitation[]> {
-        return this.http.get<BoardInvitation[]>(`http://localhost:8000/api/invitations/`);
+        return this.http.get<BoardInvitation[]>(`${environment.apiUrl}/invitations/`);
     }
 
     respondInvitation(id: number, action: 'accept' | 'reject'): Observable<any> {
-        return this.http.post(`http://localhost:8000/api/invitations/${id}/${action}/`, {});
+        return this.http.post(`${environment.apiUrl}/invitations/${id}/${action}/`, {});
     }
 
     getTransfers(): Observable<OwnershipTransfer[]> {
-        return this.http.get<OwnershipTransfer[]>(`http://localhost:8000/api/transfers/`);
+        return this.http.get<OwnershipTransfer[]>(`${environment.apiUrl}/transfers/`);
     }
 
     respondTransfer(id: number, action: 'accept' | 'reject'): Observable<any> {
-        return this.http.post(`http://localhost:8000/api/transfers/${id}/${action}/`, {});
+        return this.http.post(`${environment.apiUrl}/transfers/${id}/${action}/`, {});
     }
 }
