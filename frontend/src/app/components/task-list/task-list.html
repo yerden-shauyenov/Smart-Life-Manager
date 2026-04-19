@@ -215,6 +215,15 @@
                         </select>
                     </div>
                     <div class="side-item">
+                        <label>Type</label>
+                        <select [(ngModel)]="selectedTask.task_type">
+                            <option [ngValue]="null">No Type</option>
+                            @for (type of taskTypes; track type.id) { 
+                                <option [ngValue]="type.id">{{ type.name }}</option> 
+                            }
+                        </select>
+                    </div>
+                    <div class="side-item">
                         <label>Sprint</label>
                         <select [(ngModel)]="selectedTask.sprint">
                             <option [ngValue]="null">Backlog</option>
