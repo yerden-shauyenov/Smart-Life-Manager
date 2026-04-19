@@ -7,8 +7,10 @@ import { BoardSettingsComponent } from './components/board-settings/board-settin
 import { BacklogComponent } from './components/backlog/backlog';
 import { authGuard } from './guards/auth.guard';
 import {ProfileComponent} from "./components/profile/profile";
+import { HomeComponent } from './components/home/home';
 
 export const routes: Routes = [
+  { path: '', component: HomeComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   {
@@ -39,6 +41,6 @@ export const routes: Routes = [
   { path: 'profile',
     component: ProfileComponent,
     canActivate: [authGuard] },
-  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-  { path: '**', redirectTo: 'dashboard' }
+  //{ path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+  { path: '**', redirectTo: '' }
 ];

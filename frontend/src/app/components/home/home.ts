@@ -1,0 +1,15 @@
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+
+@Component({
+  selector: 'app-home',
+  standalone: true,
+  imports: [CommonModule, RouterModule],
+  templateUrl: './home.html',
+  styleUrls: ['./home.css']
+})
+export class HomeComponent {
+  // Весь функционал демо удален, так как страница теперь чисто информационная.
+  // Логика перехода в личный кабинет (если залогинен) находится в AppComponent.
+}

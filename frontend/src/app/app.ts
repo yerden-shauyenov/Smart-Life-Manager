@@ -30,7 +30,7 @@ export class AppComponent {
     this.router.events.pipe(
         filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {
-      const publicRoutes = ['/login', '/register'];
+      const publicRoutes = ['/login', '/register', '/'];
       const isPublicRoute = publicRoutes.includes(this.router.url);
       const hasToken = this.authService.hasToken();
 
@@ -38,6 +38,10 @@ export class AppComponent {
 
       if (!hasToken && !isPublicRoute) {
         this.router.navigate(['/login']);
+      }
+
+      if (hasToken && this.router.url === '/') {
+        this.router.navigate(['/dashboard']);
       }
     });
   }
