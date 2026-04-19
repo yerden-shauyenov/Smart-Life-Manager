@@ -69,6 +69,10 @@ export class SidebarComponent implements OnInit {
     this.router.navigate(['/boards', board.id, 'settings']);
   }
 
+  goToProfile(): void {
+    this.router.navigate(['/profile']);
+  }
+
   goToDashboard(): void {
     this.boardService.selectBoard(null as any);
     this.router.navigate(['/dashboard']);
