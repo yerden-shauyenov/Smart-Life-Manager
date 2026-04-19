@@ -88,12 +88,11 @@
                                         </span>
                                     </div>
 
-                                    <div class="flex items-center justify-end">
-                                        @if (task.assignee_username) {
-                                            <div class="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-[10px] font-bold uppercase ring-1 ring-indigo-200" [title]="task.assignee_username">
-                                                {{ task.assignee_username.substring(0, 2) }}
-                                            </div>
-                                        }
+                                    <div class="flex items-center gap-2" *ngIf="task.assignee">
+                                        <img [src]="getUserAvatar(task.assignee_avatar)"
+                                             class="w-6 h-6 rounded-full object-cover border border-slate-600"
+                                             [title]="task.assignee_username">
+                                        <span class="text-xs text-slate-400">{{ task.assignee_username }}</span>
                                     </div>
                                 </div>
                             }

@@ -11,6 +11,7 @@ import { Task, Comment } from '../../models/task.model';
 import { Board, TaskStatus, TaskPriority, Sprint, TaskType, BoardMembership } from '../../models/board.model';
 import { MarkdownPipe } from '../../pipes/markdown.pipe';
 import {environment} from "../../../environments/environment";
+import {User} from "../../models/user.model";
 
 @Component({
   selector: 'app-task-list',
@@ -72,6 +73,18 @@ export class TaskListComponent implements OnInit, OnDestroy {
         this.loadBoardAndData(boardId, taskId);
       }
     });
+  }
+
+  getUserAvatar(avatarPath: string | null | undefined): string {
+    if (!avatarPath) {
+      return 'assets/default-avatar.png';
+    }
+    if (avatarPath.startsWith('http')) {
+      return avatarPath;
+    }
+    const base = this.imageBaseUrl.replace(/\/$/, '');
+    const path = avatarPath.startsWith('/') ? avatarPath : `/${avatarPath}`;
+    return `${base}${path}`;
   }
 
   ngOnDestroy(): void {
@@ -309,6 +322,7 @@ export class TaskListComponent implements OnInit, OnDestroy {
       task: this.selectedTask.id,
       author: 0,
       author_username: this.currentUsername,
+      author_avatar: this.currentUsername,
       text,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
