@@ -6,6 +6,7 @@ import { forkJoin } from 'rxjs';
 import { BoardService } from '../../services/board.service';
 import { ConfirmService } from '../../services/confirm.service';
 import { TaskStatus, TaskPriority, TaskType, BoardRole, BoardMembership } from '../../models/board.model';
+import {environment} from "../../../environments/environment";
 
 @Component({
   selector: 'app-board-settings',
@@ -14,6 +15,8 @@ import { TaskStatus, TaskPriority, TaskType, BoardRole, BoardMembership } from '
   templateUrl: './board-settings.html'
 })
 export class BoardSettingsComponent implements OnInit {
+  public imageBaseUrl = environment.imageBaseUrl;
+
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private boardService = inject(BoardService);

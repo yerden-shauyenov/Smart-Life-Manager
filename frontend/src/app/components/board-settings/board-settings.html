@@ -29,17 +29,17 @@
     <section class="flex flex-col space-y-4">
         <h2 class="text-xl font-semibold">Board Members</h2>
         <div class="flex flex-col space-y-3">
-            <div *ngFor="let m of board?.memberships" class="flex items-center justify-between p-4 border rounded-lg bg-white shadow-sm">
+            <div *ngFor="let m of memberships" class="flex items-center justify-between p-4 border rounded-lg bg-white shadow-sm">
                 <div class="flex items-center gap-3">
-                    <img [src]="m.user?.avatar || 'assets/default-avatar.png'" class="w-10 h-10 rounded-full object-cover bg-gray-100 border">
+                    <img [src]="m.user_avatar ? imageBaseUrl + m.user_avatar : 'assets/default-avatar.png'"
+                         class="w-10 h-10 rounded-full object-cover bg-gray-100 border">
                     <div>
-                        <p class="font-bold text-lg">{{ m.user?.first_name }} {{ m.user?.last_name || m.user?.username }}</p>
-                        <p class="text-sm text-gray-500">{{ m.user?.email }}</p>
+                        <p class="font-bold text-lg">{{ m.user_username }}</p>
+                        <p class="text-sm text-gray-500">Role: {{ m.role_name }}</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-4">
-                    <select [ngModel]="m.role?.id" (ngModelChange)="assignRole(m, $event)" class="border p-2 rounded bg-white text-sm">
-                        <option [ngValue]="null">No role</option>
+                    <select [ngModel]="m.role" (ngModelChange)="assignRole(m, $event)" class="border p-2 rounded bg-white text-sm">
                         <option *ngFor="let r of roles" [ngValue]="r.id">{{ r.name }}</option>
                     </select>
 
@@ -49,8 +49,8 @@
                         </button>
                         <div class="absolute right-0 w-48 mt-2 origin-top-right bg-white border rounded-md shadow-lg hidden group-hover:block z-10">
                             <div class="py-1">
-                                <button *ngIf="m.role?.name !== 'owner'" (click)="transferOwnership(m.user?.id)" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Make Owner</button>
-                                <button *ngIf="m.role?.name !== 'owner'" (click)="removeMember(m.user?.id)" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">Remove</button>
+                                <button *ngIf="m.role_name !== 'Administrator'" (click)="transferOwnership(m.user)" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Make Owner</button>
+                                <button *ngIf="m.role_name !== 'Administrator'" (click)="removeMember(m.user)" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">Remove</button>
                             </div>
                         </div>
                     </div>
@@ -69,8 +69,7 @@
             <div class="w-full sm:w-48">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Role</label>
                 <select [(ngModel)]="inviteRole" class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500">
-                    <option value="member">Member</option>
-                    <option value="admin">Admin</option>
+                    <option *ngFor="let r of roles" [value]="r.name">{{ r.name }}</option>
                 </select>
             </div>
             <button (click)="inviteMember()" [disabled]="!inviteEmail" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 disabled:opacity-50">Send Invite</button>

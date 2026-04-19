@@ -26,7 +26,9 @@ class BoardViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Board.objects.filter(board_memberships__user=self.request.user)
+        return Board.objects.filter(
+            Q(owner=self.request.user) | Q(board_memberships__user=self.request.user)
+        ).distinct().prefetch_related('board_memberships__user', 'board_memberships__role')
 
     def perform_create(self, serializer):
         board = serializer.save(owner=self.request.user)
@@ -42,12 +44,20 @@ class BoardViewSet(viewsets.ModelViewSet):
     def invite_member(self, request, pk=None):
         board = self.get_object()
         email = request.data.get('email')
-        role_name = request.data.get('role', 'member')
+        role_name = request.data.get('role', 'Developer')
 
         if not email:
             return Response({'detail': 'Email is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        role, _ = BoardRole.objects.get_or_create(name=role_name)
+        try:
+            role = board.roles.get(name=role_name)
+        except BoardRole.DoesNotExist:
+            available_roles = list(board.roles.values_list('name', flat=True))
+            return Response({
+                'detail': f'Role "{role_name}" not found for this board.',
+                'available_roles': available_roles
+            }, status=status.HTTP_400_BAD_REQUEST)
+
         BoardInvitation.objects.create(
             board=board, inviter=request.user, email=email, role=role
         )
@@ -59,8 +69,8 @@ class BoardViewSet(viewsets.ModelViewSet):
         user_id = request.data.get('user_id')
         membership = get_object_or_404(BoardMembership, board=board, user_id=user_id)
 
-        if membership.role.name == 'owner':
-            return Response({'detail': 'The owner cannot be removed. The owner can only leave voluntarily.'},
+        if board.owner_id == int(user_id):
+            return Response({'detail': 'The owner cannot be removed. Transfer ownership first.'},
                             status=status.HTTP_400_BAD_REQUEST)
 
         membership.delete()
@@ -69,17 +79,19 @@ class BoardViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def leave(self, request, pk=None):
         board = self.get_object()
+        if board.owner == request.user:
+            return Response({'detail': 'Owner cannot leave. Delete the board or transfer ownership.'}, status=400)
+
         membership = get_object_or_404(BoardMembership, board=board, user=request.user)
         membership.delete()
-
-        if not BoardMembership.objects.filter(board=board).exists():
-            board.delete()
-
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, methods=['post'])
     def transfer_ownership(self, request, pk=None):
         board = self.get_object()
+        if board.owner != request.user:
+            return Response({'detail': 'Only the current owner can transfer ownership.'}, status=403)
+
         to_user_id = request.data.get('user_id')
         to_user = get_object_or_404(User, id=to_user_id)
 
@@ -129,17 +141,13 @@ class UserTransfersViewSet(viewsets.ReadOnlyModelViewSet):
         transfer = self.get_object()
         board = transfer.board
 
-        old_owner = get_object_or_404(BoardMembership, board=board, user=transfer.from_user)
-        new_owner = get_object_or_404(BoardMembership, board=board, user=transfer.to_user)
+        board.owner = transfer.to_user
+        board.save()
 
-        admin_role, _ = BoardRole.objects.get_or_create(name='admin')
-        owner_role, _ = BoardRole.objects.get_or_create(name='owner')
+        admin_role = get_object_or_404(BoardRole, board=board, name='Administrator')
 
-        old_owner.role = admin_role
-        old_owner.save()
-
-        new_owner.role = owner_role
-        new_owner.save()
+        BoardMembership.objects.filter(board=board, user=transfer.from_user).update(role=admin_role)
+        BoardMembership.objects.filter(board=board, user=transfer.to_user).update(role=admin_role)
 
         transfer.status = 'accepted'
         transfer.save()

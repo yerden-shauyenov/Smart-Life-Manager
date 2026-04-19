@@ -4,6 +4,8 @@ import { Router, RouterModule } from '@angular/router';
 import { BoardService } from '../../services/board.service';
 import { AuthService } from '../../services/auth.service';
 import { Board } from '../../models/board.model';
+import {environment} from "../../../environments/environment";
+import {User} from "../../models/user.model";
 
 @Component({
   selector: 'app-sidebar',
@@ -13,6 +15,9 @@ import { Board } from '../../models/board.model';
   styleUrl: './sidebar.css'
 })
 export class SidebarComponent implements OnInit {
+  public imageBaseUrl = environment.imageBaseUrl;
+  public currentUser: User | null = null;
+
   private readonly boardService = inject(BoardService);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
@@ -37,6 +42,10 @@ export class SidebarComponent implements OnInit {
     this.boardService.selectedBoard$.subscribe(board => {
       this.selectedBoard = board;
       this.cdr.detectChanges();
+    });
+
+    this.authService.currentUser$.subscribe(user => {
+      this.currentUser = user;
     });
   }
 

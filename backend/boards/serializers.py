@@ -31,11 +31,12 @@ class BoardRoleSerializer(serializers.ModelSerializer):
 
 class BoardMembershipSerializer(serializers.ModelSerializer):
     user_username = serializers.ReadOnlyField(source='user.username')
+    user_avatar = serializers.ImageField(source='user.avatar', read_only=True)
     role_name = serializers.ReadOnlyField(source='role.name')
 
     class Meta:
         model = BoardMembership
-        fields = ['id', 'user', 'user_username', 'board', 'role', 'role_name', 'joined_at']
+        fields = ['id', 'user', 'user_username', 'user_avatar', 'board', 'role', 'role_name', 'joined_at']
         read_only_fields = ['joined_at']
 
 
@@ -77,6 +78,7 @@ class SprintSerializer(serializers.ModelSerializer):
 class TaskSerializer(serializers.ModelSerializer):
     author = serializers.ReadOnlyField(source='author.username')
     assignee_username = serializers.ReadOnlyField(source='assignee.username')
+    assignee_avatar = serializers.ImageField(source='assignee.avatar', read_only=True)
     status_name = serializers.ReadOnlyField(source='status.name')
     priority_name = serializers.ReadOnlyField(source='priority.name')
     type_name = serializers.ReadOnlyField(source='task_type.name')
@@ -88,7 +90,7 @@ class TaskSerializer(serializers.ModelSerializer):
             'status', 'status_name',
             'priority', 'priority_name',
             'task_type', 'type_name',
-            'author', 'assignee', 'assignee_username',
+            'author', 'assignee', 'assignee_username', 'assignee_avatar',
             'start_date', 'due_date', 'is_completed',
             'created_at'
         ]

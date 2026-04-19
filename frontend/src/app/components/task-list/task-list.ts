@@ -10,6 +10,7 @@ import { AuthService } from '../../services/auth.service';
 import { Task, Comment } from '../../models/task.model';
 import { Board, TaskStatus, TaskPriority, Sprint, TaskType, BoardMembership } from '../../models/board.model';
 import { MarkdownPipe } from '../../pipes/markdown.pipe';
+import {environment} from "../../../environments/environment";
 
 @Component({
   selector: 'app-task-list',
@@ -19,6 +20,8 @@ import { MarkdownPipe } from '../../pipes/markdown.pipe';
   styleUrl: './task-list.css'
 })
 export class TaskListComponent implements OnInit, OnDestroy {
+  public imageBaseUrl = environment.imageBaseUrl;
+
   private taskService = inject(TaskService);
   private boardService = inject(BoardService);
   private authService = inject(AuthService);

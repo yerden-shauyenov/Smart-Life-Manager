@@ -47,9 +47,8 @@
 
     <div class="border-t border-slate-800 p-4 bg-slate-900">
         <div class="flex items-center gap-3 bg-slate-800/50 p-3 rounded-xl">
-            <div class="flex-shrink-0 w-9 h-9 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-sm font-bold uppercase ring-1 ring-indigo-500/30">
-                {{ userInitial }}
-            </div>
+            <img [src]="currentUser ? imageBaseUrl + currentUser.avatar : 'assets/default-avatar.png'"
+                 class="w-10 h-10 rounded-full object-cover border">
             <span class="text-sm font-medium text-white flex-1 truncate">{{ username }}</span>
             <button class="text-slate-400 hover:text-red-400 transition-colors p-2 rounded-lg hover:bg-slate-800" (click)="logout()" title="Logout">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
