@@ -44,7 +44,7 @@ export class TaskListComponent implements OnInit, OnDestroy {
   commentLoading = false;
   commentError = '';
 
-  selectedGroupBy: 'status' | 'priority' | 'type' = 'status';
+  selectedGroupBy: 'status' | 'priority' | 'task_type' = 'status';
 
   showAddGroupModal = false;
   newGroupName = '';
@@ -86,7 +86,7 @@ export class TaskListComponent implements OnInit, OnDestroy {
           priorities: this.boardService.getPriorities(boardId).pipe(catchError(() => of([]))),
           tasks: this.taskService.getTasks().pipe(catchError(() => of([]))),
           sprints: this.boardService.getSprints(boardId).pipe(catchError(() => of([]))),
-          types: this.boardService.getTaskTypes(boardId).pipe(catchError(() => of([]))),
+          taskTypes: this.boardService.getTaskTypes(boardId).pipe(catchError(() => of([]))),
           members: this.boardService.getMemberships(boardId).pipe(catchError(() => of([])))
         });
       }),
@@ -99,7 +99,7 @@ export class TaskListComponent implements OnInit, OnDestroy {
       this.priorities = (res.priorities as TaskPriority[]).sort((a, b) => b.level - a.level);
       this.tasks = (res.tasks as Task[]).filter(t => t.board === boardId);
       this.sprints = res.sprints as Sprint[];
-      this.taskTypes = res.types as TaskType[];
+      this.taskTypes = res.taskTypes as TaskType[];
       this.members = res.members as BoardMembership[];
 
       if (taskId) {
@@ -122,7 +122,7 @@ export class TaskListComponent implements OnInit, OnDestroy {
       priorities: this.boardService.getPriorities(boardId).pipe(catchError(() => of([]))),
       tasks: this.taskService.getTasks().pipe(catchError(() => of([]))),
       sprints: this.boardService.getSprints(boardId).pipe(catchError(() => of([]))),
-      types: this.boardService.getTaskTypes(boardId).pipe(catchError(() => of([]))),
+      taskTypes: this.boardService.getTaskTypes(boardId).pipe(catchError(() => of([]))),
       members: this.boardService.getMemberships(boardId).pipe(catchError(() => of([])))
     }).pipe(
       take(1),
@@ -135,7 +135,7 @@ export class TaskListComponent implements OnInit, OnDestroy {
       this.priorities = (res.priorities as TaskPriority[]).sort((a, b) => b.level - a.level);
       this.tasks = (res.tasks as Task[]).filter(t => t.board === boardId);
       this.sprints = res.sprints as Sprint[];
-      this.taskTypes = res.types as TaskType[];
+      this.taskTypes = res.taskTypes as TaskType[];
       this.members = res.members as BoardMembership[];
     });
   }
@@ -161,7 +161,7 @@ export class TaskListComponent implements OnInit, OnDestroy {
 
   get currentGroups(): any[] {
     if (this.selectedGroupBy === 'priority') return this.priorities;
-    if (this.selectedGroupBy === 'type') return this.taskTypes;
+    if (this.selectedGroupBy === 'task_type') return this.taskTypes;
     return this.statuses;
   }
 
@@ -170,7 +170,7 @@ export class TaskListComponent implements OnInit, OnDestroy {
     if (this.selectedGroupBy === 'priority') {
       return filtered.filter(t => t.priority === groupId);
     }
-    if (this.selectedGroupBy === 'type') {
+    if (this.selectedGroupBy === 'task_type') {
       return filtered.filter(t => t.task_type === groupId);
     }
     return filtered.filter(t => t.status === groupId);
