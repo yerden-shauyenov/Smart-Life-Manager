@@ -71,6 +71,6 @@ export class SidebarComponent implements OnInit {
   }
 
   get userInitial(): string {
-    return this.username ? this.username[0].toUpperCase() : '?';
+    return this.username ? this.username.substring(0, 2) : '?';
   }
 }
