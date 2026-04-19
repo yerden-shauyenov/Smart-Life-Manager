@@ -10,6 +10,5 @@ import { RouterModule } from '@angular/router';
   styleUrls: ['./home.css']
 })
 export class HomeComponent {
-  // Весь функционал демо удален, так как страница теперь чисто информационная.
-  // Логика перехода в личный кабинет (если залогинен) находится в AppComponent.
+
 }

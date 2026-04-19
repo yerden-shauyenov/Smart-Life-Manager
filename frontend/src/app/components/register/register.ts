@@ -36,7 +36,6 @@ export class RegisterComponent {
       return;
     }
 
-    // Подготавливаем данные для бэкенда с правильным ключом password_confirm
     const dataToSubmit = {
       email: this.registerData.email,
       username: this.registerData.username,
@@ -56,8 +55,18 @@ export class RegisterComponent {
 
           Object.keys(err.error).forEach(key => {
             const val = err.error[key];
+            const fieldNames: { [key: string]: string } = {
+              email: 'Email',
+              username: 'Username',
+              password: 'Password',
+              first_name: 'First Name',
+              last_name: 'Last Name',
+              password_confirm: 'Confirm Password'
+            };
+            
+            const fieldName = fieldNames[key] || key;
             const fieldError = Array.isArray(val) ? val.join(' ') : val;
-            errors.push(fieldError);
+            errors.push(`${fieldName}: ${fieldError}`);
           });
 
           this.errorMessage = errors.join('\n');
