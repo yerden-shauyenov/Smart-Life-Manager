@@ -26,7 +26,12 @@ export class SidebarComponent implements OnInit {
     this.username = this.authService.getUsername();
 
     if (this.authService.hasToken()) {
-      this.loadBoards();
+      this.boardService.boards$.subscribe(boards => {
+        this.boards = boards;
+        this.cdr.detectChanges();
+      });
+
+      this.boardService.refreshBoards();
     }
 
     this.boardService.selectedBoard$.subscribe(board => {

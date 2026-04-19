@@ -108,6 +108,7 @@ export class DashboardComponent implements OnInit {
     if (!this.newBoard.title.trim()) return;
     this.boardService.createBoard(this.newBoard).subscribe({
       next: (board) => {
+        this.boardService.refreshBoards(); 
         this.closeModal();
         this.router.navigate(['/boards', board.id]);
       },

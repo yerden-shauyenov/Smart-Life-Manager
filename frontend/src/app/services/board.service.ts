@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { Board, TaskStatus, TaskPriority, Sprint, TaskType, BoardMembership, BoardRole } from '../models/board.model';
 
 @Injectable({ providedIn: 'root' })
@@ -9,6 +9,9 @@ export class BoardService {
 
   private selectedBoardSubject = new BehaviorSubject<Board | null>(null);
   selectedBoard$ = this.selectedBoardSubject.asObservable();
+
+  private boardsSubject = new BehaviorSubject<Board[]>([]);
+  boards$ = this.boardsSubject.asObservable();
 
   constructor(private http: HttpClient) {}
 
@@ -25,7 +28,13 @@ export class BoardService {
   }
 
   getBoards(): Observable<Board[]> {
-    return this.http.get<Board[]>(`${this.apiUrl}boards/`);
+    return this.http.get<Board[]>(`${this.apiUrl}boards/`).pipe(
+      tap(boards => this.boardsSubject.next(boards))
+    );
+  }
+
+  refreshBoards(): void {
+    this.getBoards().subscribe();
   }
 
   getBoard(id: number): Observable<Board> {
