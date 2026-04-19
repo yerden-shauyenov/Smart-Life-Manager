@@ -1,0 +1,3 @@
+npm install tailwindcss
+npm install marked dompurify
+npm install -D @types/dompurify @types/marked
