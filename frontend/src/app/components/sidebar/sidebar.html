@@ -1,50 +1,59 @@
-<div class="sidebar">
+<div class="relative flex flex-col w-64 h-[96.5dvh] bg-slate-900 text-slate-300 shadow-xl z-20 overflow-hidden">
 
-    <div class="sidebar-logo" (click)="goToDashboard()">SmartLife</div>
+    <div class="px-6 py-5 flex items-center cursor-pointer border-b border-slate-800 hover:bg-slate-800 transition-colors" (click)="goToDashboard()">
+        <span class="text-xl font-bold text-white tracking-wide">SmartLife</span>
+    </div>
 
-    <div class="sidebar-section-label">My Boards</div>
-    <ul class="board-list">
-        @for (board of boards; track board.id) {
-            <li class="board-item" [class.active]="selectedBoard?.id === board.id">
-                <div class="flex flex-col w-full">
-                    <div class="flex justify-between items-center w-full cursor-pointer" (click)="selectBoard(board)">
-                        <span class="board-item-name">{{ board.title }}</span>
-                    </div>
+    <div class="px-6 pt-6 pb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+        My Boards
+    </div>
 
-                    @if (selectedBoard?.id === board.id) {
-                        <div class="flex flex-col gap-1 mt-2 ml-4">
-                            <a [routerLink]="['/boards', board.id, 'backlog']"
-                               routerLinkActive="text-white"
-                               class="text-xs text-left text-gray-400 hover:text-white transition-colors py-1 no-underline">
-                                • Backlog
-                            </a>
-                            <a [routerLink]="['/boards', board.id]"
-                               [routerLinkActiveOptions]="{exact: true}"
-                               routerLinkActive="text-white"
-                               class="text-xs text-left text-gray-400 hover:text-white transition-colors py-1 no-underline">
-                                • Active Sprint
-                            </a>
-                            <a [routerLink]="['/boards', board.id, 'settings']"
-                                routerLinkActive="text-white font-medium"
-                                class="text-xs text-left text-gray-400 hover:text-white transition-colors py-1 no-underline">
-                                • Board Management
-                            </a>
+    <div class="flex-1 overflow-y-auto px-3 min-h-0">
+        <ul class="space-y-1">
+            @for (board of boards; track board.id) {
+                <li class="rounded-lg overflow-hidden transition-colors" [class.bg-slate-800]="selectedBoard?.id === board.id">
+                    <div class="flex flex-col w-full">
+                        <div class="flex justify-between items-center w-full cursor-pointer px-3 py-2.5 hover:bg-slate-800 transition-colors rounded-lg text-sm font-medium"
+                             [class.text-white]="selectedBoard?.id === board.id"
+                             (click)="selectBoard(board)">
+                            <span class="truncate">{{ board.title }}</span>
                         </div>
-                    }
-                </div>
-            </li>
-        }
-    </ul>
 
-    <div style="flex:1;"></div>
+                        @if (selectedBoard?.id === board.id) {
+                            <div class="flex flex-col gap-0.5 mb-2 ml-6 border-l border-slate-700 pl-3">
+                                <a [routerLink]="['/boards', board.id, 'backlog']"
+                                   routerLinkActive="text-indigo-400 font-medium"
+                                   class="text-xs text-slate-400 hover:text-indigo-300 transition-colors py-1.5 w-full block">
+                                    Backlog
+                                </a>
+                                <a [routerLink]="['/boards', board.id]"
+                                   [routerLinkActiveOptions]="{exact: true}"
+                                   routerLinkActive="text-indigo-400 font-medium"
+                                   class="text-xs text-slate-400 hover:text-indigo-300 transition-colors py-1.5 w-full block">
+                                    Active Sprint
+                                </a>
+                                <a [routerLink]="['/boards', board.id, 'settings']"
+                                   routerLinkActive="text-indigo-400 font-medium"
+                                   class="text-xs text-slate-400 hover:text-indigo-300 transition-colors py-1.5 w-full block">
+                                    Board Management
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </li>
+            }
+        </ul>
+    </div>
 
-    <div class="user-area">
-        <div class="user-row">
-            <div class="user-avatar">{{ userInitial }}</div>
-            <span class="user-name">{{ username }}</span>
-            <button class="logout-icon-btn" (click)="logout()" title="Logout">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <div class="border-t border-slate-800 p-4 bg-slate-900">
+        <div class="flex items-center gap-3 bg-slate-800/50 p-3 rounded-xl">
+            <div class="flex-shrink-0 w-9 h-9 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-sm font-bold uppercase ring-1 ring-indigo-500/30">
+                {{ userInitial }}
+            </div>
+            <span class="text-sm font-medium text-white flex-1 truncate">{{ username }}</span>
+            <button class="text-slate-400 hover:text-red-400 transition-colors p-2 rounded-lg hover:bg-slate-800" (click)="logout()" title="Logout">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
                     <polyline points="16 17 21 12 16 7"/>
                     <line x1="21" y1="12" x2="9" y2="12"/>
@@ -52,5 +61,4 @@
             </button>
         </div>
     </div>
-
 </div>
