@@ -18,9 +18,7 @@ export class MarkdownPipe implements PipeTransform {
             breaks: true
         }) as string;
 
-        const interactiveHtml = rawHtml.replace(/<input([^>]+)disabled=""([^>]*)>/g, '<input$1$2>');
-
-        const cleanHtml = DOMPurify.sanitize(interactiveHtml, {
+        const cleanHtml = DOMPurify.sanitize(rawHtml, {
             ALLOWED_TAGS: [
                 'h1', 'h2', 'h3', 'p', 'b', 'i', 'em', 'strong',
                 'ul', 'ol', 'li', 'input', 'del', 'strike', 'u', 'span', 'br'
