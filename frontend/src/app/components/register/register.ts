@@ -1,59 +1,71 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './register.html'
 })
-export class RegisterComponent implements OnInit {
-  registerForm!: FormGroup;
-  error = '';
-  isLoading = false;
+export class RegisterComponent {
+  registerData = {
+    email: '',
+    username: '',
+    password: '',
+    confirm_password: '',
+    first_name: '',
+    last_name: ''
+  };
+
+  errorMessage: string = '';
 
   constructor(
-      private fb: FormBuilder,
       private authService: AuthService,
-      private router: Router
+      private router: Router,
+      private cdr: ChangeDetectorRef
   ) {}
 
-  ngOnInit() {
-    this.registerForm = this.fb.group({
-      username: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      first_name: [''],
-      last_name: [''],
-      password: ['', Validators.required],
-      password_confirm: ['', Validators.required]
-    }, { validators: this.passwordMatchValidator });
-  }
-
-  passwordMatchValidator(g: FormGroup) {
-    return g.get('password')?.value === g.get('password_confirm')?.value
-        ? null : { mismatch: true };
-  }
-
   onSubmit() {
-    if (this.registerForm.invalid) {
-      this.registerForm.markAllAsTouched();
+    this.errorMessage = '';
+
+    if (this.registerData.password !== this.registerData.confirm_password) {
+      this.errorMessage = 'Passwords do not match';
       return;
     }
 
-    this.isLoading = true;
-    this.error = '';
+    // Подготавливаем данные для бэкенда с правильным ключом password_confirm
+    const dataToSubmit = {
+      email: this.registerData.email,
+      username: this.registerData.username,
+      password: this.registerData.password,
+      password_confirm: this.registerData.confirm_password,
+      first_name: this.registerData.first_name,
+      last_name: this.registerData.last_name
+    };
 
-    this.authService.register(this.registerForm.value).subscribe({
+    this.authService.register(dataToSubmit).subscribe({
       next: () => {
-        this.isLoading = false;
-        this.router.navigate(['/']);
+        this.router.navigate(['/login']);
       },
       error: (err) => {
-        this.isLoading = false;
-        this.error = 'Registration failed. Please check your data and try again.';
+        if (err.error && typeof err.error === 'object') {
+          const errors: string[] = [];
+
+          Object.keys(err.error).forEach(key => {
+            const val = err.error[key];
+            const fieldError = Array.isArray(val) ? val.join(' ') : val;
+            errors.push(fieldError);
+          });
+
+          this.errorMessage = errors.join('\n');
+        } else {
+          this.errorMessage = 'Registration failed. Please try again.';
+        }
+
+        this.cdr.detectChanges();
       }
     });
   }

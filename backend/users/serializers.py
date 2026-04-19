@@ -15,7 +15,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         if attrs['password'] != attrs['password_confirm']:
-            raise serializers.ValidationError({"password": "Пароли не совпадают."})
+            raise serializers.ValidationError({"password": "Passwords do not match."})
         return attrs
 
     def create(self, validated_data):
@@ -28,16 +28,19 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
         return user
 
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'first_name', 'last_name', 'avatar']
         read_only_fields = ['email', 'username']
 
+
 class UserSessionSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserSession
         fields = ['id', 'ip_address', 'os', 'browser', 'device', 'is_active', 'created_at', 'last_activity']
+
 
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True)

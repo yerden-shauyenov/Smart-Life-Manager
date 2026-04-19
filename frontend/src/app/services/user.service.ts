@@ -7,7 +7,7 @@ import { User, UserSession, BoardInvitation, OwnershipTransfer } from '../models
     providedIn: 'root'
 })
 export class UserService {
-    private apiUrl = `$http://localhost:8000/users/me`;
+    private apiUrl = `http://localhost:8000/api/users/me`;
 
     constructor(private http: HttpClient) {}
 
@@ -32,18 +32,18 @@ export class UserService {
     }
 
     getInvitations(): Observable<BoardInvitation[]> {
-        return this.http.get<BoardInvitation[]>(`http://localhost:8000/invitations/`);
+        return this.http.get<BoardInvitation[]>(`http://localhost:8000/api/invitations/`);
     }
 
     respondInvitation(id: number, action: 'accept' | 'reject'): Observable<any> {
-        return this.http.post(`http://localhost:8000/invitations/${id}/${action}/`, {});
+        return this.http.post(`http://localhost:8000/api/invitations/${id}/${action}/`, {});
     }
 
     getTransfers(): Observable<OwnershipTransfer[]> {
-        return this.http.get<OwnershipTransfer[]>(`http://localhost:8000/transfers/`);
+        return this.http.get<OwnershipTransfer[]>(`http://localhost:8000/api/transfers/`);
     }
 
     respondTransfer(id: number, action: 'accept' | 'reject'): Observable<any> {
-        return this.http.post(`http://localhost:8000/transfers/${id}/${action}/`, {});
+        return this.http.post(`http://localhost:8000/api/transfers/${id}/${action}/`, {});
     }
 }

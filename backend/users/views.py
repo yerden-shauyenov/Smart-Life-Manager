@@ -7,7 +7,6 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User, UserSession
 from .serializers import UserSerializer, UserSessionSerializer, ChangePasswordSerializer, RegisterSerializer
 
-
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = (AllowAny,)
@@ -29,10 +28,8 @@ class RegisterView(generics.CreateAPIView):
             "token": res
         }, status=status.HTTP_201_CREATED)
 
-
 class CustomTokenObtainPairView(TokenObtainPairView):
     permission_classes = (AllowAny,)
-
 
 class UserProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = UserSerializer
@@ -41,7 +38,6 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         return self.request.user
 
-
 class ChangePasswordView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -49,13 +45,12 @@ class ChangePasswordView(APIView):
         serializer = ChangePasswordSerializer(data=request.data)
         if serializer.is_valid():
             user = request.user
-            if not user.check_password(serializer.data.get("old_password")):
-                return Response({"old_password": ["Неверный текущий пароль."]}, status=status.HTTP_400_BAD_REQUEST)
-            user.set_password(serializer.data.get("new_password"))
+            if not user.check_password(serializer.validated_data.get("old_password")):
+                return Response({"old_password": ["Invalid current password."]}, status=status.HTTP_400_BAD_REQUEST)
+            user.set_password(serializer.validated_data.get("new_password"))
             user.save()
-            return Response({"detail": "Пароль успешно изменен."}, status=status.HTTP_200_OK)
+            return Response({"detail": "Password successfully updated."}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 class UserSessionViewSet(viewsets.ModelViewSet):
     serializer_class = UserSessionSerializer
