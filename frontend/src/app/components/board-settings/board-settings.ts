@@ -1,23 +1,28 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { BoardService } from '../../services/board.service';
+import { ConfirmService } from '../../services/confirm.service';
 import { TaskStatus, TaskPriority, TaskType, BoardRole, BoardMembership } from '../../models/board.model';
 
 @Component({
   selector: 'app-board-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './board-settings.html'
 })
 export class BoardSettingsComponent implements OnInit {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private boardService = inject(BoardService);
+  private confirmService = inject(ConfirmService);
   private cdr = inject(ChangeDetectorRef);
 
   boardId!: number;
+  board: any;
+
   statuses: TaskStatus[] = [];
   priorities: TaskPriority[] = [];
   types: TaskType[] = [];
@@ -26,6 +31,10 @@ export class BoardSettingsComponent implements OnInit {
 
   editingId: string | null = null;
   editBuffer: any = {};
+
+  editData = { name: '', description: '' };
+  inviteEmail = '';
+  inviteRole = 'member';
 
   newStatus: Partial<TaskStatus> = { name: '', order: 0 };
   newPriority: Partial<TaskPriority> = { name: '', color_hex: '#808080', level: 0 };
@@ -57,6 +66,7 @@ export class BoardSettingsComponent implements OnInit {
 
   loadData(): void {
     forkJoin({
+      board: this.boardService.getBoard(this.boardId),
       statuses: this.boardService.getStatuses(this.boardId),
       priorities: this.boardService.getPriorities(this.boardId),
       types: this.boardService.getTaskTypes(this.boardId),
@@ -64,6 +74,9 @@ export class BoardSettingsComponent implements OnInit {
       memberships: this.boardService.getMemberships(this.boardId)
     }).subscribe({
       next: (res) => {
+        this.board = res.board;
+        this.editData.name = res.board.title;
+        this.editData.description = res.board.description;
         this.statuses = res.statuses;
         this.priorities = res.priorities;
         this.types = res.types;
@@ -71,6 +84,53 @@ export class BoardSettingsComponent implements OnInit {
         this.memberships = res.memberships;
         this.cdr.detectChanges();
       }
+    });
+  }
+
+  updateBoard(): void {
+    if (!this.editData.name.trim()) return;
+    this.boardService.updateBoard(this.boardId, this.editData).subscribe(() => {
+      this.loadData();
+    });
+  }
+
+  inviteMember(): void {
+    if (!this.inviteEmail.trim()) return;
+    this.boardService.inviteMember(this.boardId, this.inviteEmail, this.inviteRole).subscribe(() => {
+      this.inviteEmail = '';
+      this.loadData();
+    });
+  }
+
+  removeMember(userId: number): void {
+    this.confirmService.requestConfirm('Are you sure you want to remove this member from the board?', () => {
+      this.boardService.removeMember(this.boardId, userId).subscribe(() => {
+        this.loadData();
+      });
+    });
+  }
+
+  transferOwnership(userId: number): void {
+    this.confirmService.requestConfirm('Are you sure you want to transfer ownership to this user? They will need to accept the transfer.', () => {
+      this.boardService.transferOwnership(this.boardId, userId).subscribe(() => {
+        this.loadData();
+      });
+    });
+  }
+
+  leaveBoard(): void {
+    this.confirmService.requestConfirm('Are you absolutely sure you want to leave this board?', () => {
+      this.boardService.leaveBoard(this.boardId).subscribe(() => {
+        this.router.navigate(['/']);
+      });
+    });
+  }
+
+  deleteBoard(): void {
+    this.confirmService.requestConfirm('Warning! This will permanently delete the board and all its tasks. Continue?', () => {
+      this.boardService.deleteBoard(this.boardId).subscribe(() => {
+        this.router.navigate(['/']);
+      });
     });
   }
 
@@ -93,7 +153,9 @@ export class BoardSettingsComponent implements OnInit {
       membership: () => this.boardService.deleteMembership(id)
     };
 
-    actions[type]().subscribe(() => this.loadData());
+    if (actions[type]) {
+      actions[type]().subscribe(() => this.loadData());
+    }
   }
 
   saveEdit(type: string): void {
@@ -105,10 +167,12 @@ export class BoardSettingsComponent implements OnInit {
       role: () => this.boardService.updateRole(id, this.editBuffer)
     };
 
-    actions[type]().subscribe(() => {
-      this.editingId = null;
-      this.loadData();
-    });
+    if (actions[type]) {
+      actions[type]().subscribe(() => {
+        this.editingId = null;
+        this.loadData();
+      });
+    }
   }
 
   addStatus(): void {
@@ -150,7 +214,7 @@ export class BoardSettingsComponent implements OnInit {
     });
   }
 
-  assignRole(membership: BoardMembership, roleId: number): void {
+  assignRole(membership: any, roleId: number): void {
     this.boardService.updateMembership(membership.id, { role: roleId }).subscribe(() => {
       this.loadData();
     });

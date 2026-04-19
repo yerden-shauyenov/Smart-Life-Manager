@@ -1,5 +1,8 @@
 from rest_framework import serializers
-from .models import Board, Task, BoardMembership, Sprint, TaskStatus, TaskPriority, TaskType, BoardRole, Comment
+
+from users.serializers import UserSerializer
+from .models import Board, Task, BoardMembership, Sprint, TaskStatus, TaskPriority, TaskType, BoardRole, Comment, \
+    BoardInvitation, OwnershipTransfer
 
 
 class TaskStatusSerializer(serializers.ModelSerializer):
@@ -38,12 +41,31 @@ class BoardMembershipSerializer(serializers.ModelSerializer):
 
 class BoardSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')
+    board_memberships = BoardMembershipSerializer(many=True, read_only=True)
 
     class Meta:
         model = Board
-        fields = ['id', 'title', 'description', 'owner', 'created_at']
+        fields = ['id', 'title', 'description', 'owner', 'created_at', 'board_memberships']
         read_only_fields = ['owner', 'created_at']
 
+
+class BoardInvitationSerializer(serializers.ModelSerializer):
+    board = BoardSerializer(read_only=True)
+    inviter = UserSerializer(read_only=True)
+    role = BoardRoleSerializer(read_only=True)
+
+    class Meta:
+        model = BoardInvitation
+        fields = ['id', 'board', 'inviter', 'email', 'role', 'status', 'created_at']
+
+
+class OwnershipTransferSerializer(serializers.ModelSerializer):
+    board = BoardSerializer(read_only=True)
+    from_user = UserSerializer(read_only=True)
+
+    class Meta:
+        model = OwnershipTransfer
+        fields = ['id', 'board', 'from_user', 'to_user', 'status', 'created_at']
 
 class SprintSerializer(serializers.ModelSerializer):
     class Meta:

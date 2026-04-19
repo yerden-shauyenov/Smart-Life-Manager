@@ -1,46 +1,106 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { isPlatformBrowser } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:8000/api/users/';
+  private apiUrl = `http://localhost:8000/api/users`;
 
-  register(userData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}register/`, userData);
+  private currentUserSubject = new BehaviorSubject<any>(null);
+  public currentUser$ = this.currentUserSubject.asObservable();
+
+  constructor(
+      private http: HttpClient,
+      @Inject(PLATFORM_ID) private platformId: Object,
+      private router: Router
+  ) {
+    if (isPlatformBrowser(this.platformId)) {
+      this.checkToken();
+    }
   }
 
-  login(credentials: any): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}login/`, credentials).pipe(
-        tap(response => {
-          localStorage.setItem('access_token', response.access);
-          localStorage.setItem('refresh_token', response.refresh);
-          
-          if (credentials.username) {
-            localStorage.setItem('username', credentials.username);
+  register(userData: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/register/`, userData).pipe(
+        tap((response: any) => {
+          if (response && response.token) {
+            this.setTokens(response.token.access, response.token.refresh);
+            this.currentUserSubject.next(response.user);
+            if (isPlatformBrowser(this.platformId) && userData.username) {
+              localStorage.setItem('username', userData.username);
+            }
           }
         })
     );
   }
 
-  logout(): void {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    localStorage.removeItem('username');
+  login(credentials: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/login/`, credentials).pipe(
+        tap((response: any) => {
+          if (response && response.access) {
+            this.setTokens(response.access, response.refresh);
+            this.currentUserSubject.next({ isAuthenticated: true });
+            if (isPlatformBrowser(this.platformId) && credentials.username) {
+              localStorage.setItem('username', credentials.username);
+            }
+          }
+        })
+    );
   }
 
-  getToken(): string | null {
-    return localStorage.getItem('access_token');
+  logout() {
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('username');
+    }
+    this.currentUserSubject.next(null);
+    this.router.navigate(['/login']);
+  }
+
+  getAccessToken(): string | null {
+    if (isPlatformBrowser(this.platformId)) {
+      return localStorage.getItem('accessToken');
+    }
+    return null;
+  }
+
+  getRefreshToken(): string | null {
+    if (isPlatformBrowser(this.platformId)) {
+      return localStorage.getItem('refreshToken');
+    }
+    return null;
+  }
+
+  private setTokens(access: string, refresh: string) {
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('accessToken', access);
+      localStorage.setItem('refreshToken', refresh);
+    }
+  }
+
+  private checkToken() {
+    const token = this.getAccessToken();
+    if (token) {
+      this.currentUserSubject.next({ isAuthenticated: true });
+    }
+  }
+
+  isAuthenticated(): boolean {
+    return !!this.getAccessToken();
   }
 
   hasToken(): boolean {
-    return !!this.getToken();
+    return this.isAuthenticated();
   }
 
-  getUsername(): string {
-    return localStorage.getItem('username') || '';
+  getUsername(): string | null {
+    if (isPlatformBrowser(this.platformId)) {
+      return localStorage.getItem('username');
+    }
+    return null;
   }
 }

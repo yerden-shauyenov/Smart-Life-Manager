@@ -3,11 +3,13 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     BoardViewSet, TaskViewSet, SprintViewSet,
     TaskStatusViewSet, TaskPriorityViewSet, TaskTypeViewSet,
-    BoardRoleViewSet, BoardMembershipViewSet, CommentViewSet
+    BoardRoleViewSet, BoardMembershipViewSet, CommentViewSet, UserInvitationsViewSet, UserTransfersViewSet
 )
 
 router = DefaultRouter()
 router.register(r'boards', BoardViewSet, basename='board')
+router.register(r'invitations', UserInvitationsViewSet, basename='invitations')
+router.register(r'transfers', UserTransfersViewSet, basename='transfers')
 router.register(r'sprints', SprintViewSet, basename='sprint')
 router.register(r'tasks', TaskViewSet, basename='task')
 router.register(r'statuses', TaskStatusViewSet, basename='status')

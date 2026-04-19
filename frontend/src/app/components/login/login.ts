@@ -1,26 +1,41 @@
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './login.html'
 })
 export class LoginComponent {
-  private readonly authService = inject(AuthService);
-  private readonly router = inject(Router);
-
-  credentials = { username: '', password: '' };
+  credentials = {
+    username: '',
+    password: ''
+  };
   error = '';
+  isLoading = false;
 
-  onSubmit(): void {
+  constructor(
+      private authService: AuthService,
+      private router: Router
+  ) {}
+
+  onSubmit() {
+    this.isLoading = true;
+    this.error = '';
+
     this.authService.login(this.credentials).subscribe({
-      next: () => this.router.navigate(['/dashboard']),
-      error: () => this.error = 'Invalid username or password'
+      next: () => {
+        this.isLoading = false;
+        this.router.navigate(['/']);
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.error = 'Invalid username or password. Please try again.';
+      }
     });
   }
 }

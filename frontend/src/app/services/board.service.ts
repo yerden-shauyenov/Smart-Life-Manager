@@ -29,7 +29,7 @@ export class BoardService {
 
   getBoards(): Observable<Board[]> {
     return this.http.get<Board[]>(`${this.apiUrl}boards/`).pipe(
-      tap(boards => this.boardsSubject.next(boards))
+        tap(boards => this.boardsSubject.next(boards))
     );
   }
 
@@ -55,6 +55,22 @@ export class BoardService {
 
   addMember(boardId: number, username: string): Observable<any> {
     return this.http.post(`${this.apiUrl}boards/${boardId}/add_member/`, { username });
+  }
+
+  inviteMember(boardId: number, email: string, role: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}boards/${boardId}/invite_member/`, { email, role });
+  }
+
+  removeMember(boardId: number, userId: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}boards/${boardId}/remove_member/`, { user_id: userId });
+  }
+
+  transferOwnership(boardId: number, userId: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}boards/${boardId}/transfer_ownership/`, { user_id: userId });
+  }
+
+  leaveBoard(boardId: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}boards/${boardId}/leave/`, {});
   }
 
   getMemberships(boardId: number): Observable<BoardMembership[]> {

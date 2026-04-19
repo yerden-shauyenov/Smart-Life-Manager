@@ -128,3 +128,18 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"{self.author.username} - {self.task.title}"
+
+class BoardInvitation(models.Model):
+    board = models.ForeignKey(Board, on_delete=models.CASCADE, related_name='invitations')
+    inviter = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sent_invitations')
+    email = models.EmailField()
+    role = models.ForeignKey(BoardRole, on_delete=models.CASCADE)
+    status = models.CharField(max_length=20, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class OwnershipTransfer(models.Model):
+    board = models.ForeignKey(Board, on_delete=models.CASCADE, related_name='ownership_transfers')
+    from_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sent_transfers')
+    to_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='received_transfers')
+    status = models.CharField(max_length=20, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)

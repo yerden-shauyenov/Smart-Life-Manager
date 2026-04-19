@@ -60,7 +60,7 @@ export class TaskListComponent implements OnInit, OnDestroy {
   filterAssignee: string = '';
 
   ngOnInit(): void {
-    this.currentUsername = this.authService.getUsername();
+    this.currentUsername = this.authService.getUsername() || "null";
 
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
       const boardId = +params['id'];

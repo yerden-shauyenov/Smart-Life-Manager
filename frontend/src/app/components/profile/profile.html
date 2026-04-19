@@ -1,0 +1,112 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="flex items-baseline justify-between mb-6">
+        <h1 class="text-3xl font-bold tracking-tight text-gray-900">User Profile</h1>
+    </div>
+
+    <div class="flex flex-col md:flex-row gap-8">
+        <div class="w-full md:w-64 flex flex-col gap-2">
+            <button (click)="activeTab = 'general'" [ngClass]="{'bg-indigo-50 text-indigo-700': activeTab === 'general', 'text-gray-700 hover:bg-gray-50': activeTab !== 'general'}" class="px-4 py-2 text-sm font-medium text-left rounded-md">General Settings</button>
+            <button (click)="activeTab = 'security'" [ngClass]="{'bg-indigo-50 text-indigo-700': activeTab === 'security', 'text-gray-700 hover:bg-gray-50': activeTab !== 'security'}" class="px-4 py-2 text-sm font-medium text-left rounded-md">Security</button>
+            <button (click)="activeTab = 'sessions'" [ngClass]="{'bg-indigo-50 text-indigo-700': activeTab === 'sessions', 'text-gray-700 hover:bg-gray-50': activeTab !== 'sessions'}" class="px-4 py-2 text-sm font-medium text-left rounded-md flex justify-between">
+                Sessions
+                <span *ngIf="sessions.length" class="bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs">{{sessions.length}}</span>
+            </button>
+            <button (click)="activeTab = 'invitations'" [ngClass]="{'bg-indigo-50 text-indigo-700': activeTab === 'invitations', 'text-gray-700 hover:bg-gray-50': activeTab !== 'invitations'}" class="px-4 py-2 text-sm font-medium text-left rounded-md flex justify-between">
+                Invitations
+                <span *ngIf="invitations.length + transfers.length" class="bg-red-100 text-red-600 py-0.5 px-2 rounded-full text-xs">{{invitations.length + transfers.length}}</span>
+            </button>
+        </div>
+
+        <div class="flex-1 bg-white shadow rounded-lg p-6">
+            <div *ngIf="activeTab === 'general'">
+                <h2 class="text-lg font-medium text-gray-900 mb-4">Profile Information</h2>
+                <div class="flex items-center gap-6 mb-6">
+                    <img [src]="user?.avatar || 'assets/default-avatar.png'" alt="Avatar" class="w-20 h-20 rounded-full object-cover bg-gray-100 border">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Change Photo</label>
+                        <input type="file" (change)="onFileSelected($event)" accept="image/*" class="text-sm">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                        <input type="text" [(ngModel)]="editData.first_name" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border p-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                        <input type="text" [(ngModel)]="editData.last_name" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border p-2">
+                    </div>
+                </div>
+                <button (click)="updateProfile()" class="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm font-medium hover:bg-indigo-700">Save Changes</button>
+            </div>
+
+            <div *ngIf="activeTab === 'security'">
+                <h2 class="text-lg font-medium text-gray-900 mb-4">Change Password</h2>
+                <div class="flex flex-col gap-4 max-w-sm mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
+                        <input type="password" [(ngModel)]="passwordData.old_password" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border p-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+                        <input type="password" [(ngModel)]="passwordData.new_password" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border p-2">
+                    </div>
+                </div>
+                <button (click)="changePassword()" [disabled]="!passwordData.old_password || !passwordData.new_password" class="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm font-medium hover:bg-indigo-700 disabled:opacity-50">Update Password</button>
+            </div>
+
+            <div *ngIf="activeTab === 'sessions'">
+                <h2 class="text-lg font-medium text-gray-900 mb-4">Active Sessions</h2>
+                <div class="flex flex-col gap-4">
+                    <div *ngFor="let session of sessions" class="flex items-center justify-between p-4 border rounded-lg bg-gray-50">
+                        <div>
+                            <p class="font-medium text-gray-900">{{ session.os }} - {{ session.browser }}</p>
+                            <p class="text-sm text-gray-500">IP: {{ session.ip_address }} | Device: {{ session.device }}</p>
+                            <p class="text-xs text-gray-400 mt-1">Last Activity: {{ session.last_activity | date:'short' }}</p>
+                        </div>
+                        <button (click)="revokeSession(session.id)" class="text-red-600 hover:text-red-800 text-sm font-medium">Revoke</button>
+                    </div>
+                    <p *ngIf="!sessions.length" class="text-sm text-gray-500">No active sessions found.</p>
+                </div>
+            </div>
+
+            <div *ngIf="activeTab === 'invitations'">
+                <h2 class="text-lg font-medium text-gray-900 mb-4">Incoming Invitations</h2>
+
+                <div class="mb-8">
+                    <h3 class="text-sm font-medium text-gray-700 uppercase mb-3">Board Invitations</h3>
+                    <div class="flex flex-col gap-3">
+                        <div *ngFor="let inv of invitations" class="p-4 border rounded-lg flex items-center justify-between">
+                            <div>
+                                <p class="font-medium text-gray-900">{{ inv.board.name }}</p>
+                                <p class="text-sm text-gray-500">From: {{ inv.inviter.first_name }} {{ inv.inviter.last_name }} ({{ inv.inviter.email }})</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <button (click)="respondInvitation(inv.id, 'accept')" class="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700">Accept</button>
+                                <button (click)="respondInvitation(inv.id, 'reject')" class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">Decline</button>
+                            </div>
+                        </div>
+                        <p *ngIf="!invitations.length" class="text-sm text-gray-500">You have no new invitations.</p>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-sm font-medium text-gray-700 uppercase mb-3">Ownership Transfers</h3>
+                    <div class="flex flex-col gap-3">
+                        <div *ngFor="let trans of transfers" class="p-4 border border-yellow-200 bg-yellow-50 rounded-lg flex items-center justify-between">
+                            <div>
+                                <p class="font-medium text-gray-900">{{ trans.board.name }}</p>
+                                <p class="text-sm text-gray-500">Current Owner: {{ trans.from_user.first_name }} ({{ trans.from_user.email }}) is transferring ownership to you.</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <button (click)="respondTransfer(trans.id, 'accept')" class="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700">Accept Ownership</button>
+                                <button (click)="respondTransfer(trans.id, 'reject')" class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">Decline</button>
+                            </div>
+                        </div>
+                        <p *ngIf="!transfers.length" class="text-sm text-gray-500">No ownership transfer requests.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

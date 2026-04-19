@@ -1,7 +1,81 @@
-<div class="p-6 max-w-4xl mx-auto flex flex-col space-y-12">
-    <header class="border-b pb-4">
-        <h1 class="text-3xl font-bold">Board Management</h1>
+<div class="p-6 max-w-4xl mx-auto flex flex-col space-y-12" *ngIf="board">
+    <header class="border-b pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+            <a [routerLink]="['/boards', boardId]" class="text-gray-500 hover:text-gray-700">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            </a>
+            <h1 class="text-3xl font-bold">Board Settings: {{ board?.name }}</h1>
+        </div>
+        <button (click)="leaveBoard()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none">
+            Leave Board
+        </button>
     </header>
+
+    <section class="flex flex-col space-y-4">
+        <h2 class="text-xl font-semibold">General Settings</h2>
+        <div class="bg-gray-50 p-4 rounded-lg border space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Board Name</label>
+                <input type="text" [(ngModel)]="editData.name" class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea [(ngModel)]="editData.description" rows="3" class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+            </div>
+            <button (click)="updateBoard()" [disabled]="!editData.name" class="bg-indigo-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-indigo-700 disabled:opacity-50">Save Changes</button>
+        </div>
+    </section>
+
+    <section class="flex flex-col space-y-4">
+        <h2 class="text-xl font-semibold">Board Members</h2>
+        <div class="flex flex-col space-y-3">
+            <div *ngFor="let m of board?.memberships" class="flex items-center justify-between p-4 border rounded-lg bg-white shadow-sm">
+                <div class="flex items-center gap-3">
+                    <img [src]="m.user?.avatar || 'assets/default-avatar.png'" class="w-10 h-10 rounded-full object-cover bg-gray-100 border">
+                    <div>
+                        <p class="font-bold text-lg">{{ m.user?.first_name }} {{ m.user?.last_name || m.user?.username }}</p>
+                        <p class="text-sm text-gray-500">{{ m.user?.email }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <select [ngModel]="m.role?.id" (ngModelChange)="assignRole(m, $event)" class="border p-2 rounded bg-white text-sm">
+                        <option [ngValue]="null">No role</option>
+                        <option *ngFor="let r of roles" [ngValue]="r.id">{{ r.name }}</option>
+                    </select>
+
+                    <div class="relative group">
+                        <button class="p-1 text-gray-400 hover:text-gray-600 focus:outline-none">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path></svg>
+                        </button>
+                        <div class="absolute right-0 w-48 mt-2 origin-top-right bg-white border rounded-md shadow-lg hidden group-hover:block z-10">
+                            <div class="py-1">
+                                <button *ngIf="m.role?.name !== 'owner'" (click)="transferOwnership(m.user?.id)" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Make Owner</button>
+                                <button *ngIf="m.role?.name !== 'owner'" (click)="removeMember(m.user?.id)" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">Remove</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="flex flex-col space-y-4">
+        <h2 class="text-xl font-semibold">Invite Member</h2>
+        <div class="flex flex-col sm:flex-row gap-4 p-4 bg-gray-50 rounded-lg border sm:items-end">
+            <div class="flex-1">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                <input type="email" [(ngModel)]="inviteEmail" class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+            <div class="w-full sm:w-48">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                <select [(ngModel)]="inviteRole" class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="member">Member</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            <button (click)="inviteMember()" [disabled]="!inviteEmail" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 disabled:opacity-50">Send Invite</button>
+        </div>
+    </section>
 
     <section class="flex flex-col space-y-4">
         <h2 class="text-xl font-semibold">Task Statuses</h2>
@@ -86,25 +160,6 @@
     </section>
 
     <section class="flex flex-col space-y-4">
-        <h2 class="text-xl font-semibold">Board Members</h2>
-        <div class="flex flex-col space-y-3">
-            <div *ngFor="let m of memberships" class="flex items-center justify-between p-4 border rounded-lg bg-white shadow-sm">
-                <div>
-                    <p class="font-bold text-lg">{{ m.user_username }}</p>
-                    <p class="text-sm text-gray-500">Joined: {{ m.joined_at | date:'mediumDate' }}</p>
-                </div>
-                <div class="flex items-center gap-4">
-                    <select [ngModel]="m.role" (ngModelChange)="assignRole(m, $event)" class="border p-2 rounded bg-white">
-                        <option [ngValue]="null">No role</option>
-                        <option *ngFor="let r of roles" [ngValue]="r.id">{{ r.name }}</option>
-                    </select>
-                    <button (click)="deleteItem('membership', m.id)" class="text-red-500 hover:text-red-700">Remove</button>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="flex flex-col space-y-4">
         <h2 class="text-xl font-semibold">Roles</h2>
         <div class="flex flex-col p-4 bg-gray-50 rounded-lg border space-y-4">
             <input [(ngModel)]="newRole.name" placeholder="Role name" class="border p-2 rounded w-full">
@@ -148,6 +203,14 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </section>
+
+    <section class="flex flex-col space-y-4">
+        <h2 class="text-xl font-semibold text-red-600">Danger Zone</h2>
+        <div class="bg-red-50 border border-red-200 rounded-lg p-6">
+            <p class="text-sm text-red-600 mb-4">Deleting a board is irreversible. All tasks, lists, and data will be permanently destroyed.</p>
+            <button (click)="deleteBoard()" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 font-medium text-sm">Delete Board Permanently</button>
         </div>
     </section>
 </div>

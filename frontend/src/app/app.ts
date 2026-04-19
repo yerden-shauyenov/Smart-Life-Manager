@@ -5,11 +5,12 @@ import { SidebarComponent } from './components/sidebar/sidebar';
 import { TopBarComponent } from './components/top-bar/top-bar';
 import { filter, map, startWith } from 'rxjs';
 import {AuthService} from "./services/auth.service";
+import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, SidebarComponent, RouterModule, RouterOutlet, TopBarComponent],
+  imports: [CommonModule, SidebarComponent, RouterModule, RouterOutlet, TopBarComponent, ConfirmDialogComponent],
   templateUrl: './app.html'
 })
 export class AppComponent {

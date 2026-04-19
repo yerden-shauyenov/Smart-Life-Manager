@@ -6,6 +6,7 @@ import { RegisterComponent } from './components/register/register';
 import { BoardSettingsComponent } from './components/board-settings/board-settings';
 import { BacklogComponent } from './components/backlog/backlog';
 import { authGuard } from './guards/auth.guard';
+import {ProfileComponent} from "./components/profile/profile";
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -35,6 +36,9 @@ export const routes: Routes = [
     component: TaskListComponent,
     canActivate: [authGuard]
   },
+  { path: 'profile',
+    component: ProfileComponent,
+    canActivate: [authGuard] },
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   { path: '**', redirectTo: 'dashboard' }
 ];
