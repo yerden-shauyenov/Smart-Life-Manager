@@ -30,13 +30,11 @@ class BoardViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         board = serializer.save(owner=self.request.user)
-        role, _ = BoardRole.objects.get_or_create(board=board, name='owner')
-        BoardMembership.objects.create(user=self.request.user, board=board, role=role)
+        initialize_board_defaults(board)
 
     def destroy(self, request, *args, **kwargs):
         board = self.get_object()
-        membership = get_object_or_404(BoardMembership, board=board, user=request.user)
-        if membership.role.name != 'owner':
+        if board.owner != request.user:
             return Response({'detail': 'Only the owner can delete the board.'}, status=status.HTTP_403_FORBIDDEN)
         return super().destroy(request, *args, **kwargs)
 
