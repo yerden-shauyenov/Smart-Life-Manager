@@ -29,8 +29,8 @@ class BoardViewSet(viewsets.ModelViewSet):
         return Board.objects.filter(board_memberships__user=self.request.user)
 
     def perform_create(self, serializer):
-        board = serializer.save()
-        role, _ = BoardRole.objects.get_or_create(name='owner')
+        board = serializer.save(owner=self.request.user)
+        role, _ = BoardRole.objects.get_or_create(board=board, name='owner')
         BoardMembership.objects.create(user=self.request.user, board=board, role=role)
 
     def destroy(self, request, *args, **kwargs):
