@@ -1,6 +1,6 @@
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, tap, switchMap } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { environment } from "../../environments/environment";
@@ -44,12 +44,9 @@ export class AuthService {
         tap((response: any) => {
           if (response && response.access) {
             this.setTokens(response.access, response.refresh);
-            this.currentUserSubject.next(response.user);
-            if (isPlatformBrowser(this.platformId) && response.user.username) {
-              localStorage.setItem('username', response.user.username);
-            }
           }
-        })
+        }),
+        switchMap(() => this.getCurrentUserProfile())
     );
   }
 
@@ -98,8 +95,6 @@ export class AuthService {
   private checkToken() {
     const token = this.getAccessToken();
     if (token) {
-      this.currentUserSubject.next({ isAuthenticated: true } as any);
-
       setTimeout(() => {
         this.getCurrentUserProfile().subscribe({
           error: (err) => {
