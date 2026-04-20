@@ -30,7 +30,7 @@ export class AuthService {
         tap((response: any) => {
           if (response && response.token) {
             this.setTokens(response.token.access, response.token.refresh);
-            this.currentUserSubject.next(response.user); // Сохраняем реального юзера
+            this.currentUserSubject.next(response.user);
             if (isPlatformBrowser(this.platformId) && response.user.username) {
               localStorage.setItem('username', response.user.username);
             }
@@ -62,6 +62,13 @@ export class AuthService {
   }
 
   logout() {
+    this.http.post(`${this.apiUrl}/logout/`, {}).subscribe({
+      next: () => this.clearLocalState(),
+      error: () => this.clearLocalState()
+    });
+  }
+
+  private clearLocalState() {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
@@ -99,7 +106,7 @@ export class AuthService {
         this.getCurrentUserProfile().subscribe({
           error: (err) => {
             console.error('Session expired or invalid token', err);
-            this.logout();
+            this.clearLocalState();
           }
         });
       }, 0);
