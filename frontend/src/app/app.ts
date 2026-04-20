@@ -6,11 +6,12 @@ import { TopBarComponent } from './components/top-bar/top-bar';
 import { filter, map, startWith } from 'rxjs';
 import {AuthService} from "./services/auth.service";
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog';
+import {ToastComponent} from "./components/toast/toast";
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, SidebarComponent, RouterModule, RouterOutlet, TopBarComponent, ConfirmDialogComponent],
+  imports: [CommonModule, SidebarComponent, RouterModule, RouterOutlet, TopBarComponent, ConfirmDialogComponent, ToastComponent],
   templateUrl: './app.html'
 })
 export class AppComponent {

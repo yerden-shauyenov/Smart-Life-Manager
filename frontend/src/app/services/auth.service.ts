@@ -1,16 +1,18 @@
-import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
+import { Injectable, Inject, PLATFORM_ID, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap, switchMap } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { environment } from "../../environments/environment";
 import { User } from '../models/user.model';
+import { ToastService } from './toast.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private apiUrl = `${environment.apiUrl}/users`;
+  private toastService = inject(ToastService);
 
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
@@ -34,6 +36,7 @@ export class AuthService {
             if (isPlatformBrowser(this.platformId) && response.user.username) {
               localStorage.setItem('username', response.user.username);
             }
+            this.toastService.show('Registration successful!');
           }
         })
     );
@@ -44,6 +47,7 @@ export class AuthService {
         tap((response: any) => {
           if (response && response.access) {
             this.setTokens(response.access, response.refresh);
+            this.toastService.show('Successfully logged in');
           }
         }),
         switchMap(() => this.getCurrentUserProfile())
@@ -63,7 +67,10 @@ export class AuthService {
 
   logout() {
     this.http.post(`${this.apiUrl}/logout/`, {}).subscribe({
-      next: () => this.clearLocalState(),
+      next: () => {
+        this.clearLocalState();
+        this.toastService.show('Logged out successfully');
+      },
       error: () => this.clearLocalState()
     });
   }
@@ -104,10 +111,7 @@ export class AuthService {
     if (token) {
       setTimeout(() => {
         this.getCurrentUserProfile().subscribe({
-          error: (err) => {
-            console.error('Session expired or invalid token', err);
-            this.clearLocalState();
-          }
+          error: () => this.clearLocalState()
         });
       }, 0);
     }

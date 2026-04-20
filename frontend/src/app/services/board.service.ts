@@ -1,20 +1,20 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { Board, TaskStatus, TaskPriority, Sprint, TaskType, BoardMembership, BoardRole } from '../models/board.model';
-import {environment} from "../../environments/environment";
+import { environment } from "../../environments/environment";
+import { ToastService } from './toast.service';
 
 @Injectable({ providedIn: 'root' })
 export class BoardService {
   private apiUrl = `${environment.apiUrl}/`;
+  private toastService = inject(ToastService);
 
   private selectedBoardSubject = new BehaviorSubject<Board | null>(null);
   selectedBoard$ = this.selectedBoardSubject.asObservable();
 
   private boardsSubject = new BehaviorSubject<Board[]>([]);
   boards$ = this.boardsSubject.asObservable();
-
-  private boardsSource = new BehaviorSubject<Board[]>([]);
 
   constructor(private http: HttpClient) {}
 
@@ -37,7 +37,7 @@ export class BoardService {
   }
 
   refreshBoards() {
-    this.getBoards().subscribe(); 
+    this.getBoards().subscribe();
   }
 
   getBoard(id: number): Observable<Board> {
@@ -45,35 +45,51 @@ export class BoardService {
   }
 
   createBoard(data: Partial<Board>): Observable<Board> {
-    return this.http.post<Board>(`${this.apiUrl}boards/`, data);
+    return this.http.post<Board>(`${this.apiUrl}boards/`, data).pipe(
+        tap(() => this.toastService.show('Board created'))
+    );
   }
 
   updateBoard(id: number, data: Partial<Board>): Observable<Board> {
-    return this.http.patch<Board>(`${this.apiUrl}boards/${id}/`, data);
+    return this.http.patch<Board>(`${this.apiUrl}boards/${id}/`, data).pipe(
+        tap(() => this.toastService.show('Board settings updated'))
+    );
   }
 
   deleteBoard(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}boards/${id}/`);
+    return this.http.delete<void>(`${this.apiUrl}boards/${id}/`).pipe(
+        tap(() => this.toastService.show('Board deleted'))
+    );
   }
 
   addMember(boardId: number, username: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}boards/${boardId}/add_member/`, { username });
+    return this.http.post(`${this.apiUrl}boards/${boardId}/add_member/`, { username }).pipe(
+        tap(() => this.toastService.show(`User ${username} added`))
+    );
   }
 
   inviteMember(boardId: number, email: string, role: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}boards/${boardId}/invite_member/`, { email, role });
+    return this.http.post(`${this.apiUrl}boards/${boardId}/invite_member/`, { email, role }).pipe(
+        tap(() => this.toastService.show(`Invitation sent to ${email}`))
+    );
   }
 
   removeMember(boardId: number, userId: number): Observable<any> {
-    return this.http.post(`${this.apiUrl}boards/${boardId}/remove_member/`, { user_id: userId });
+    return this.http.post(`${this.apiUrl}boards/${boardId}/remove_member/`, { user_id: userId }).pipe(
+        tap(() => this.toastService.show('Member removed'))
+    );
   }
 
   transferOwnership(boardId: number, userId: number): Observable<any> {
-    return this.http.post(`${this.apiUrl}boards/${boardId}/transfer_ownership/`, { user_id: userId });
+    return this.http.post(`${this.apiUrl}boards/${boardId}/transfer_ownership/`, { user_id: userId }).pipe(
+        tap(() => this.toastService.show('Ownership transferred'))
+    );
   }
 
   leaveBoard(boardId: number): Observable<any> {
-    return this.http.post(`${this.apiUrl}boards/${boardId}/leave/`, {});
+    return this.http.post(`${this.apiUrl}boards/${boardId}/leave/`, {}).pipe(
+        tap(() => this.toastService.show('You have left the board'))
+    );
   }
 
   getMemberships(boardId: number): Observable<BoardMembership[]> {
@@ -82,7 +98,9 @@ export class BoardService {
   }
 
   updateMembership(id: number, data: Partial<BoardMembership>): Observable<BoardMembership> {
-    return this.http.patch<BoardMembership>(`${this.apiUrl}memberships/${id}/`, data);
+    return this.http.patch<BoardMembership>(`${this.apiUrl}memberships/${id}/`, data).pipe(
+        tap(() => this.toastService.show('Member role updated'))
+    );
   }
 
   deleteMembership(id: number): Observable<void> {
@@ -95,7 +113,9 @@ export class BoardService {
   }
 
   createStatus(data: Partial<TaskStatus>): Observable<TaskStatus> {
-    return this.http.post<TaskStatus>(`${this.apiUrl}statuses/`, data);
+    return this.http.post<TaskStatus>(`${this.apiUrl}statuses/`, data).pipe(
+        tap(() => this.toastService.show('Status created'))
+    );
   }
 
   updateStatus(id: number, data: Partial<TaskStatus>): Observable<TaskStatus> {
@@ -103,7 +123,9 @@ export class BoardService {
   }
 
   deleteStatus(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}statuses/${id}/`);
+    return this.http.delete<void>(`${this.apiUrl}statuses/${id}/`).pipe(
+        tap(() => this.toastService.show('Status deleted'))
+    );
   }
 
   getPriorities(boardId: number): Observable<TaskPriority[]> {
@@ -112,7 +134,9 @@ export class BoardService {
   }
 
   createPriority(data: Partial<TaskPriority>): Observable<TaskPriority> {
-    return this.http.post<TaskPriority>(`${this.apiUrl}priorities/`, data);
+    return this.http.post<TaskPriority>(`${this.apiUrl}priorities/`, data).pipe(
+        tap(() => this.toastService.show('Priority created'))
+    );
   }
 
   updatePriority(id: number, data: Partial<TaskPriority>): Observable<TaskPriority> {
@@ -120,7 +144,9 @@ export class BoardService {
   }
 
   deletePriority(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}priorities/${id}/`);
+    return this.http.delete<void>(`${this.apiUrl}priorities/${id}/`).pipe(
+        tap(() => this.toastService.show('Priority deleted'))
+    );
   }
 
   getTaskTypes(boardId: number): Observable<TaskType[]> {
@@ -129,7 +155,9 @@ export class BoardService {
   }
 
   createTaskType(data: Partial<TaskType>): Observable<TaskType> {
-    return this.http.post<TaskType>(`${this.apiUrl}types/`, data);
+    return this.http.post<TaskType>(`${this.apiUrl}types/`, data).pipe(
+        tap(() => this.toastService.show('Task type created'))
+    );
   }
 
   updateTaskType(id: number, data: Partial<TaskType>): Observable<TaskType> {
@@ -137,7 +165,9 @@ export class BoardService {
   }
 
   deleteTaskType(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}types/${id}/`);
+    return this.http.delete<void>(`${this.apiUrl}types/${id}/`).pipe(
+        tap(() => this.toastService.show('Task type deleted'))
+    );
   }
 
   getRoles(boardId: number): Observable<BoardRole[]> {
@@ -146,7 +176,9 @@ export class BoardService {
   }
 
   createRole(data: Partial<BoardRole>): Observable<BoardRole> {
-    return this.http.post<BoardRole>(`${this.apiUrl}roles/`, data);
+    return this.http.post<BoardRole>(`${this.apiUrl}roles/`, data).pipe(
+        tap(() => this.toastService.show('Role created'))
+    );
   }
 
   updateRole(id: number, data: Partial<BoardRole>): Observable<BoardRole> {
@@ -154,7 +186,9 @@ export class BoardService {
   }
 
   deleteRole(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}roles/${id}/`);
+    return this.http.delete<void>(`${this.apiUrl}roles/${id}/`).pipe(
+        tap(() => this.toastService.show('Role deleted'))
+    );
   }
 
   getSprints(boardId: number): Observable<Sprint[]> {
@@ -163,15 +197,21 @@ export class BoardService {
   }
 
   createSprint(data: Partial<Sprint>): Observable<Sprint> {
-    return this.http.post<Sprint>(`${this.apiUrl}sprints/`, data);
+    return this.http.post<Sprint>(`${this.apiUrl}sprints/`, data).pipe(
+        tap(() => this.toastService.show('Sprint created'))
+    );
   }
 
   updateSprint(id: number, data: Partial<Sprint>): Observable<Sprint> {
-    return this.http.patch<Sprint>(`${this.apiUrl}sprints/${id}/`, data);
+    return this.http.patch<Sprint>(`${this.apiUrl}sprints/${id}/`, data).pipe(
+        tap(() => this.toastService.show('Sprint updated'))
+    );
   }
 
   deleteSprint(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}sprints/${id}/`);
+    return this.http.delete<void>(`${this.apiUrl}sprints/${id}/`).pipe(
+        tap(() => this.toastService.show('Sprint deleted'))
+    );
   }
 
   getTasks(boardId: number, sprintId?: number | 'none'): Observable<any[]> {
@@ -183,6 +223,8 @@ export class BoardService {
   }
 
   updateTask(taskId: number, data: any): Observable<any> {
-    return this.http.patch<any>(`${this.apiUrl}tasks/${taskId}/`, data);
+    return this.http.patch<any>(`${this.apiUrl}tasks/${taskId}/`, data).pipe(
+        tap(() => this.toastService.show('Task updated'))
+    );
   }
 }
