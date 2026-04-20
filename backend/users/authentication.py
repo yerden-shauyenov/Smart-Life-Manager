@@ -1,7 +1,6 @@
-import hashlib
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.exceptions import AuthenticationFailed
-from user_agents import parse
+from django.utils import timezone
 from .models import UserSession
 
 
@@ -10,30 +9,21 @@ class SessionTrackingJWTAuthentication(JWTAuthentication):
         result = super().authenticate(request)
         if result is not None:
             user, token = result
-            token_str = str(token)
-            token_hash = hashlib.sha256(token_str.encode()).hexdigest()
 
-            session, created = UserSession.objects.get_or_create(
-                token_hash=token_hash,
-                defaults={'user': user}
-            )
+            session_key = token.get('session_id')
+
+            if not session_key:
+                return result
+
+            try:
+                session = UserSession.objects.get(session_key=session_key)
+            except UserSession.DoesNotExist:
+                raise AuthenticationFailed('Session not found')
 
             if not session.is_active:
-                raise AuthenticationFailed('Сессия была завершена.')
+                raise AuthenticationFailed('Session terminated')
 
-            if created or not session.ip_address:
-                user_agent_str = request.META.get('HTTP_USER_AGENT', '')
-                user_agent = parse(user_agent_str)
-
-                ip = request.META.get('REMOTE_ADDR')
-                x_forwarded = request.META.get('HTTP_X_FORWARDED_FOR')
-                if x_forwarded:
-                    ip = x_forwarded.split(',')[0]
-
-                session.ip_address = ip
-                session.os = user_agent.os.family
-                session.browser = user_agent.browser.family
-                session.device = user_agent.device.family
-                session.save()
+            session.last_activity = timezone.now()
+            session.save(update_fields=['last_activity'])
 
         return result

@@ -1,11 +1,18 @@
 <div class="h-screen w-screen flex flex-col overflow-hidden">
     @if (!(isAuthPage$ | async)) {
-        <app-top-bar *ngIf="showSidebar"></app-top-bar>
+        <app-top-bar *ngIf="showSidebar" (menuToggle)="toggleSidebar()"></app-top-bar>
     }
 
     <div class="flex flex-1 overflow-hidden">
         @if (!(isAuthPage$ | async)) {
-            <app-sidebar *ngIf="showSidebar"></app-sidebar>
+            <div *ngIf="showSidebar && sidebarOpen"
+                 class="fixed inset-0 bg-black/50 z-30 lg:hidden"
+                 (click)="closeSidebar()">
+            </div>
+            <app-sidebar *ngIf="showSidebar"
+                         [isOpen]="sidebarOpen"
+                         (closeSidebarEvent)="closeSidebar()">
+            </app-sidebar>
         }
 
         <main class="flex-1 overflow-y-auto bg-gray-50">

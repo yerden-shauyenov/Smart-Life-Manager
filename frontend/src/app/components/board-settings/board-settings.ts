@@ -246,5 +246,7 @@ export class BoardSettingsComponent implements OnInit {
     });
   }
 
-  
+  get isOwner(): boolean {
+    return this.board?.owner === this.currentUser?.username?.toString();
+  }
 }

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, Output, EventEmitter } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 @Component({
@@ -10,5 +10,5 @@ import { RouterModule } from '@angular/router';
   styleUrl: './top-bar.css',
 })
 export class TopBarComponent {
-
+  @Output() menuToggle = new EventEmitter<void>();
 }

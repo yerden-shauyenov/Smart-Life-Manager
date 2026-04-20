@@ -6,7 +6,7 @@ class User(AbstractUser):
 
 class UserSession(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sessions')
-    token_hash = models.CharField(max_length=255, unique=True)
+    session_key = models.CharField(max_length=255, unique=True)
     ip_address = models.GenericIPAddressField(null=True, blank=True)
     os = models.CharField(max_length=50, null=True, blank=True)
     browser = models.CharField(max_length=50, null=True, blank=True)
