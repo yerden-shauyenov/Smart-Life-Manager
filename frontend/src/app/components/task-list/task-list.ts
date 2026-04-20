@@ -8,7 +8,7 @@ import { TaskService } from '../../services/task.service';
 import { BoardService } from '../../services/board.service';
 import { AuthService } from '../../services/auth.service';
 import { Task, Comment } from '../../models/task.model';
-import { Board, TaskStatus, TaskPriority, Sprint, TaskType, BoardMembership } from '../../models/board.model';
+import { Board, TaskStatus, TaskPriority, Sprint, TaskType, BoardMembership, BoardRole } from '../../models/board.model';
 import { MarkdownPipe } from '../../pipes/markdown.pipe';
 import {environment} from "../../../environments/environment";
 import {User} from "../../models/user.model";
@@ -62,6 +62,9 @@ export class TaskListComponent implements OnInit, OnDestroy {
   selectedPriority: number | null = null;
   selectedSprint: number | null = null;
   filterAssignee: string = '';
+  currentUser: User | null = null;
+  roles: BoardRole[] = [];
+  userPermissions: BoardRole | null = null;
 
   ngOnInit(): void {
     this.currentUsername = this.authService.getUsername() || "null";
@@ -107,7 +110,9 @@ export class TaskListComponent implements OnInit, OnDestroy {
             tasks: this.taskService.getTasks().pipe(catchError(() => of([]))),
             sprints: this.boardService.getSprints(boardId).pipe(catchError(() => of([]))),
             taskTypes: this.boardService.getTaskTypes(boardId).pipe(catchError(() => of([]))),
-            members: this.boardService.getMemberships(boardId).pipe(catchError(() => of([])))
+            members: this.boardService.getMemberships(boardId).pipe(catchError(() => of([]))),
+            roles: this.boardService.getRoles(boardId),
+            user: this.authService.currentUser$
           });
         }),
         finalize(() => {
@@ -121,6 +126,8 @@ export class TaskListComponent implements OnInit, OnDestroy {
       this.sprints = res.sprints as Sprint[];
       this.taskTypes = res.taskTypes as TaskType[];
       this.members = res.members as BoardMembership[];
+      this.roles = res.roles;
+      this.currentUser = res.user;
 
       if (taskId) {
         const taskToOpen = this.tasks.find(t => t.id === taskId);
@@ -130,7 +137,19 @@ export class TaskListComponent implements OnInit, OnDestroy {
           this.taskService.getTask(taskId).subscribe(t => this.openEditTask(t));
         }
       }
+
+      const myMembership = this.members.find(m => m.user === this.currentUser?.id);
+      if (myMembership) {
+          this.userPermissions = this.roles.find(r => r.id === myMembership.role) || null;
+      }
     });
+  }
+
+  can(permission: keyof BoardRole): boolean {
+    if (this.currentBoard?.owner === this.currentUser?.id?.toString()) {
+        return true;
+    }
+    return this.userPermissions ? !!this.userPermissions[permission] : false;
   }
 
   private loadBoardData(boardId: number): void {

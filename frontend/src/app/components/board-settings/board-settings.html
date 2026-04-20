@@ -12,42 +12,66 @@
     </header>
 
     <section class="flex flex-col space-y-4">
-        <h2 class="text-xl font-semibold">General Settings</h2>
+        <div class="flex items-center gap-4">
+            <h2 class="text-xl font-semibold">General Settings</h2>
+            <span *ngIf="!can('can_manage_board')" class="text-red-500 text-sm font-medium">
+                (You don't have permission to edit settings)
+            </span>
+        </div>
+
         <div class="bg-gray-50 p-4 rounded-lg border space-y-4">
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Board Name</label>
-                <input type="text" [(ngModel)]="editData.name" class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500">
+                <input type="text" 
+                       [(ngModel)]="editData.name" 
+                       [disabled]="!can('can_manage_board')"
+                       class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed">
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                <textarea [(ngModel)]="editData.description" rows="3" class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                <textarea [(ngModel)]="editData.description" 
+                          rows="3" 
+                          [disabled]="!can('can_manage_board')"
+                          class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed"></textarea>
             </div>
-            <button (click)="updateBoard()" [disabled]="!editData.name" class="bg-indigo-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-indigo-700 disabled:opacity-50">Save Changes</button>
+            <button *ngIf="can('can_manage_board')" 
+                    (click)="updateBoard()" 
+                    [disabled]="!editData.name" 
+                    class="bg-indigo-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-indigo-700 disabled:opacity-50">
+                Save Changes
+            </button>
         </div>
     </section>
 
     <section class="flex flex-col space-y-4">
-        <h2 class="text-xl font-semibold">Board Members</h2>
+        <div class="flex items-center gap-4">
+            <h2 class="text-xl font-semibold">Board Members</h2>
+            <span *ngIf="!can('can_manage_members')" class="text-red-500 text-sm font-medium">
+                (Read only)
+            </span>
+        </div>
+
         <div class="flex flex-col space-y-3">
             <div *ngFor="let m of memberships" class="flex items-center justify-between p-4 border rounded-lg bg-white shadow-sm">
                 <div class="flex items-center gap-3">
                     <img [src]="m.user_avatar || 'assets/default-avatar.png'"
-                class="w-10 h-10 rounded-full object-cover bg-gray-100 border">
+                        class="w-10 h-10 rounded-full object-cover bg-gray-100 border">
                     <div>
                         <p class="font-bold text-lg">{{ m.user_username }}</p>
                         <p class="text-sm text-gray-500">Role: {{ m.role_name }}</p>
                     </div>
                 </div>
+
                 <div class="flex items-center gap-4">
                     <select [ngModel]="m.role" 
                             (ngModelChange)="assignRole(m, $event)" 
-                            [disabled]="m.user === currentUser?.id"
-                            [ngClass]="{'opacity-50 cursor-not-allowed': m.user === currentUser?.id}"
+                            [disabled]="m.user === currentUser?.id || !can('can_manage_members')"
+                            [ngClass]="{'opacity-50 cursor-not-allowed': m.user === currentUser?.id || !can('can_manage_members')}"
                             class="border p-2 rounded bg-white text-sm">
                         <option *ngFor="let r of roles" [ngValue]="r.id">{{ r.name }}</option>
                     </select>
 
-                    <div class="relative group" *ngIf="m.user !== currentUser?.id">
+                    <div class="relative group" *ngIf="m.user !== currentUser?.id && can('can_manage_members')">
                         <button class="p-1 text-gray-400 hover:text-gray-600 focus:outline-none">
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
@@ -55,8 +79,16 @@
                         </button>
                         <div class="absolute right-0 w-48 mt-2 origin-top-right bg-white border rounded-md shadow-lg hidden group-hover:block z-10">
                             <div class="py-1">
-                                <button *ngIf="m.role_name !== 'Administrator'" (click)="transferOwnership(m.user)" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Make Owner</button>
-                                <button *ngIf="m.role_name !== 'Administrator'" (click)="removeMember(m.user)" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">Remove</button>
+                                <button *ngIf="m.role_name !== 'Administrator'" 
+                                        (click)="transferOwnership(m.user)" 
+                                        class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    Make Owner
+                                </button>
+                                <button *ngIf="m.role_name !== 'Administrator'" 
+                                        (click)="removeMember(m.user)" 
+                                        class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                                    Remove
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -83,139 +115,226 @@
     </section>
 
     <section class="flex flex-col space-y-4">
-        <h2 class="text-xl font-semibold">Task Statuses</h2>
-        <div class="flex gap-2 p-4 bg-gray-50 rounded-lg border">
+        <div class="flex items-center gap-4">
+            <h2 class="text-xl font-semibold">Task Statuses</h2>
+            <span *ngIf="!can('can_manage_board')" class="text-red-500 text-sm font-medium">
+                (Read only)
+            </span>
+        </div>
+
+        <div *ngIf="can('can_manage_board')" class="flex gap-2 p-4 bg-gray-50 rounded-lg border">
             <input [(ngModel)]="newStatus.name" placeholder="Status name" class="border p-2 rounded flex-1">
             <input [(ngModel)]="newStatus.order" type="number" class="border p-2 rounded w-20">
-            <button (click)="addStatus()" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Add</button>
+            <button (click)="addStatus()" [disabled]="!newStatus.name" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 disabled:opacity-50">Add</button>
         </div>
+
         <div class="flex flex-col space-y-2">
-            <div *ngFor="let s of statuses" class="flex items-center justify-between p-3 border rounded hover:bg-gray-50">
+            <div *ngFor="let s of statuses" class="flex items-center justify-between p-3 border rounded hover:bg-gray-50 bg-white">
                 <div *ngIf="editingId !== 'status-' + s.id" class="flex gap-4">
                     <span class="font-medium">{{ s.name }}</span>
-                    <span class="text-gray-400">Order: {{ s.order }}</span>
+                    <span class="text-gray-400 text-sm">Order: {{ s.order }}</span>
                 </div>
+
                 <div *ngIf="editingId === 'status-' + s.id" class="flex gap-2 flex-1 mr-4">
                     <input [(ngModel)]="editBuffer.name" class="border p-1 rounded flex-1">
                     <input [(ngModel)]="editBuffer.order" type="number" class="border p-1 rounded w-20">
                 </div>
-                <div class="flex gap-2">
-                    <button *ngIf="editingId !== 'status-' + s.id" (click)="startEdit('status', s)" class="text-blue-600 px-2">Edit</button>
-                    <button *ngIf="editingId === 'status-' + s.id" (click)="saveEdit('status')" class="text-green-600 px-2 font-bold">Save</button>
-                    <button *ngIf="editingId === 'status-' + s.id" (click)="cancelEdit()" class="text-gray-600 px-2">Cancel</button>
-                    <button (click)="deleteItem('status', s.id)" class="text-red-600 px-2">Delete</button>
+
+                <div class="flex gap-2" *ngIf="can('can_manage_board')">
+                    <button *ngIf="editingId !== 'status-' + s.id" (click)="startEdit('status', s)" class="text-blue-600 px-2 text-sm hover:underline">Edit</button>
+                    <button *ngIf="editingId === 'status-' + s.id" (click)="saveEdit('status')" class="text-green-600 px-2 font-bold text-sm hover:underline">Save</button>
+                    <button *ngIf="editingId === 'status-' + s.id" (click)="cancelEdit()" class="text-gray-600 px-2 text-sm hover:underline">Cancel</button>
+                    <button (click)="deleteItem('status', s.id)" class="text-red-600 px-2 text-sm hover:underline">Delete</button>
                 </div>
             </div>
         </div>
     </section>
 
     <section class="flex flex-col space-y-4">
-        <h2 class="text-xl font-semibold">Priorities</h2>
-        <div class="flex gap-2 p-4 bg-gray-50 rounded-lg border">
-            <input [(ngModel)]="newPriority.name" placeholder="Name" class="border p-2 rounded flex-1">
-            <input [(ngModel)]="newPriority.color_hex" type="color" class="w-12 h-10">
-            <input [(ngModel)]="newPriority.level" type="number" class="border p-2 rounded w-24">
-            <button (click)="addPriority()" class="bg-indigo-600 text-white px-4 py-2 rounded">Add</button>
+        <div class="flex items-center gap-4">
+            <h2 class="text-xl font-semibold">Priorities</h2>
+            <span *ngIf="!can('can_manage_board')" class="text-red-500 text-sm font-medium">
+                (Read only)
+            </span>
         </div>
+
+        <div *ngIf="can('can_manage_board')" class="flex gap-2 p-4 bg-gray-50 rounded-lg border">
+            <input [(ngModel)]="newPriority.name" placeholder="Name" class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500">
+            <input [(ngModel)]="newPriority.color_hex" type="color" class="w-12 h-10 border rounded-md cursor-pointer">
+            <input [(ngModel)]="newPriority.level" type="number" class="w-24 border-gray-300 rounded-md shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500">
+            <button (click)="addPriority()" [disabled]="!newPriority.name" class="bg-indigo-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-indigo-700 disabled:opacity-50">
+                Add
+            </button>
+        </div>
+
         <div class="flex flex-col space-y-2">
-            <div *ngFor="let p of priorities" class="flex items-center justify-between p-3 border rounded">
+            <div *ngFor="let p of priorities" class="flex items-center justify-between p-3 border rounded bg-white hover:bg-gray-50 transition-colors">
                 <div *ngIf="editingId !== 'priority-' + p.id" class="flex items-center gap-3">
-                    <div class="w-4 h-4 rounded-full" [style.background-color]="p.color_hex"></div>
-                    <span class="font-medium">{{ p.name }}</span>
-                    <span class="text-gray-400">Level: {{ p.level }}</span>
+                    <div class="w-4 h-4 rounded-full shadow-sm" [style.background-color]="p.color_hex"></div>
+                    <span class="font-medium text-gray-800">{{ p.name }}</span>
+                    <span class="text-gray-400 text-sm">Level: {{ p.level }}</span>
                 </div>
+
                 <div *ngIf="editingId === 'priority-' + p.id" class="flex gap-2 flex-1 mr-4">
-                    <input [(ngModel)]="editBuffer.name" class="border p-1 rounded flex-1">
-                    <input [(ngModel)]="editBuffer.color_hex" type="color" class="w-10 h-8">
+                    <input [(ngModel)]="editBuffer.name" class="border p-1 rounded flex-1 focus:ring-1 focus:ring-indigo-500">
+                    <input [(ngModel)]="editBuffer.color_hex" type="color" class="w-10 h-8 border rounded cursor-pointer">
                     <input [(ngModel)]="editBuffer.level" type="number" class="border p-1 rounded w-16">
                 </div>
-                <div class="flex gap-2">
-                    <button *ngIf="editingId !== 'priority-' + p.id" (click)="startEdit('priority', p)" class="text-blue-600 px-2">Edit</button>
-                    <button *ngIf="editingId === 'priority-' + p.id" (click)="saveEdit('priority')" class="text-green-600 px-2 font-bold">Save</button>
-                    <button (click)="deleteItem('priority', p.id)" class="text-red-600 px-2">Delete</button>
+
+                <div class="flex gap-2" *ngIf="can('can_manage_board')">
+                    <button *ngIf="editingId !== 'priority-' + p.id" (click)="startEdit('priority', p)" class="text-blue-600 px-2 text-sm font-medium hover:underline">Edit</button>
+                    <button *ngIf="editingId === 'priority-' + p.id" (click)="saveEdit('priority')" class="text-green-600 px-2 text-sm font-bold hover:underline">Save</button>
+                    <button *ngIf="editingId === 'priority-' + p.id" (click)="cancelEdit()" class="text-gray-500 px-2 text-sm hover:underline">Cancel</button>
+                    <button (click)="deleteItem('priority', p.id)" class="text-red-600 px-2 text-sm font-medium hover:underline">Delete</button>
                 </div>
             </div>
         </div>
     </section>
 
     <section class="flex flex-col space-y-4">
-        <h2 class="text-xl font-semibold">Task Types</h2>
-        <div class="flex gap-2 p-4 bg-gray-50 rounded-lg border">
-            <input [(ngModel)]="newType.name" placeholder="Type name" class="border p-2 rounded flex-1">
-            <input [(ngModel)]="newType.icon_name" placeholder="Icon name" class="border p-2 rounded flex-1">
-            <button (click)="addType()" class="bg-indigo-600 text-white px-4 py-2 rounded">Add</button>
+        <div class="flex items-center gap-4">
+            <h2 class="text-xl font-semibold">Task Types</h2>
+            <span *ngIf="!can('can_manage_board')" class="text-red-500 text-sm font-medium">
+                (Read only)
+            </span>
         </div>
+
+        <div *ngIf="can('can_manage_board')" class="flex flex-col sm:flex-row gap-2 p-4 bg-gray-50 rounded-lg border sm:items-end">
+            <div class="flex-1">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Type Name</label>
+                <input [(ngModel)]="newType.name" placeholder="e.g. Bug" 
+                    class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+            <div class="flex-1">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Icon Name</label>
+                <input [(ngModel)]="newType.icon_name" placeholder="e.g. bug_report" 
+                    class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+            <button (click)="addType()" [disabled]="!newType.name" 
+                    class="bg-indigo-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 h-10">
+                Add
+            </button>
+        </div>
+
         <div class="flex flex-col space-y-2">
-            <div *ngFor="let t of types" class="flex items-center justify-between p-3 border rounded">
-                <div *ngIf="editingId !== 'type-' + t.id" class="flex gap-4">
-                    <span class="font-medium">{{ t.name }}</span>
-                    <span class="text-gray-400">Icon: {{ t.icon_name }}</span>
+            <div *ngFor="let t of types" class="flex items-center justify-between p-3 border rounded bg-white hover:bg-gray-50 transition-colors">
+                <div *ngIf="editingId !== 'type-' + t.id" class="flex items-center gap-4">
+                    <span class="font-medium text-gray-800">{{ t.name }}</span>
+                    <span class="text-gray-400 text-sm flex items-center gap-1">
+                        <span class="material-icons text-base">{{ t.icon_name }}</span>
+                        Icon: {{ t.icon_name }}
+                    </span>
                 </div>
+
                 <div *ngIf="editingId === 'type-' + t.id" class="flex gap-2 flex-1 mr-4">
-                    <input [(ngModel)]="editBuffer.name" class="border p-1 rounded flex-1">
-                    <input [(ngModel)]="editBuffer.icon_name" class="border p-1 rounded flex-1">
+                    <input [(ngModel)]="editBuffer.name" class="border p-1 rounded flex-1 focus:ring-1 focus:ring-indigo-500">
+                    <input [(ngModel)]="editBuffer.icon_name" class="border p-1 rounded flex-1 focus:ring-1 focus:ring-indigo-500">
                 </div>
-                <div class="flex gap-2">
-                    <button *ngIf="editingId !== 'type-' + t.id" (click)="startEdit('type', t)" class="text-blue-600 px-2">Edit</button>
-                    <button *ngIf="editingId === 'type-' + t.id" (click)="saveEdit('type')" class="text-green-600 px-2 font-bold">Save</button>
-                    <button (click)="deleteItem('type', t.id)" class="text-red-600 px-2">Delete</button>
+
+                <div class="flex gap-2" *ngIf="can('can_manage_board')">
+                    <button *ngIf="editingId !== 'type-' + t.id" (click)="startEdit('type', t)" 
+                            class="text-blue-600 px-2 text-sm font-medium hover:underline">Edit</button>
+                    
+                    <button *ngIf="editingId === 'type-' + t.id" (click)="saveEdit('type')" 
+                            class="text-green-600 px-2 text-sm font-bold hover:underline">Save</button>
+                    
+                    <button *ngIf="editingId === 'type-' + t.id" (click)="cancelEdit()" 
+                            class="text-gray-500 px-2 text-sm hover:underline">Cancel</button>
+                    
+                    <button (click)="deleteItem('type', t.id)" 
+                            class="text-red-600 px-2 text-sm font-medium hover:underline">Delete</button>
                 </div>
             </div>
         </div>
     </section>
 
     <section class="flex flex-col space-y-4">
-        <h2 class="text-xl font-semibold">Roles</h2>
-        <div class="flex flex-col p-4 bg-gray-50 rounded-lg border space-y-4">
-            <input [(ngModel)]="newRole.name" placeholder="Role name" class="border p-2 rounded w-full">
-            <div class="flex flex-wrap gap-4 text-sm">
-                <label class="flex items-center gap-2"><input type="checkbox" [(ngModel)]="newRole.can_manage_board"> Board</label>
-                <label class="flex items-center gap-2"><input type="checkbox" [(ngModel)]="newRole.can_manage_members"> Members</label>
-                <label class="flex items-center gap-2"><input type="checkbox" [(ngModel)]="newRole.can_create_tasks"> Create</label>
-                <label class="flex items-center gap-2"><input type="checkbox" [(ngModel)]="newRole.can_edit_tasks"> Edit</label>
-                <label class="flex items-center gap-2"><input type="checkbox" [(ngModel)]="newRole.can_delete_tasks"> Delete</label>
-            </div>
-            <button (click)="addRole()" class="bg-indigo-600 text-white px-4 py-2 rounded w-full">Create Role</button>
+        <div class="flex items-center gap-4">
+            <h2 class="text-xl font-semibold">Roles</h2>
+            <span *ngIf="!can('can_manage_board')" class="text-red-500 text-sm font-medium">
+                (Read only)
+            </span>
         </div>
+
+        <div *ngIf="can('can_manage_board')" class="flex flex-col p-4 bg-gray-50 rounded-lg border space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">New Role Name</label>
+                <input [(ngModel)]="newRole.name" placeholder="e.g. Designer" 
+                    class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+            
+            <div class="flex flex-wrap gap-4 text-sm bg-white p-3 rounded-md border">
+                <span class="w-full text-xs font-semibold text-gray-500 uppercase tracking-wider">Permissions:</span>
+                <label class="flex items-center gap-2 cursor-pointer hover:text-indigo-600">
+                    <input type="checkbox" [(ngModel)]="newRole.can_manage_board" class="rounded text-indigo-600"> Board
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer hover:text-indigo-600">
+                    <input type="checkbox" [(ngModel)]="newRole.can_manage_members" class="rounded text-indigo-600"> Members
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer hover:text-indigo-600">
+                    <input type="checkbox" [(ngModel)]="newRole.can_create_tasks" class="rounded text-indigo-600"> Create
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer hover:text-indigo-600">
+                    <input type="checkbox" [(ngModel)]="newRole.can_edit_tasks" class="rounded text-indigo-600"> Edit
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer hover:text-indigo-600">
+                    <input type="checkbox" [(ngModel)]="newRole.can_delete_tasks" class="rounded text-indigo-600"> Delete
+                </label>
+            </div>
+            <button (click)="addRole()" [disabled]="!newRole.name" 
+                    class="bg-indigo-600 text-white px-4 py-2 rounded w-full font-medium hover:bg-indigo-700 disabled:opacity-50 transition-colors">
+                Create Role
+            </button>
+        </div>
+
         <div class="flex flex-col space-y-2">
-            <div *ngFor="let r of roles" class="flex flex-col p-4 border rounded">
+            <div *ngFor="let r of roles" class="flex flex-col p-4 border rounded bg-white hover:bg-gray-50 transition-colors">
                 <div *ngIf="editingId !== 'role-' + r.id">
-                    <div class="flex justify-between items-start mb-2">
-                        <span class="font-bold text-lg">{{ r.name }}</span>
-                        <div class="flex gap-2">
-                            <button (click)="startEdit('role', r)" class="text-blue-600 text-sm">Edit</button>
-                            <button (click)="deleteItem('role', r.id)" class="text-red-600 text-sm">Delete</button>
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="font-bold text-lg text-gray-800">{{ r.name }}</span>
+                        <div class="flex gap-2" *ngIf="can('can_manage_board')">
+                            <button (click)="startEdit('role', r)" class="text-blue-600 text-sm font-medium hover:underline">Edit</button>
+                            <button (click)="deleteItem('role', r.id)" class="text-red-600 text-sm font-medium hover:underline">Delete</button>
                         </div>
                     </div>
                     <div class="flex flex-wrap gap-2">
-                        <span *ngIf="r.can_manage_board" class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">Board Management</span>
-                        <span *ngIf="r.can_manage_members" class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">Members Management</span>
-                        <span *ngIf="r.can_create_tasks" class="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded">Create Tasks</span>
+                        <span *ngIf="r.can_manage_board" class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-md">Board Management</span>
+                        <span *ngIf="r.can_manage_members" class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-md">Members Management</span>
+                        <span *ngIf="r.can_create_tasks" class="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-md">Create Tasks</span>
+                        <span *ngIf="r.can_edit_tasks" class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-md">Edit Tasks</span>
+                        <span *ngIf="r.can_delete_tasks" class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-md">Delete Tasks</span>
                     </div>
                 </div>
+
                 <div *ngIf="editingId === 'role-' + r.id" class="flex flex-col space-y-3">
-                    <input [(ngModel)]="editBuffer.name" class="border p-2 rounded w-full">
-                    <div class="flex flex-wrap gap-3">
-                        <label><input type="checkbox" [(ngModel)]="editBuffer.can_manage_board"> Board</label>
-                        <label><input type="checkbox" [(ngModel)]="editBuffer.can_manage_members"> Members</label>
-                        <label><input type="checkbox" [(ngModel)]="editBuffer.can_create_tasks"> Create</label>
-                        <label><input type="checkbox" [(ngModel)]="editBuffer.can_edit_tasks"> Edit</label>
-                        <label><input type="checkbox" [(ngModel)]="editBuffer.can_delete_tasks"> Delete</label>
+                    <input [(ngModel)]="editBuffer.name" class="border p-2 rounded w-full focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <div class="flex flex-wrap gap-3 bg-gray-50 p-2 rounded border">
+                        <label class="flex items-center gap-2"><input type="checkbox" [(ngModel)]="editBuffer.can_manage_board"> Board</label>
+                        <label class="flex items-center gap-2"><input type="checkbox" [(ngModel)]="editBuffer.can_manage_members"> Members</label>
+                        <label class="flex items-center gap-2"><input type="checkbox" [(ngModel)]="editBuffer.can_create_tasks"> Create</label>
+                        <label class="flex items-center gap-2"><input type="checkbox" [(ngModel)]="editBuffer.can_edit_tasks"> Edit</label>
+                        <label class="flex items-center gap-2"><input type="checkbox" [(ngModel)]="editBuffer.can_delete_tasks"> Delete</label>
                     </div>
                     <div class="flex gap-2">
-                        <button (click)="saveEdit('role')" class="bg-green-600 text-white px-3 py-1 rounded">Save</button>
-                        <button (click)="cancelEdit()" class="bg-gray-200 px-3 py-1 rounded">Cancel</button>
+                        <button (click)="saveEdit('role')" class="bg-green-600 text-white px-4 py-1 rounded text-sm font-bold hover:bg-green-700">Save</button>
+                        <button (click)="cancelEdit()" class="bg-gray-200 text-gray-700 px-4 py-1 rounded text-sm font-medium hover:bg-gray-300">Cancel</button>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="flex flex-col space-y-4">
+    <section class="flex flex-col space-y-4" *ngIf="can('can_manage_board')">
         <h2 class="text-xl font-semibold text-red-600">Danger Zone</h2>
         <div class="bg-red-50 border border-red-200 rounded-lg p-6">
-            <p class="text-sm text-red-600 mb-4">Deleting a board is irreversible. All tasks, lists, and data will be permanently destroyed.</p>
-            <button (click)="deleteBoard()" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 font-medium text-sm">Delete Board Permanently</button>
+            <p class="text-sm text-red-600 mb-4">
+                Deleting a board is irreversible. All tasks, lists, and data will be permanently destroyed. 
+                Only board managers can perform this action.
+            </p>
+            <button (click)="deleteBoard()" 
+                    class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 font-medium text-sm transition-colors shadow-sm">
+                Delete Board Permanently
+            </button>
         </div>
     </section>
 </div>

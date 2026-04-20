@@ -102,7 +102,9 @@ export class BoardSettingsComponent implements OnInit {
   }
 
   can(permission: keyof BoardRole): boolean {
-    if (this.board?.owner === this.currentUser?.id?.toString()) return true;
+    if (this.board?.owner === this.currentUser?.id?.toString()) {
+        return true;
+    }
     return this.userPermissions ? !!this.userPermissions[permission] : false;
   }
 
