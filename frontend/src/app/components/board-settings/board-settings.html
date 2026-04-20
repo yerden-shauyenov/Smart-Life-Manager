@@ -6,7 +6,11 @@
             </a>
             <h1 class="text-3xl font-bold">Board Settings: {{ board?.name }}</h1>
         </div>
-        <button (click)="leaveBoard()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none">
+        <button (click)="leaveBoard()"
+                [disabled]="isOwner"
+                [title]="isOwner ? 'Owner cannot leave the board. Transfer ownership or delete the board.' : ''"
+                [ngClass]="{'opacity-50 cursor-not-allowed': isOwner, 'hover:bg-gray-50': !isOwner}"
+                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none">
             Leave Board
         </button>
     </header>
