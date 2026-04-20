@@ -60,9 +60,4 @@ export class SidebarComponent implements OnInit {
     this.router.navigate(['/boards', board.id, 'settings']);
   }
 
-  goToDashboard(): void {
-    this.boardService.selectBoard(null as any);
-    this.router.navigate(['/dashboard']);
-  }
-
 }
