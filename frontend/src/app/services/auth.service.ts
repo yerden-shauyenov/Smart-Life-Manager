@@ -66,6 +66,8 @@ export class AuthService {
   }
 
   logout() {
+    this.clearLocalState();
+
     this.http.post(`${this.apiUrl}/logout/`, {}).subscribe({
       next: () => {
         this.clearLocalState();

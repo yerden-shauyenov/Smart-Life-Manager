@@ -12,13 +12,15 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
     return next(req).pipe(
         catchError((error: HttpErrorResponse) => {
-            if (error.status === 401) {
+            if (error.status === 401 && !req.url.includes('/logout/')) {
                 authService.logout();
                 router.navigate(['/login']);
                 toastService.show('Session expired. Please log in again.', 'error');
             } else {
-                const message = error.error?.detail || error.error?.message || 'An unexpected error occurred';
-                toastService.show(message, 'error');
+                if (!req.url.includes('/logout/')) {
+                    const message = error.error?.detail || error.error?.message || 'An unexpected error occurred';
+                    toastService.show(message, 'error');
+                }
             }
             return throwError(() => error);
         })
