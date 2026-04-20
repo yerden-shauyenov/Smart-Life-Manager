@@ -31,8 +31,8 @@
         <div class="flex flex-col space-y-3">
             <div *ngFor="let m of memberships" class="flex items-center justify-between p-4 border rounded-lg bg-white shadow-sm">
                 <div class="flex items-center gap-3">
-                    <img [src]="m.user_avatar ? imageBaseUrl + m.user_avatar : 'assets/default-avatar.png'"
-                         class="w-10 h-10 rounded-full object-cover bg-gray-100 border">
+                    <img [src]="m.user_avatar || 'assets/default-avatar.png'"
+                        class="w-10 h-10 rounded-full object-cover bg-gray-100 border">
                     <div>
                         <p class="font-bold text-lg">{{ m.user_username }}</p>
                         <p class="text-sm text-gray-500">Role: {{ m.role_name }}</p>

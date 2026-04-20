@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { UserService } from '../../services/user.service';
 import { ConfirmService } from '../../services/confirm.service';
 import { User, UserSession, BoardInvitation, OwnershipTransfer } from '../../models/user.model';
+import { BoardService } from '../../services/board.service';
 
 @Component({
   selector: 'app-profile',
@@ -29,6 +30,7 @@ export class ProfileComponent implements OnInit {
   constructor(
       private userService: UserService,
       private confirmService: ConfirmService,
+      private boardService: BoardService,
       private cdr: ChangeDetectorRef
   ) {}
 
@@ -133,6 +135,11 @@ export class ProfileComponent implements OnInit {
   respondInvitation(id: number, action: 'accept' | 'reject') {
     this.userService.respondInvitation(id, action).subscribe(() => {
       this.loadInvitations();
+
+      if (action === 'accept') {
+        this.boardService.refreshBoards();
+      }
+
       this.cdr.detectChanges();
     });
   }

@@ -14,6 +14,8 @@ export class BoardService {
   private boardsSubject = new BehaviorSubject<Board[]>([]);
   boards$ = this.boardsSubject.asObservable();
 
+  private boardsSource = new BehaviorSubject<Board[]>([]);
+
   constructor(private http: HttpClient) {}
 
   get currentBoard(): Board | null {
@@ -34,8 +36,8 @@ export class BoardService {
     );
   }
 
-  refreshBoards(): void {
-    this.getBoards().subscribe();
+  refreshBoards() {
+    this.getBoards().subscribe(); 
   }
 
   getBoard(id: number): Observable<Board> {

@@ -49,8 +49,9 @@
         <div (click)="goToProfile()" 
             class="flex items-center gap-3 bg-slate-800/50 p-3 rounded-xl cursor-pointer hover:bg-slate-800 transition-all group">
             
-            <img [src]="currentUser ? imageBaseUrl + currentUser.avatar : 'assets/default-avatar.png'"
-                class="w-10 h-10 rounded-full object-cover border border-slate-700 group-hover:border-indigo-500">
+            <img [src]="userAvatar"
+                class="w-10 h-10 rounded-full object-cover border border-slate-700 group-hover:border-indigo-500"
+                alt="User Avatar">
             
             <span class="text-sm font-medium text-white flex-1 truncate">{{ username }}</span>
             
