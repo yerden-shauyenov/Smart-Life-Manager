@@ -10,6 +10,49 @@ html, body {
     overflow: hidden;
 }
 
+/* Make native form controls (select, date, color pickers) respect dark mode */
+.dark select,
+.dark input[type="date"],
+.dark input[type="time"],
+.dark input[type="datetime-local"],
+.dark input[type="month"],
+.dark input[type="week"],
+.dark input[type="color"] {
+    color-scheme: dark;
+}
+
+/* Styled scrollbars for dark mode */
+.dark ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+.dark ::-webkit-scrollbar-track {
+    background: transparent;
+}
+.dark ::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 3px;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
+
+/* Light mode scrollbars */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
 .markdown-body h1 {
     @apply text-2xl font-bold mb-4 mt-2;
 }
