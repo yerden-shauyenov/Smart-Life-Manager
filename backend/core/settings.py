@@ -8,7 +8,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 SECRET_KEY = 'secret'
 DEBUG = True
-ALLOWED_HOSTS = ["https://api.podvallove.org", "api.podvallove.org"]
+ALLOWED_HOSTS = ["https://api.podvallove.org", "api.podvallove.org", "localhost"]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
