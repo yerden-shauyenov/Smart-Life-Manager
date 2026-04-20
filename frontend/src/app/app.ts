@@ -25,6 +25,7 @@ export class AppComponent {
   );
 
   showSidebar = false;
+  sidebarOpen = false;
 
   ngOnInit() {
     this.router.events.pipe(
@@ -35,6 +36,7 @@ export class AppComponent {
       const hasToken = this.authService.hasToken();
 
       this.showSidebar = !isPublicRoute && hasToken;
+      this.sidebarOpen = false;
 
       if (!hasToken && !isPublicRoute) {
         this.router.navigate(['/login']);
@@ -44,5 +46,13 @@ export class AppComponent {
         this.router.navigate(['/dashboard']);
       }
     });
+  }
+
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.sidebarOpen = false;
   }
 }

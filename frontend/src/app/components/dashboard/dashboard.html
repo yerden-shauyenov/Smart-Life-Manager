@@ -1,13 +1,13 @@
-<div class="p-8 bg-slate-50 min-h-screen">
+<div class="p-4 md:p-8 bg-slate-50 min-h-screen">
     <div class="max-w-6xl mx-auto">
-        
-        <header class="mb-10 flex justify-between items-start">
+
+        <header class="mb-10 flex flex-wrap justify-between items-start gap-4">
             <div>
-                <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight">SmartLife</h1>
-                <p class="text-slate-500 mt-2 text-lg">Track your boards, sprints, and personal tasks in one view.</p>
+                <h1 class="text-2xl md:text-4xl font-extrabold text-slate-900 tracking-tight">SmartLife</h1>
+                <p class="text-slate-500 mt-2 text-sm md:text-lg">Track your boards, sprints, and personal tasks in one view.</p>
             </div>
             <button (click)="openModal()"
-                    class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-3 rounded-xl shadow-lg transition-transform hover:scale-105">
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 md:px-6 py-2.5 md:py-3 rounded-xl shadow-lg transition-transform hover:scale-105 text-sm md:text-base">
                 + New Board
             </button>
         </header>

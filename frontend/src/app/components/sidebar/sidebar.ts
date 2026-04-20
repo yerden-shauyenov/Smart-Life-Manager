@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { BoardService } from '../../services/board.service';
@@ -15,6 +15,9 @@ import {User} from "../../models/user.model";
   styleUrl: './sidebar.css'
 })
 export class SidebarComponent implements OnInit {
+  @Input() isOpen = false;
+  @Output() closeSidebarEvent = new EventEmitter<void>();
+
   public imageBaseUrl = environment.imageBaseUrl;
   public currentUser: User | null = null;
 
