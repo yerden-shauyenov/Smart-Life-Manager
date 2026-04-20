@@ -16,16 +16,7 @@ import {
   CheckSquare,
   BookOpen,
   Zap,
-  Bookmark,
-  // Добавляем новые иконки
-  Star,
-  AlertTriangle,
-  Flag,
-  Target,
-  Shield,
-  Rocket,
-  Flame,
-  Clock
+  Bookmark
 } from 'lucide-angular';
 
 @Component({
@@ -88,15 +79,7 @@ export class BoardSettingsComponent implements OnInit {
     { id: 'bug-icon', name: 'Bug', icon: 'bug' },
     { id: 'task-icon', name: 'Task', icon: 'check-square' },
     { id: 'story-icon', name: 'Story', icon: 'book-open' },
-    { id: 'epic-icon', name: 'Epic', icon: 'zap' },
-    { id: 'star-icon', name: 'Feature', icon: 'star' },
-    { id: 'alert-triangle-icon', name: 'Urgent', icon: 'alert-triangle' },
-    { id: 'flag-icon', name: 'Milestone', icon: 'flag' },
-    { id: 'target-icon', name: 'Goal', icon: 'target' },
-    { id: 'shield-icon', name: 'Security', icon: 'shield' },
-    { id: 'rocket-icon', name: 'Performance', icon: 'rocket' },
-    { id: 'flame-icon', name: 'Hotfix', icon: 'flame' },
-    { id: 'clock-icon', name: 'Time', icon: 'clock' }
+    { id: 'epic-icon', name: 'Epic', icon: 'zap' }
   ];
 
   ngOnInit(): void {
