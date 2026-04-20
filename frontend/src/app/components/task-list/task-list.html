@@ -83,7 +83,7 @@
                                             (change)="toggleTaskStatus(task, $event)"
                                             (click)="$event.stopPropagation()"
                                             class="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 transition-colors cursor-pointer" />
-                                        <span class="text-sm font-medium text-slate-700 leading-snug"
+                                        <span class="text-sm font-medium text-slate-700 leading-snug line-clamp-2"
                                               [class.line-through]="task.is_completed"
                                               [class.text-slate-400]="task.is_completed">
                                             {{ task.title }}

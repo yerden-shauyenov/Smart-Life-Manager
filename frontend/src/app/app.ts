@@ -6,6 +6,7 @@ import { TopBarComponent } from './components/top-bar/top-bar';
 import { filter, map, startWith } from 'rxjs';
 import {AuthService} from "./services/auth.service";
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog';
+import { HomeComponent } from './components/home/home';
 
 @Component({
   selector: 'app-root',
@@ -17,7 +18,7 @@ export class AppComponent {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
 
-  readonly authRoutes = ['/login', '/register'];
+  readonly authRoutes = ['/login', '/register', '/'];
   isAuthPage$ = this.router.events.pipe(
       filter(event => event instanceof NavigationEnd),
       map(() => this.authRoutes.includes(this.router.url)),
