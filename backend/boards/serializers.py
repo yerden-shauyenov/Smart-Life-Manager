@@ -31,12 +31,13 @@ class BoardRoleSerializer(serializers.ModelSerializer):
 
 class BoardMembershipSerializer(serializers.ModelSerializer):
     user_username = serializers.ReadOnlyField(source='user.username')
+    user_email = serializers.ReadOnlyField(source='user.email')
     user_avatar = serializers.ImageField(source='user.avatar', read_only=True)
     role_name = serializers.ReadOnlyField(source='role.name')
 
     class Meta:
         model = BoardMembership
-        fields = ['id', 'user', 'user_username', 'user_avatar', 'board', 'role', 'role_name', 'joined_at']
+        fields = ['id', 'user', 'user_username', 'user_email', 'user_avatar', 'board', 'role', 'role_name', 'joined_at']
         read_only_fields = ['joined_at']
 
 
