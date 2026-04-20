@@ -3,7 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
-import {environment} from "../../environments/environment";
+import { environment } from "../../environments/environment";
+import { User } from '../models/user.model'; // Обязательно импортируй модель User
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,8 @@ import {environment} from "../../environments/environment";
 export class AuthService {
   private apiUrl = `${environment.apiUrl}/users`;
 
-  private currentUserSubject = new BehaviorSubject<any>(null);
+  // Теперь Subject строго типизирован или null
+  private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(
@@ -29,9 +31,9 @@ export class AuthService {
         tap((response: any) => {
           if (response && response.token) {
             this.setTokens(response.token.access, response.token.refresh);
-            this.currentUserSubject.next(response.user);
-            if (isPlatformBrowser(this.platformId) && userData.username) {
-              localStorage.setItem('username', userData.username);
+            this.currentUserSubject.next(response.user); // Сохраняем реального юзера
+            if (isPlatformBrowser(this.platformId) && response.user.username) {
+              localStorage.setItem('username', response.user.username);
             }
           }
         })
@@ -43,10 +45,23 @@ export class AuthService {
         tap((response: any) => {
           if (response && response.access) {
             this.setTokens(response.access, response.refresh);
-            this.currentUserSubject.next({ isAuthenticated: true });
-            if (isPlatformBrowser(this.platformId) && credentials.username) {
-              localStorage.setItem('username', credentials.username);
+            // Теперь бэкенд отдает response.user при логине!
+            this.currentUserSubject.next(response.user);
+            if (isPlatformBrowser(this.platformId) && response.user.username) {
+              localStorage.setItem('username', response.user.username);
             }
+          }
+        })
+    );
+  }
+
+  // Новый метод для получения профиля по токену
+  getCurrentUserProfile(): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/me/`).pipe(
+        tap(user => {
+          this.currentUserSubject.next(user);
+          if (isPlatformBrowser(this.platformId)) {
+            localStorage.setItem('username', user.username);
           }
         })
     );
@@ -86,7 +101,16 @@ export class AuthService {
   private checkToken() {
     const token = this.getAccessToken();
     if (token) {
-      this.currentUserSubject.next({ isAuthenticated: true });
+      this.currentUserSubject.next({ isAuthenticated: true } as any);
+
+      setTimeout(() => {
+        this.getCurrentUserProfile().subscribe({
+          error: (err) => {
+            console.error('Session expired or invalid token', err);
+            this.logout();
+          }
+        });
+      }, 0);
     }
   }
 
@@ -100,7 +124,8 @@ export class AuthService {
 
   getUsername(): string | null {
     if (isPlatformBrowser(this.platformId)) {
-      return localStorage.getItem('username');
+      // Если currentUser еще не подгрузился с бэка, возвращаем из кэша
+      return this.currentUserSubject.value?.username || localStorage.getItem('username');
     }
     return null;
   }

@@ -13,6 +13,7 @@ export interface Task {
   author: number;
   assignee: number | null;
   assignee_username: string;
+  assignee_avatar: string | null;
   start_date: string | null;
   due_date: string | null;
   is_completed: boolean;
@@ -24,6 +25,7 @@ export interface Comment {
   task: number;
   author: number;
   author_username: string;
+  author_avatar: string | null;
   text: string;
   created_at: string;
   updated_at: string;
