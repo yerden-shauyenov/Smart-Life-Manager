@@ -81,6 +81,7 @@ STATIC_URL = 'static/'
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:4200",
+    "https://api.podvallove.org"
 ]
 
 REST_FRAMEWORK = {
