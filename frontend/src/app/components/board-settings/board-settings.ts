@@ -7,6 +7,7 @@ import { BoardService } from '../../services/board.service';
 import { ConfirmService } from '../../services/confirm.service';
 import { TaskStatus, TaskPriority, TaskType, BoardRole, BoardMembership } from '../../models/board.model';
 import {environment} from "../../../environments/environment";
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-board-settings',
@@ -22,6 +23,10 @@ export class BoardSettingsComponent implements OnInit {
   private boardService = inject(BoardService);
   private confirmService = inject(ConfirmService);
   private cdr = inject(ChangeDetectorRef);
+
+  currentUser: any = null;
+  private authService = inject(AuthService);
+  userPermissions: any = null;
 
   boardId!: number;
   board: any;
@@ -52,21 +57,16 @@ export class BoardSettingsComponent implements OnInit {
   };
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.boardId = Number(id);
+    this.route.params.subscribe(params => {
+      this.boardId = +params['id'];
       this.loadData();
-    }
+    });
 
-    this.route.paramMap.subscribe(params => {
-      const newId = Number(params.get('id'));
-      if (newId && newId !== this.boardId) {
-        this.boardId = newId;
-        this.loadData();
-      }
+    this.authService.currentUser$.subscribe(user => {
+      this.currentUser = user;
+      this.cdr.detectChanges();
     });
   }
-
   loadData(): void {
     forkJoin({
       board: this.boardService.getBoard(this.boardId),
@@ -91,9 +91,19 @@ export class BoardSettingsComponent implements OnInit {
           this.inviteRole = defaultRole.name;
         }
 
+        const myMembership = this.memberships.find(m => m.user === this.currentUser?.id);
+        if (myMembership) {
+          this.userPermissions = this.roles.find(r => r.id === myMembership.role);
+        }
+
         this.cdr.detectChanges();
       }
     });
+  }
+
+  can(permission: keyof BoardRole): boolean {
+    if (this.board?.owner === this.currentUser?.id?.toString()) return true;
+    return this.userPermissions ? !!this.userPermissions[permission] : false;
   }
 
   updateBoard(): void {
@@ -224,8 +234,15 @@ export class BoardSettingsComponent implements OnInit {
   }
 
   assignRole(membership: any, roleId: number): void {
+    if (this.currentUser && membership.user.id === this.currentUser.id) {
+      this.confirmService.requestConfirm('You can not change your Role.', () => {});
+      return;
+    }
+
     this.boardService.updateMembership(membership.id, { role: roleId }).subscribe(() => {
       this.loadData();
     });
   }
+
+  
 }
