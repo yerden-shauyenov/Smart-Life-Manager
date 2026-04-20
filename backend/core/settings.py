@@ -86,6 +86,12 @@ CORS_ALLOWED_ORIGINS = [
     "https://www.podvallove.org"
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://api.podvallove.org",
+    "https://podvallove.org",
+    "https://www.podvallove.org"
+]
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'users.authentication.SessionTrackingJWTAuthentication',
