@@ -78,9 +78,11 @@
                                      [style.border-left-color]="getPriority(task.priority)?.color_hex || '#e2e8f0'">
 
                                     <div class="flex items-start gap-3">
-                                        <input type="checkbox" [checked]="task.is_completed"
-                                               class="mt-1 w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500 cursor-pointer"
-                                               (click)="toggleTaskStatus(task, $event)" />
+                                        <input type="checkbox" 
+                                            [checked]="task.is_completed" 
+                                            (change)="toggleTaskStatus(task, $event)"
+                                            (click)="$event.stopPropagation()"
+                                            class="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 transition-colors cursor-pointer" />
                                         <span class="text-sm font-medium text-slate-700 leading-snug"
                                               [class.line-through]="task.is_completed"
                                               [class.text-slate-400]="task.is_completed">
@@ -118,9 +120,11 @@
                                  (click)="openTaskModal(task)">
 
                                 <div class="flex items-center gap-3 min-w-0">
-                                    <input type="checkbox" [checked]="task.is_completed"
-                                           class="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500 cursor-pointer"
-                                           (click)="toggleTaskStatus(task, $event)" />
+                                    <input type="checkbox" 
+                                        [checked]="task.is_completed" 
+                                        (change)="toggleTaskStatus(task, $event)"
+                                        (click)="$event.stopPropagation()"
+                                        class="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 transition-colors cursor-pointer" />
                                     <span class="text-sm font-medium truncate"
                                           [class.line-through]="task.is_completed"
                                           [class.text-slate-400]="task.is_completed"
