@@ -21,7 +21,7 @@
             <div *ngIf="activeTab === 'general'">
                 <h2 class="text-lg font-medium text-gray-900 mb-4">Profile Information</h2>
                 <div class="flex items-center gap-6 mb-6">
-                    <img [src]="user?.avatar || 'assets/default-avatar.png'" alt="Avatar" class="w-20 h-20 rounded-full object-cover bg-gray-100 border">
+                    <img [src]="previewUrl || user?.avatar || 'assets/default-avatar.png'" alt="Avatar" class="w-20 h-20 rounded-full object-cover bg-gray-100 border">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Change Photo</label>
                         <input type="file" (change)="onFileSelected($event)" accept="image/*" class="text-sm">

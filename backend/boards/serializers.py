@@ -111,8 +111,9 @@ class TaskSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     author_username = serializers.ReadOnlyField(source='author.username')
+    author_avatar = serializers.ImageField(source='author.avatar', read_only=True)
 
     class Meta:
         model = Comment
-        fields = ['id', 'task', 'author', 'author_username', 'text', 'created_at', 'updated_at']
+        fields = ['id', 'task', 'author', 'author_username', 'author_avatar', 'text', 'created_at', 'updated_at']
         read_only_fields = ['author', 'created_at', 'updated_at']

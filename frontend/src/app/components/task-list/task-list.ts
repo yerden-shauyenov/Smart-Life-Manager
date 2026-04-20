@@ -314,7 +314,7 @@ export class TaskListComponent implements OnInit, OnDestroy {
   }
 
   getUserAvatar(url: string | null): string {
-    return url || 'assets/images/default-avatar.png';
+    return url || 'assets/default-avatar.png';
   }
 
   goToDashboard(): void {

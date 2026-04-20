@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService } from '../../services/user.service';
+import { AuthService } from '../../services/auth.service';
 import { ConfirmService } from '../../services/confirm.service';
 import { User, UserSession, BoardInvitation, OwnershipTransfer } from '../../models/user.model';
 import { BoardService } from '../../services/board.service';
@@ -23,12 +24,14 @@ export class ProfileComponent implements OnInit {
   editData = { first_name: '', last_name: '' };
   passwordData = { old_password: '', new_password: '', confirm_password: '' };
   selectedFile: File | null = null;
+  previewUrl: string | null = null;
 
   changePasswordError: string = '';
   changePasswordSuccess: string = '';
 
   constructor(
       private userService: UserService,
+      private authService: AuthService,
       private confirmService: ConfirmService,
       private boardService: BoardService,
       private cdr: ChangeDetectorRef
@@ -72,7 +75,11 @@ export class ProfileComponent implements OnInit {
   }
 
   onFileSelected(event: any) {
-    this.selectedFile = event.target.files[0];
+    const file = event.target.files[0];
+    if (!file) return;
+    this.selectedFile = file;
+    this.previewUrl = URL.createObjectURL(file);
+    this.cdr.detectChanges();
   }
 
   updateProfile() {
@@ -85,7 +92,9 @@ export class ProfileComponent implements OnInit {
 
     this.userService.updateProfile(formData).subscribe(() => {
       this.loadProfile();
+      this.authService.getCurrentUserProfile().subscribe();
       this.selectedFile = null;
+      this.previewUrl = null;
       this.cdr.detectChanges();
     });
   }
