@@ -8,7 +8,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 SECRET_KEY = 'secret'
 DEBUG = True
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["https://api.podvallove.org", "api.podvallove.org"]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -81,6 +81,9 @@ STATIC_URL = 'static/'
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:4200",
+    "https://api.podvallove.org",
+    "https://podvallove.org",
+    "https://www.podvallove.org"
 ]
 
 REST_FRAMEWORK = {
