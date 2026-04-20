@@ -10,10 +10,19 @@ import { TaskStatus, TaskPriority, TaskType, BoardRole, BoardMembership } from '
 import {environment} from "../../../environments/environment";
 import { AuthService } from '../../services/auth.service';
 
+import { 
+  LucideAngularModule, 
+  Bug, 
+  CheckSquare, 
+  BookOpen, 
+  Zap, 
+  Bookmark 
+} from 'lucide-angular';
+
 @Component({
   selector: 'app-board-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, LucideAngularModule],
   templateUrl: './board-settings.html'
 })
 export class BoardSettingsComponent implements OnInit {
@@ -57,6 +66,21 @@ export class BoardSettingsComponent implements OnInit {
     can_edit_tasks: true,
     can_delete_tasks: false
   };
+
+  readonly iconMapping = {
+    'bug-icon': Bug,
+    'task-icon': CheckSquare,
+    'story-icon': BookOpen,
+    'epic-icon': Zap,
+    'default': Bookmark
+  };
+
+  readonly availableIcons = [
+    { id: 'bug-icon', name: 'Bug', icon: 'bug' },
+    { id: 'task-icon', name: 'Task', icon: 'check-square' },
+    { id: 'story-icon', name: 'Story', icon: 'book-open' },
+    { id: 'epic-icon', name: 'Epic', icon: 'zap' }
+  ];
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
