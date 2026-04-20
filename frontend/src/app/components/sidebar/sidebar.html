@@ -1,8 +1,8 @@
-<div class="fixed lg:static inset-y-0 left-0 z-40 flex flex-col w-64 h-full bg-slate-900 text-slate-300 shadow-xl overflow-hidden transition-transform duration-300 ease-in-out lg:translate-x-0"
+<div class="fixed lg:static inset-y-0 left-0 z-40 flex flex-col w-64 h-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 overflow-hidden transition-transform duration-300 ease-in-out lg:translate-x-0 border-r border-slate-200 dark:border-slate-700"
      [ngClass]="{ '-translate-x-full': !isOpen }">
 
     <div class="lg:hidden flex justify-end px-4 pt-4">
-        <button class="p-1 text-slate-400 hover:text-white transition-colors"
+        <button class="p-1 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
                 (click)="closeSidebarEvent.emit()" aria-label="Close menu">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -12,37 +12,38 @@
         </button>
     </div>
 
-    <div class="px-6 pt-4 pb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+    <div class="px-6 pt-4 pb-2 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
         My Boards
     </div>
 
     <div class="flex-1 overflow-y-auto px-3 min-h-0">
         <ul class="space-y-1">
             @for (board of boards; track board.id) {
-                <li class="rounded-lg overflow-hidden transition-colors" [class.bg-slate-800]="selectedBoard?.id === board.id">
+                <li class="rounded-lg overflow-hidden transition-colors"
+                    [ngClass]="{'bg-slate-200 dark:bg-slate-700': selectedBoard?.id === board.id}">
                     <div class="flex flex-col w-full">
-                        <div class="flex justify-between items-center w-full cursor-pointer px-3 py-2.5 hover:bg-slate-800 transition-colors rounded-lg text-sm font-medium"
-                             [class.text-white]="selectedBoard?.id === board.id"
+                        <div class="flex justify-between items-center w-full cursor-pointer px-3 py-2.5 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors rounded-lg text-sm font-medium"
+                             [ngClass]="{'text-slate-900 dark:text-white font-semibold': selectedBoard?.id === board.id}"
                              (click)="selectBoard(board)">
                             <span class="truncate">{{ board.title }}</span>
                         </div>
 
                         @if (selectedBoard?.id === board.id) {
-                            <div class="flex flex-col gap-0.5 mb-2 ml-6 border-l border-slate-700 pl-3">
+                            <div class="flex flex-col gap-0.5 mb-2 ml-6 border-l border-slate-300 dark:border-slate-600 pl-3">
                                 <a [routerLink]="['/boards', board.id, 'backlog']"
-                                   routerLinkActive="text-indigo-400 font-medium"
-                                   class="text-xs text-slate-400 hover:text-indigo-300 transition-colors py-1.5 w-full block">
+                                   routerLinkActive="text-indigo-600 dark:text-indigo-400 font-medium"
+                                   class="text-xs text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors py-1.5 w-full block">
                                     Backlog
                                 </a>
                                 <a [routerLink]="['/boards', board.id]"
                                    [routerLinkActiveOptions]="{exact: true}"
-                                   routerLinkActive="text-indigo-400 font-medium"
-                                   class="text-xs text-slate-400 hover:text-indigo-300 transition-colors py-1.5 w-full block">
+                                   routerLinkActive="text-indigo-600 dark:text-indigo-400 font-medium"
+                                   class="text-xs text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors py-1.5 w-full block">
                                     Active Sprint
                                 </a>
                                 <a [routerLink]="['/boards', board.id, 'settings']"
-                                   routerLinkActive="text-indigo-400 font-medium"
-                                   class="text-xs text-slate-400 hover:text-indigo-300 transition-colors py-1.5 w-full block">
+                                   routerLinkActive="text-indigo-600 dark:text-indigo-400 font-medium"
+                                   class="text-xs text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors py-1.5 w-full block">
                                     Board Management
                                 </a>
                             </div>

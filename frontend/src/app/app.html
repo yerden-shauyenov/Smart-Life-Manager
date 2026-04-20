@@ -1,4 +1,4 @@
-<div class="h-screen w-screen flex flex-col overflow-hidden">
+<div class="h-screen w-screen flex flex-col overflow-hidden bg-white dark:bg-slate-950 transition-colors">
     @if (!(isAuthPage$ | async)) {
         <app-top-bar *ngIf="showSidebar" (menuToggle)="toggleSidebar()"></app-top-bar>
     }
@@ -15,7 +15,7 @@
             </app-sidebar>
         }
 
-        <main class="flex-1 overflow-y-auto bg-gray-50">
+        <main class="flex-1 overflow-y-auto bg-white dark:bg-slate-950 transition-colors">
             <router-outlet></router-outlet>
             <app-confirm-dialog></app-confirm-dialog>
             <app-toast></app-toast>

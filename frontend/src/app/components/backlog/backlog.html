@@ -1,60 +1,66 @@
-<div class="p-8 max-w-5xl mx-auto flex flex-col space-y-8 bg-slate-50 min-h-screen text-slate-900">
-    <header class="flex justify-between items-center border-b border-slate-200 pb-5">
+<div class="p-8 max-w-5xl mx-auto flex flex-col space-y-8 bg-white dark:bg-slate-900 min-h-screen text-slate-900 dark:text-slate-100 transition-colors">
+    <header class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-5">
         <div>
-            <h1 class="text-3xl font-bold text-slate-800">Backlog</h1>
-            <p class="text-slate-500 mt-1 text-sm font-medium">{{ board?.title }}</p>
+            <h1 class="text-3xl font-bold text-slate-800 dark:text-slate-100">Backlog</h1>
+            <p class="text-slate-500 dark:text-slate-400 mt-1 text-sm font-medium">{{ board?.title }}</p>
         </div>
-        <button (click)="showCreateSprint = !showCreateSprint" class="bg-indigo-600 text-white px-5 py-2.5 rounded-lg shadow-sm hover:bg-indigo-700 transition-colors text-sm font-semibold">
+        <button (click)="showCreateSprint = !showCreateSprint"
+                class="bg-indigo-600 text-white px-5 py-2.5 rounded-lg shadow-sm hover:bg-indigo-700 transition-colors text-sm font-semibold">
             Create Sprint
         </button>
     </header>
 
     @if (showCreateSprint) {
-        <div class="p-6 bg-white border border-slate-200 rounded-xl shadow-sm space-y-4">
-            <h3 class="font-bold text-slate-700">New Sprint</h3>
-            <input [(ngModel)]="newSprint.name" placeholder="Sprint Name" class="w-full border border-slate-300 p-2.5 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm text-slate-700">
-            <textarea [(ngModel)]="newSprint.goal" placeholder="What is the goal of this sprint?" class="w-full border border-slate-300 p-2.5 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm text-slate-700 min-h-[80px]"></textarea>
+        <div class="p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm space-y-4">
+            <h3 class="font-bold text-slate-700 dark:text-slate-200">New Sprint</h3>
+            <input [(ngModel)]="newSprint.name" placeholder="Sprint Name"
+                   class="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 p-2.5 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm text-slate-700">
+            <textarea [(ngModel)]="newSprint.goal" placeholder="What is the goal of this sprint?"
+                      class="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 p-2.5 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm text-slate-700 min-h-[80px]"></textarea>
             <div class="flex gap-3 pt-2">
                 <button (click)="createSprint()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg text-sm font-medium transition-colors">Save</button>
-                <button (click)="showCreateSprint = false" class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 px-5 py-2 rounded-lg text-sm font-medium transition-colors">Cancel</button>
+                <button (click)="showCreateSprint = false"
+                        class="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 px-5 py-2 rounded-lg text-sm font-medium transition-colors">Cancel</button>
             </div>
         </div>
     }
 
     <section class="flex flex-col space-y-8">
         @for (sprint of sprints; track sprint.id) {
-            <div class="border border-slate-200 rounded-xl bg-white shadow-sm overflow-hidden">
-                <div class="bg-slate-50 p-5 flex justify-between items-center border-b border-slate-200">
+            <div class="border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 shadow-sm overflow-hidden">
+                <div class="bg-slate-50 dark:bg-slate-700/50 p-5 flex justify-between items-center border-b border-slate-200 dark:border-slate-700">
                     <div>
-                        <h3 class="font-bold text-slate-800 flex items-center gap-3 text-lg">
+                        <h3 class="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-3 text-lg">
                             {{ sprint.name }}
                             @if (sprint.is_active) {
-                                <span class="text-xs bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-full font-bold uppercase tracking-wider border border-indigo-200">Active</span>
+                                <span class="text-xs bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 px-2.5 py-1 rounded-full font-bold uppercase tracking-wider border border-indigo-200 dark:border-indigo-800">Active</span>
                             }
                         </h3>
-                        <p class="text-sm text-slate-500 mt-1">{{ sprint.goal }}</p>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">{{ sprint.goal }}</p>
                     </div>
                     <div class="flex items-center gap-4">
-                        <span class="text-sm font-medium text-slate-400 bg-white px-3 py-1 rounded-full border border-slate-200 shadow-sm">{{ sprint.tasks?.length || 0 }} tasks</span>
+                        <span class="text-sm font-medium text-slate-400 bg-white dark:bg-slate-700 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-600 shadow-sm">{{ sprint.tasks?.length || 0 }} tasks</span>
                         @if (!sprint.is_active) {
-                            <button (click)="startSprint(sprint)" class="text-sm bg-slate-800 text-white px-4 py-2 rounded-lg hover:bg-slate-900 transition-colors font-medium shadow-sm">
+                            <button (click)="startSprint(sprint)"
+                                    class="text-sm bg-slate-800 dark:bg-slate-600 text-white px-4 py-2 rounded-lg hover:bg-slate-900 dark:hover:bg-slate-500 transition-colors font-medium shadow-sm">
                                 Start Sprint
                             </button>
                         }
                     </div>
                 </div>
 
-                <div class="flex flex-col divide-y divide-slate-100">
+                <div class="flex flex-col divide-y divide-slate-100 dark:divide-slate-700">
                     @for (task of sprint.tasks; track task.id) {
-                        <div class="p-4 hover:bg-slate-50 flex justify-between items-center group transition-colors">
+                        <div class="p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex justify-between items-center group transition-colors">
                             <div class="flex items-center gap-3">
-                                <span class="font-medium text-slate-700 text-sm">{{ task.title }}</span>
+                                <span class="font-medium text-slate-700 dark:text-slate-200 text-sm">{{ task.title }}</span>
                             </div>
-                            <button (click)="moveTask(task.id, null)" class="opacity-0 group-hover:opacity-100 text-xs font-medium text-slate-400 hover:text-red-500 bg-white border border-slate-200 px-3 py-1 rounded-md shadow-sm transition-all">Move to Backlog</button>
+                            <button (click)="moveTask(task.id, null)"
+                                    class="opacity-0 group-hover:opacity-100 text-xs font-medium text-slate-400 hover:text-red-500 dark:hover:text-red-400 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 px-3 py-1 rounded-md shadow-sm transition-all">Move to Backlog</button>
                         </div>
                     }
                     @if (sprint.tasks?.length === 0) {
-                        <div class="p-10 text-center text-slate-400 text-sm bg-slate-50/50">
+                        <div class="p-10 text-center text-slate-400 dark:text-slate-500 text-sm bg-slate-50/50 dark:bg-slate-800/30">
                             Sprint is empty. Move tasks here from the backlog.
                         </div>
                     }
@@ -62,23 +68,24 @@
             </div>
         }
 
-        <div class="border border-slate-200 rounded-xl bg-white shadow-sm overflow-hidden">
-            <div class="bg-slate-800 text-white p-5 flex items-center justify-between">
+        <div class="border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 shadow-sm overflow-hidden">
+            <div class="bg-slate-800 dark:bg-slate-700 text-white p-5 flex items-center justify-between">
                 <h3 class="font-bold text-lg">Backlog</h3>
-                <span class="text-xs bg-slate-700 text-slate-300 px-2.5 py-1 rounded-full font-bold uppercase tracking-wider">{{ backlogTasks.length }} tasks</span>
+                <span class="text-xs bg-slate-700 dark:bg-slate-600 text-slate-300 px-2.5 py-1 rounded-full font-bold uppercase tracking-wider">{{ backlogTasks.length }} tasks</span>
             </div>
-            <div class="flex flex-col divide-y divide-slate-100">
+            <div class="flex flex-col divide-y divide-slate-100 dark:divide-slate-700">
                 @for (task of backlogTasks; track task.id) {
-                    <div class="p-4 hover:bg-slate-50 flex justify-between items-center group transition-colors">
-                        <span class="font-medium text-slate-700 text-sm">{{ task.title }}</span>
-                        <select (change)="moveTask(task.id, $any($event.target).value)" class="opacity-0 group-hover:opacity-100 text-xs border border-slate-300 rounded-md py-1.5 px-2 bg-white text-slate-600 focus:ring-2 focus:ring-indigo-500 focus:outline-none shadow-sm transition-all">
+                    <div class="p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex justify-between items-center group transition-colors">
+                        <span class="font-medium text-slate-700 dark:text-slate-200 text-sm">{{ task.title }}</span>
+                        <select (change)="moveTask(task.id, $any($event.target).value)"
+                                class="opacity-0 group-hover:opacity-100 text-xs border border-slate-300 dark:border-slate-600 rounded-md py-1.5 px-2 bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none shadow-sm transition-all">
                             <option value="">Move to...</option>
                             @for (s of sprints; track s.id) { <option [value]="s.id">{{ s.name }}</option> }
                         </select>
                     </div>
                 }
                 @if (backlogTasks.length === 0) {
-                    <div class="p-10 text-center text-slate-400 text-sm bg-slate-50/50">
+                    <div class="p-10 text-center text-slate-400 dark:text-slate-500 text-sm bg-slate-50/50 dark:bg-slate-800/30">
                         No tasks in backlog.
                     </div>
                 }
