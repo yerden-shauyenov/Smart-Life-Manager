@@ -17,7 +17,7 @@ export class AppComponent {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
 
-  readonly authRoutes = ['/login', '/register'];
+  readonly authRoutes = ['/login', '/register', '/'];
   isAuthPage$ = this.router.events.pipe(
       filter(event => event instanceof NavigationEnd),
       map(() => this.authRoutes.includes(this.router.url)),
@@ -39,7 +39,7 @@ export class AppComponent {
       this.sidebarOpen = false;
 
       if (!hasToken && !isPublicRoute) {
-        this.router.navigate(['/login']);
+        this.router.navigate(['/home']);
       }
 
       if (hasToken && this.router.url === '/') {

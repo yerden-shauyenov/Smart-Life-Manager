@@ -65,13 +65,20 @@ export class TaskListComponent implements OnInit, OnDestroy {
   filterAssignee = '';
 
   ngOnInit(): void {
-    this.currentUsername = this.authService.getUsername();
+    this.currentUsername = this.authService.getUsername() ?? '';
 
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
       const boardId = +params['id'];
       const taskId = params['taskId'] ? +params['taskId'] : null;
-      if (boardId) {
+
+      if (!this.currentBoard || this.currentBoard.id !== boardId) {
         this.loadBoard(boardId, taskId);
+      } 
+      else if (taskId && !this.showTaskModal) {
+        const task = this.tasks.find(t => t.id === taskId);
+        if (task) {
+          this.openEditTask(task);
+        }
       }
     });
   }
@@ -182,8 +189,6 @@ export class TaskListComponent implements OnInit, OnDestroy {
     this.selectedTask = { ...task };
     this.loadComments(task.id);
     this.showTaskModal = true;
-    
-    this.router.navigate(['/boards', this.currentBoard?.id, 'tasks', task.id]);
   }
 
   openTaskModal(task: Task): void {
@@ -294,7 +299,6 @@ export class TaskListComponent implements OnInit, OnDestroy {
   closeTaskModal(): void {
     this.showTaskModal = false;
     this.selectedTask = {};
-    this.router.navigate(['/boards', this.currentBoard?.id]);
   }
 
   setViewMode(mode: 'groups' | 'list') {
