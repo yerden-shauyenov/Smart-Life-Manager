@@ -6,7 +6,6 @@ import { TopBarComponent } from './components/top-bar/top-bar';
 import { filter, map, startWith } from 'rxjs';
 import {AuthService} from "./services/auth.service";
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog';
-import { HomeComponent } from './components/home/home';
 
 @Component({
   selector: 'app-root',
@@ -40,7 +39,7 @@ export class AppComponent {
       this.sidebarOpen = false;
 
       if (!hasToken && !isPublicRoute) {
-        this.router.navigate(['/login']);
+        this.router.navigate(['/home']);
       }
 
       if (hasToken && this.router.url === '/') {
