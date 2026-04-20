@@ -115,4 +115,8 @@ export class DashboardComponent implements OnInit {
       error: (err) => console.error(err)
     });
   }
+
+  getUserAvatar(url: string | null): string {
+    return url || 'assets/default-avatar.png';
+  }
 }
