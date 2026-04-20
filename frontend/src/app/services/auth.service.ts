@@ -4,7 +4,7 @@ import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { environment } from "../../environments/environment";
-import { User } from '../models/user.model'; // Обязательно импортируй модель User
+import { User } from '../models/user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +12,6 @@ import { User } from '../models/user.model'; // Обязательно импо�
 export class AuthService {
   private apiUrl = `${environment.apiUrl}/users`;
 
-  // Теперь Subject строго типизирован или null
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
@@ -45,7 +44,6 @@ export class AuthService {
         tap((response: any) => {
           if (response && response.access) {
             this.setTokens(response.access, response.refresh);
-            // Теперь бэкенд отдает response.user при логине!
             this.currentUserSubject.next(response.user);
             if (isPlatformBrowser(this.platformId) && response.user.username) {
               localStorage.setItem('username', response.user.username);
@@ -55,7 +53,6 @@ export class AuthService {
     );
   }
 
-  // Новый метод для получения профиля по токену
   getCurrentUserProfile(): Observable<User> {
     return this.http.get<User>(`${this.apiUrl}/me/`).pipe(
         tap(user => {
@@ -124,7 +121,6 @@ export class AuthService {
 
   getUsername(): string | null {
     if (isPlatformBrowser(this.platformId)) {
-      // Если currentUser еще не подгрузился с бэка, возвращаем из кэша
       return this.currentUserSubject.value?.username || localStorage.getItem('username');
     }
     return null;
