@@ -5,6 +5,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { BoardService } from '../../services/board.service';
 import { ConfirmService } from '../../services/confirm.service';
+import { ToastService } from '../../services/toast.service';
 import { TaskStatus, TaskPriority, TaskType, BoardRole, BoardMembership } from '../../models/board.model';
 import {environment} from "../../../environments/environment";
 import { AuthService } from '../../services/auth.service';
@@ -22,6 +23,7 @@ export class BoardSettingsComponent implements OnInit {
   private router = inject(Router);
   private boardService = inject(BoardService);
   private confirmService = inject(ConfirmService);
+  private toastService = inject(ToastService);
   private cdr = inject(ChangeDetectorRef);
 
   currentUser: any = null;
@@ -91,6 +93,11 @@ export class BoardSettingsComponent implements OnInit {
           this.inviteRole = defaultRole.name;
         }
 
+        const invitable = this.invitableRoles;
+        if (invitable.length > 0 && !invitable.some(r => r.name === this.inviteRole)) {
+          this.inviteRole = invitable[0].name;
+        }
+
         const myMembership = this.memberships.find(m => m.user === this.currentUser?.id);
         if (myMembership) {
           this.userPermissions = this.roles.find(r => r.id === myMembership.role);
@@ -115,8 +122,28 @@ export class BoardSettingsComponent implements OnInit {
     });
   }
 
+  get invitableRoles(): BoardRole[] {
+    const perms: (keyof BoardRole)[] = ['can_manage_board', 'can_manage_members', 'can_create_tasks', 'can_edit_tasks', 'can_delete_tasks'];
+    return this.roles.filter(role =>
+      perms.every(p => !role[p] || this.can(p))
+    );
+  }
+
   inviteMember(): void {
     if (!this.inviteEmail.trim()) return;
+    const email = this.inviteEmail.trim().toLowerCase();
+
+    if (this.currentUser?.email?.toLowerCase() === email) {
+      this.toastService.show('You cannot invite yourself.', 'error');
+      return;
+    }
+
+    const alreadyMember = this.memberships.some(m => m.user_email?.toLowerCase() === email);
+    if (alreadyMember) {
+      this.toastService.show('This user is already a member of this board.', 'error');
+      return;
+    }
+
     this.boardService.inviteMember(this.boardId, this.inviteEmail, this.inviteRole).subscribe(() => {
       this.inviteEmail = '';
       this.loadData();

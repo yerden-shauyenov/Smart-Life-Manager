@@ -16,7 +16,7 @@ from .serializers import (
     BoardInvitationSerializer
 )
 from .permissions import (
-    CanManageBoardSettings, CanManageBoardMembers, CanManageTasks, IsCommentAuthorOrBoardAdmin
+    CanManageBoardSettings, CanManageBoardMembers, CanManageTasks, IsCommentAuthorOrBoardAdmin, get_user_role
 )
 from .services import initialize_board_defaults
 
@@ -49,6 +49,19 @@ class BoardViewSet(viewsets.ModelViewSet):
         if not email:
             return Response({'detail': 'Email is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
+        inviter_role = get_user_role(request.user, board)
+        if not inviter_role or not inviter_role.can_manage_members:
+            return Response({'detail': 'You do not have permission to invite members.'}, status=status.HTTP_403_FORBIDDEN)
+
+        if request.user.email.lower() == email.lower():
+            return Response({'detail': 'You cannot invite yourself.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if BoardMembership.objects.filter(board=board, user__email__iexact=email).exists():
+            return Response({'detail': 'This user is already a member of this board.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if BoardInvitation.objects.filter(board=board, email__iexact=email, status='pending').exists():
+            return Response({'detail': 'A pending invitation already exists for this email.'}, status=status.HTTP_400_BAD_REQUEST)
+
         try:
             role = board.roles.get(name=role_name)
         except BoardRole.DoesNotExist:
@@ -57,6 +70,14 @@ class BoardViewSet(viewsets.ModelViewSet):
                 'detail': f'Role "{role_name}" not found for this board.',
                 'available_roles': available_roles
             }, status=status.HTTP_400_BAD_REQUEST)
+
+        permission_fields = ['can_manage_board', 'can_manage_members', 'can_create_tasks', 'can_edit_tasks', 'can_delete_tasks']
+        for perm in permission_fields:
+            if getattr(role, perm, False) and not getattr(inviter_role, perm, False):
+                return Response(
+                    {'detail': 'You cannot assign a role with higher permissions than your own.'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
 
         BoardInvitation.objects.create(
             board=board, inviter=request.user, email=email, role=role
