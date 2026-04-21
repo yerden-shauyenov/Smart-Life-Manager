@@ -10,19 +10,10 @@ import { TaskStatus, TaskPriority, TaskType, BoardRole, BoardMembership } from '
 import { environment } from "../../../environments/environment";
 import { AuthService } from '../../services/auth.service';
 
-import {
-  LucideAngularModule,
-  Bug,
-  CheckSquare,
-  BookOpen,
-  Zap,
-  Bookmark
-} from 'lucide-angular';
-
 @Component({
   selector: 'app-board-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './board-settings.html'
 })
 export class BoardSettingsComponent implements OnInit {
@@ -57,7 +48,7 @@ export class BoardSettingsComponent implements OnInit {
 
   newStatus: Partial<TaskStatus> = { name: '', order: 0 };
   newPriority: Partial<TaskPriority> = { name: '', color_hex: '#808080', level: 0 };
-  newType: Partial<TaskType> = { name: '', icon_name: '' };
+  newType: Partial<TaskType> = { name: '', icon_name: 'fa-solid fa-tag' };
   newRole: Partial<BoardRole> = {
     name: '',
     can_manage_board: false,
@@ -68,19 +59,17 @@ export class BoardSettingsComponent implements OnInit {
     can_delete_tasks: false
   };
 
-  readonly iconMapping = {
-    'bug-icon': Bug,
-    'task-icon': CheckSquare,
-    'story-icon': BookOpen,
-    'epic-icon': Zap,
-    'default': Bookmark
-  };
-
   readonly availableIcons = [
-    { id: 'bug-icon', name: 'Bug', icon: 'bug' },
-    { id: 'task-icon', name: 'Task', icon: 'check-square' },
-    { id: 'story-icon', name: 'Story', icon: 'book-open' },
-    { id: 'epic-icon', name: 'Epic', icon: 'zap' }
+    { id: 'fa-solid fa-bug', name: 'Bug' },
+    { id: 'fa-solid fa-list-check', name: 'Task' },
+    { id: 'fa-solid fa-book-open', name: 'Story' },
+    { id: 'fa-solid fa-bolt', name: 'Epic' },
+    { id: 'fa-solid fa-tag', name: 'Tag' },
+    { id: 'fa-solid fa-star', name: 'Feature' },
+    { id: 'fa-solid fa-triangle-exclamation', name: 'Warning' },
+    { id: 'fa-solid fa-bookmark', name: 'Bookmark' },
+    { id: 'fa-solid fa-code', name: 'Code' },
+    { id: 'fa-solid fa-palette', name: 'Design' }
   ];
 
   ngOnInit(): void {
@@ -94,6 +83,7 @@ export class BoardSettingsComponent implements OnInit {
       this.cdr.detectChanges();
     });
   }
+
   loadData(): void {
     forkJoin({
       board: this.boardService.getBoard(this.boardId),
@@ -267,7 +257,7 @@ export class BoardSettingsComponent implements OnInit {
   addType(): void {
     if (!this.newType.name) return;
     this.boardService.createTaskType({ ...this.newType, board: this.boardId }).subscribe(() => {
-      this.newType = { name: '', icon_name: '' };
+      this.newType = { name: '', icon_name: 'fa-solid fa-tag' };
       this.loadData();
     });
   }

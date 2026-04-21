@@ -1,8 +1,8 @@
 <div class="p-6 max-w-4xl mx-auto flex flex-col space-y-12 bg-white dark:bg-slate-900 min-h-screen text-slate-900 dark:text-slate-100 transition-colors" *ngIf="board">
     <header class="border-b border-slate-200 dark:border-slate-700 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div class="flex items-center gap-4">
-            <a [routerLink]="['/boards', boardId]" class="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            <a [routerLink]="['/boards', boardId]" class="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
+                <i class="fa-solid fa-arrow-left text-2xl"></i>
             </a>
             <h1 class="text-3xl font-bold text-slate-800 dark:text-slate-100">Board Settings: {{ board?.name }}</h1>
         </div>
@@ -76,21 +76,19 @@
                     </select>
 
                     <div class="relative group" *ngIf="m.user !== currentUser?.id && can('can_manage_members')">
-                        <button class="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 focus:outline-none">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
-                            </svg>
+                        <button class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 focus:outline-none transition-colors">
+                            <i class="fa-solid fa-ellipsis-vertical text-xl"></i>
                         </button>
                         <div class="absolute right-0 w-48 mt-2 origin-top-right bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md shadow-lg hidden group-hover:block z-10">
                             <div class="py-1">
                                 <button *ngIf="m.role_name !== 'Administrator'"
                                         (click)="transferOwnership(m.user)"
-                                        class="block w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+                                        class="block w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
                                     Make Owner
                                 </button>
                                 <button *ngIf="m.role_name !== 'Administrator'"
                                         (click)="removeMember(m.user)"
-                                        class="block w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20">
+                                        class="block w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
                                     Remove
                                 </button>
                             </div>
@@ -225,9 +223,9 @@
                         [class.ring-2]="newType.icon_name === iconOption.id"
                         [class.ring-indigo-500]="newType.icon_name === iconOption.id"
                         [class.bg-white]="newType.icon_name === iconOption.id"
-                        class="p-2 border border-slate-300 dark:border-slate-600 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-all flex items-center justify-center bg-slate-50 dark:bg-slate-700"
+                        class="w-10 h-10 flex items-center justify-center border border-slate-300 dark:border-slate-600 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-all bg-slate-50 dark:bg-slate-700"
                         [title]="iconOption.name">
-                    <lucide-icon [name]="iconOption.icon" class="w-5 h-5 text-slate-700 dark:text-slate-300"></lucide-icon>
+                    <i [class]="iconOption.id + ' text-slate-700 dark:text-slate-300 text-lg'"></i>
                 </button>
             </div>
         </div>
@@ -236,18 +234,12 @@
             <div *ngFor="let t of types" class="flex items-center justify-between p-3 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
 
                 <div *ngIf="editingId !== 'type-' + t.id" class="flex items-center gap-4">
-                    <div class="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-md">
-                        <lucide-icon
-                                [name]="t.icon_name === 'task-icon' ? 'check-square' :
-                                    t.icon_name === 'story-icon' ? 'book-open' :
-                                    t.icon_name === 'epic-icon' ? 'zap' :
-                                    (t.icon_name || 'bookmark').split('-icon')[0]"
-                                class="w-5 h-5 text-indigo-600 dark:text-indigo-400">
-                        </lucide-icon>
+                    <div class="w-10 h-10 flex items-center justify-center bg-indigo-50 dark:bg-indigo-900/30 rounded-md">
+                        <i [class]="(t.icon_name && t.icon_name.startsWith('fa-') ? t.icon_name : 'fa-solid fa-tag') + ' text-indigo-600 dark:text-indigo-400 text-lg'"></i>
                     </div>
                     <div class="flex flex-col">
                         <span class="font-medium text-slate-800 dark:text-slate-100">{{ t.name }}</span>
-                        <span class="text-slate-400 dark:text-slate-500 text-[10px] uppercase tracking-wider">ID: {{ t.icon_name }}</span>
+                        <span class="text-slate-400 dark:text-slate-500 text-[10px] uppercase tracking-wider">ICON: {{ t.icon_name }}</span>
                     </div>
                 </div>
 

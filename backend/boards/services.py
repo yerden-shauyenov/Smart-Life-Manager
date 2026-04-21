@@ -79,10 +79,10 @@ def initialize_board_defaults(board):
         TaskPriority.objects.create(board=board, **priority_data)
 
     types = [
-        {'name': 'Bug', 'icon_name': 'bug-icon'},
-        {'name': 'Task', 'icon_name': 'task-icon'},
-        {'name': 'Story', 'icon_name': 'story-icon'},
-        {'name': 'Epic', 'icon_name': 'epic-icon'},
+        {'name': 'Bug', 'icon_name': 'fa-solid fa-bug'},
+        {'name': 'Task', 'icon_name': 'fa-solid fa-list-check'},
+        {'name': 'Story', 'icon_name': 'fa-solid fa-book-open'},
+        {'name': 'Epic', 'icon_name': 'fa-solid fa-bolt'},
     ]
     for type_data in types:
         TaskType.objects.create(board=board, **type_data)

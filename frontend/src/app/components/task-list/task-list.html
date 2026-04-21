@@ -1,11 +1,8 @@
 <div class="flex flex-col h-full bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 transition-colors">
     <div class="flex items-center justify-between px-4 md:px-8 py-4 md:py-6 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
         <div class="flex items-center gap-4">
-            <button class="p-2 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-700 rounded-lg transition-colors" (click)="goToDashboard()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="15 18 9 12 15 6"/>
-                </svg>
+            <button class="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-700 rounded-lg transition-colors" (click)="goToDashboard()">
+                <i class="fa-solid fa-chevron-left text-xl"></i>
             </button>
             <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100">{{ currentBoard?.title }}</h2>
         </div>
@@ -14,23 +11,21 @@
     <div class="flex items-center flex-wrap gap-3 px-4 md:px-8 py-4 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 shadow-sm">
         <div class="flex bg-slate-100 dark:bg-slate-700 p-1 rounded-lg">
             <button (click)="setViewMode('groups')"
-                    class="px-4 py-1.5 text-sm font-medium rounded-md transition-all"
+                    class="px-4 py-1.5 text-sm font-medium rounded-md transition-all flex items-center gap-2"
                     [class]="viewMode === 'groups' ? 'bg-white dark:bg-slate-600 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'">
-                Board
+                <i class="fa-solid fa-table-columns"></i> Board
             </button>
             <button (click)="setViewMode('list')"
-                    class="px-4 py-1.5 text-sm font-medium rounded-md transition-all"
+                    class="px-4 py-1.5 text-sm font-medium rounded-md transition-all flex items-center gap-2"
                     [class]="viewMode === 'list' ? 'bg-white dark:bg-slate-600 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'">
-                List
+                <i class="fa-solid fa-list"></i> List
             </button>
         </div>
 
         <div class="relative flex-1 min-w-[200px]">
             <input type="text" [(ngModel)]="searchTerm" placeholder="Search tasks..."
                    class="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-sm dark:text-slate-100 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-slate-600 transition-all" />
-            <svg class="absolute left-3 top-2.5 text-slate-400" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400"></i>
         </div>
 
         <select [(ngModel)]="selectedSprint"
@@ -49,8 +44,8 @@
             </select>
         </div>
 
-        <button class="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors" (click)="resetFilters()">
-            Reset
+        <button class="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors flex items-center gap-2" (click)="resetFilters()">
+            <i class="fa-solid fa-rotate-left"></i> Reset
         </button>
     </div>
 
@@ -67,8 +62,8 @@
                                 </span>
                             </div>
                             @if (selectedGroupBy === 'status') {
-                                <button class="p-1 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-700 rounded transition-colors" (click)="openCreateTask(group.id)">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                <button class="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-700 rounded transition-colors" (click)="openCreateTask(group.id)">
+                                    <i class="fa-solid fa-plus"></i>
                                 </button>
                             }
                         </div>
@@ -93,8 +88,8 @@
                                     <div class="flex items-center justify-between mt-1">
                                         <div class="flex items-center gap-1.5">
                                             @if (task.type_name) {
-                                                <div class="flex items-center gap-1 text-[11px] font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-600 px-1.5 py-0.5 rounded" title="Task Type">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></svg>
+                                                <div class="flex items-center gap-1.5 text-[11px] font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-600 px-1.5 py-0.5 rounded" title="Task Type">
+                                                    <i class="fa-solid fa-tag text-[10px]"></i>
                                                     <span class="truncate max-w-[80px]">{{ task.type_name }}</span>
                                                 </div>
                                             }
@@ -147,9 +142,9 @@
                                     {{ task.status_name }}
                                 </div>
 
-                                <div class="flex items-center gap-1.5 text-sm font-medium text-slate-500 dark:text-slate-400 truncate">
+                                <div class="flex items-center gap-2 text-sm font-medium text-slate-500 dark:text-slate-400 truncate">
                                     @if (task.type_name) {
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></svg>
+                                        <i class="fa-solid fa-tag text-[12px] flex-shrink-0"></i>
                                         <span class="truncate">{{ task.type_name }}</span>
                                     } @else {
                                         <span class="truncate">-</span>
@@ -173,7 +168,7 @@
                                              [title]="task.assignee_username">
                                     } @else {
                                         <div class="w-6 h-6 rounded-full border border-dashed border-slate-300 dark:border-slate-600 flex items-center justify-center bg-slate-50 dark:bg-slate-700 text-slate-400" title="Unassigned">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                            <i class="fa-regular fa-user text-[10px]"></i>
                                         </div>
                                     }
                                 </div>
@@ -201,20 +196,20 @@
                         <div class="border border-slate-200 dark:border-slate-600 rounded-xl overflow-hidden bg-white dark:bg-slate-700">
                             <div class="flex items-center justify-between px-4 py-2 border-b border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50">
                                 <div class="flex gap-2">
-                                    <button (click)="descMode = 'edit'" class="px-3 py-1 text-sm font-medium rounded-md transition-colors" [class]="descMode === 'edit' ? 'bg-white dark:bg-slate-600 text-indigo-600 dark:text-indigo-400 shadow-sm border border-slate-200 dark:border-slate-500' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'">Write</button>
-                                    <button (click)="descMode = 'preview'" class="px-3 py-1 text-sm font-medium rounded-md transition-colors" [class]="descMode === 'preview' ? 'bg-white dark:bg-slate-600 text-indigo-600 dark:text-indigo-400 shadow-sm border border-slate-200 dark:border-slate-500' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'">Preview</button>
+                                    <button (click)="descMode = 'edit'" class="px-3 py-1 text-sm font-medium rounded-md transition-colors flex items-center gap-1" [class]="descMode === 'edit' ? 'bg-white dark:bg-slate-600 text-indigo-600 dark:text-indigo-400 shadow-sm border border-slate-200 dark:border-slate-500' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'"><i class="fa-solid fa-pen text-xs"></i> Write</button>
+                                    <button (click)="descMode = 'preview'" class="px-3 py-1 text-sm font-medium rounded-md transition-colors flex items-center gap-1" [class]="descMode === 'preview' ? 'bg-white dark:bg-slate-600 text-indigo-600 dark:text-indigo-400 shadow-sm border border-slate-200 dark:border-slate-500' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'"><i class="fa-solid fa-eye text-xs"></i> Preview</button>
                                 </div>
 
                                 @if (descMode === 'edit') {
                                     <div class="flex items-center gap-1">
-                                        <button (click)="applyMarkdown('description', '**', '**')" class="p-1.5 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-600 rounded" title="Bold"><b class="font-serif">B</b></button>
-                                        <button (click)="applyMarkdown('description', '*', '*')" class="p-1.5 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-600 rounded" title="Italic"><i class="font-serif">I</i></button>
-                                        <button (click)="applyMarkdown('description', '~~', '~~')" class="p-1.5 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-600 rounded" title="Strikethrough"><s class="font-serif">S</s></button>
+                                        <button (click)="applyMarkdown('description', '**', '**')" class="w-7 h-7 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-600 rounded" title="Bold"><i class="fa-solid fa-bold text-sm"></i></button>
+                                        <button (click)="applyMarkdown('description', '*', '*')" class="w-7 h-7 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-600 rounded" title="Italic"><i class="fa-solid fa-italic text-sm"></i></button>
+                                        <button (click)="applyMarkdown('description', '~~', '~~')" class="w-7 h-7 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-600 rounded" title="Strikethrough"><i class="fa-solid fa-strikethrough text-sm"></i></button>
                                         <div class="w-px h-4 bg-slate-300 dark:bg-slate-600 mx-1"></div>
-                                        <button (click)="applyMarkdown('description', '# ', '')" class="p-1.5 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-600 rounded font-bold text-xs" title="Heading 1">H1</button>
-                                        <button (click)="applyMarkdown('description', '## ', '')" class="p-1.5 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-600 rounded font-bold text-xs" title="Heading 2">H2</button>
+                                        <button (click)="applyMarkdown('description', '# ', '')" class="w-7 h-7 flex items-center justify-center gap-0.5 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-600 rounded font-bold" title="Heading 1"><i class="fa-solid fa-heading text-sm"></i><span class="text-[9px]">1</span></button>
+                                        <button (click)="applyMarkdown('description', '## ', '')" class="w-7 h-7 flex items-center justify-center gap-0.5 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-600 rounded font-bold" title="Heading 2"><i class="fa-solid fa-heading text-sm"></i><span class="text-[9px]">2</span></button>
                                         <div class="w-px h-4 bg-slate-300 dark:bg-slate-600 mx-1"></div>
-                                        <button (click)="applyMarkdown('description', '- ', '')" class="p-1.5 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-600 rounded font-bold" title="Bullet List">•</button>
+                                        <button (click)="applyMarkdown('description', '- ', '')" class="w-7 h-7 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-600 rounded" title="Bullet List"><i class="fa-solid fa-list-ul text-sm"></i></button>
                                     </div>
                                 }
                             </div>
@@ -232,7 +227,7 @@
                     </div>
 
                     <div>
-                        <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4">Comments</h3>
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2"><i class="fa-regular fa-comments"></i> Comments</h3>
 
                         @if (!isEditMode) {
                             <div class="p-4 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-500 dark:text-slate-400 text-center">
@@ -242,8 +237,8 @@
                             <div class="border border-slate-200 dark:border-slate-600 rounded-xl overflow-hidden bg-white dark:bg-slate-700 mb-4">
                                 <div class="flex items-center justify-between px-4 py-2 border-b border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50">
                                     <div class="flex gap-2">
-                                        <button (click)="commentMode = 'edit'" class="px-3 py-1 text-sm font-medium rounded-md transition-colors" [class]="commentMode === 'edit' ? 'bg-white dark:bg-slate-600 text-indigo-600 dark:text-indigo-400 shadow-sm border border-slate-200 dark:border-slate-500' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'">Write</button>
-                                        <button (click)="commentMode = 'preview'" class="px-3 py-1 text-sm font-medium rounded-md transition-colors" [class]="commentMode === 'preview' ? 'bg-white dark:bg-slate-600 text-indigo-600 dark:text-indigo-400 shadow-sm border border-slate-200 dark:border-slate-500' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'">Preview</button>
+                                        <button (click)="commentMode = 'edit'" class="px-3 py-1 text-sm font-medium rounded-md transition-colors flex items-center gap-1" [class]="commentMode === 'edit' ? 'bg-white dark:bg-slate-600 text-indigo-600 dark:text-indigo-400 shadow-sm border border-slate-200 dark:border-slate-500' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'"><i class="fa-solid fa-pen text-xs"></i> Write</button>
+                                        <button (click)="commentMode = 'preview'" class="px-3 py-1 text-sm font-medium rounded-md transition-colors flex items-center gap-1" [class]="commentMode === 'preview' ? 'bg-white dark:bg-slate-600 text-indigo-600 dark:text-indigo-400 shadow-sm border border-slate-200 dark:border-slate-500' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'"><i class="fa-solid fa-eye text-xs"></i> Preview</button>
                                     </div>
                                 </div>
                                 <div class="p-4">
@@ -261,15 +256,15 @@
                                 <p class="text-sm text-red-500 dark:text-red-400 mb-4">{{ commentError }}</p>
                             }
                             <div class="flex justify-end mb-8">
-                                <button class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                <button class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
                                         (click)="addComment()" [disabled]="!newCommentText.trim()">
-                                    Post Comment
+                                    <i class="fa-regular fa-paper-plane"></i> Post Comment
                                 </button>
                             </div>
 
                             <div class="space-y-4">
                                 @if (commentLoading) {
-                                    <p class="text-sm text-slate-500 dark:text-slate-400 text-center">Loading comments...</p>
+                                    <p class="text-sm text-slate-500 dark:text-slate-400 text-center"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading comments...</p>
                                 } @else if (taskComments.length === 0) {
                                     <p class="text-sm text-slate-500 dark:text-slate-400 text-center">No comments yet.</p>
                                 } @else {
@@ -284,8 +279,8 @@
                                                     <span class="text-xs text-slate-400 dark:text-slate-500">{{ comment.created_at | date:'short' }}</span>
                                                 </div>
                                                 @if (canDeleteComment(comment)) {
-                                                    <button class="text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors" (click)="deleteComment(comment, $event)" title="Delete comment">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+                                                    <button class="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-slate-600 rounded transition-colors" (click)="deleteComment(comment, $event)" title="Delete comment">
+                                                        <i class="fa-regular fa-trash-can"></i>
                                                     </button>
                                                 }
                                             </div>
@@ -300,14 +295,14 @@
 
                 <div class="space-y-5 bg-slate-50 dark:bg-slate-700/40 p-6 rounded-xl border border-slate-200 dark:border-slate-600 h-fit">
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Status</label>
+                        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1"><i class="fa-solid fa-list-check mr-1"></i> Status</label>
                         <select [(ngModel)]="selectedTask.status"
                                 class="w-full py-2 px-3 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
                             @for (st of statuses; track st.id) { <option [ngValue]="st.id">{{ st.name }}</option> }
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Priority</label>
+                        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1"><i class="fa-solid fa-flag mr-1"></i> Priority</label>
                         <select [(ngModel)]="selectedTask.priority"
                                 class="w-full py-2 px-3 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
                             <option [ngValue]="null">None</option>
@@ -315,7 +310,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Assignee</label>
+                        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1"><i class="fa-solid fa-user-astronaut mr-1"></i> Assignee</label>
                         <select [(ngModel)]="selectedTask.assignee"
                                 class="w-full py-2 px-3 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
                             <option [ngValue]="null">Unassigned</option>
@@ -323,7 +318,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Type</label>
+                        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1"><i class="fa-solid fa-tag mr-1"></i> Type</label>
                         <select [(ngModel)]="selectedTask.task_type"
                                 class="w-full py-2 px-3 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
                             <option [ngValue]="null">No Type</option>
@@ -331,7 +326,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Sprint</label>
+                        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1"><i class="fa-solid fa-person-running mr-1"></i> Sprint</label>
                         <select [(ngModel)]="selectedTask.sprint"
                                 class="w-full py-2 px-3 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
                             <option [ngValue]="null">Backlog</option>
@@ -339,7 +334,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Due Date</label>
+                        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1"><i class="fa-regular fa-calendar mr-1"></i> Due Date</label>
                         <input type="date" [(ngModel)]="selectedTask.due_date"
                                class="w-full py-2 px-3 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500" />
                     </div>
@@ -349,12 +344,16 @@
             <div class="flex items-center justify-between px-4 md:px-8 py-4 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                 <div>
                     @if (isEditMode) {
-                        <button class="px-4 py-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 text-sm font-medium rounded-lg transition-colors" (click)="deleteTask(selectedTask.id!, $event)">Delete</button>
+                        <button class="px-4 py-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 text-sm font-medium rounded-lg transition-colors flex items-center gap-2" (click)="deleteTask(selectedTask.id!, $event)">
+                            <i class="fa-regular fa-trash-can"></i> Delete
+                        </button>
                     }
                 </div>
                 <div class="flex gap-3">
                     <button class="px-4 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 text-sm font-medium rounded-lg transition-colors" (click)="closeTaskModal()">Cancel</button>
-                    <button class="px-6 py-2 bg-indigo-600 text-white hover:bg-indigo-700 text-sm font-medium rounded-lg shadow-sm transition-colors" (click)="saveTask()">Save</button>
+                    <button class="px-6 py-2 bg-indigo-600 text-white hover:bg-indigo-700 text-sm font-medium rounded-lg shadow-sm transition-colors flex items-center gap-2" (click)="saveTask()">
+                        <i class="fa-solid fa-check"></i> Save
+                    </button>
                 </div>
             </div>
         </div>
