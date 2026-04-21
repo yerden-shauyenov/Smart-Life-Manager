@@ -49,7 +49,7 @@ export class TaskListComponent implements OnInit, OnDestroy {
   newCommentText = '';
   commentLoading = false;
   commentError = '';
-  
+
   descMode: 'edit' | 'preview' = 'edit';
   commentMode: 'edit' | 'preview' = 'edit';
 
@@ -73,7 +73,7 @@ export class TaskListComponent implements OnInit, OnDestroy {
 
       if (!this.currentBoard || this.currentBoard.id !== boardId) {
         this.loadBoard(boardId, taskId);
-      } 
+      }
       else if (taskId && !this.showTaskModal) {
         const task = this.tasks.find(t => t.id === taskId);
         if (task) {
@@ -97,24 +97,24 @@ export class TaskListComponent implements OnInit, OnDestroy {
     this.loading = true;
 
     this.boardService.getBoard(boardId).pipe(
-      take(1),
-      switchMap(board => {
-        this.currentBoard = board;
-        if (this.boardService.selectBoard) this.boardService.selectBoard(board);
+        take(1),
+        switchMap(board => {
+          this.currentBoard = board;
+          if (this.boardService.selectBoard) this.boardService.selectBoard(board);
 
-        return forkJoin({
-          statuses: this.boardService.getStatuses(boardId).pipe(catchError(() => of([]))),
-          priorities: this.boardService.getPriorities(boardId).pipe(catchError(() => of([]))),
-          tasks: this.taskService.getTasks().pipe(catchError(() => of([]))),
-          sprints: this.boardService.getSprints(boardId).pipe(catchError(() => of([]))),
-          taskTypes: this.boardService.getTaskTypes(boardId).pipe(catchError(() => of([]))),
-          members: this.boardService.getMemberships(boardId).pipe(catchError(() => of([])))
-        });
-      }),
-      finalize(() => {
-        this.loading = false;
-        this.cdr.detectChanges();
-      })
+          return forkJoin({
+            statuses: this.boardService.getStatuses(boardId).pipe(catchError(() => of([]))),
+            priorities: this.boardService.getPriorities(boardId).pipe(catchError(() => of([]))),
+            tasks: this.taskService.getTasks().pipe(catchError(() => of([]))),
+            sprints: this.boardService.getSprints(boardId).pipe(catchError(() => of([]))),
+            taskTypes: this.boardService.getTaskTypes(boardId).pipe(catchError(() => of([]))),
+            members: this.boardService.getMemberships(boardId).pipe(catchError(() => of([])))
+          });
+        }),
+        finalize(() => {
+          this.loading = false;
+          this.cdr.detectChanges();
+        })
     ).subscribe(res => {
       this.statuses = (res.statuses as TaskStatus[]).sort((a, b) => (a.order || 0) - (b.order || 0));
       this.priorities = (res.priorities as TaskPriority[]).sort((a, b) => (b.level || 0) - (a.level || 0));
@@ -134,20 +134,20 @@ export class TaskListComponent implements OnInit, OnDestroy {
   get allFilteredTasks(): Task[] {
     return this.tasks.filter(task => {
       const matchesSearch =
-        task.title?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        task.description?.toLowerCase().includes(this.searchTerm.toLowerCase());
+          task.title?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+          task.description?.toLowerCase().includes(this.searchTerm.toLowerCase());
 
       const matchesPriority = this.selectedPriority
-        ? this.getId(task.priority) === this.selectedPriority
-        : true;
+          ? this.getId(task.priority) === this.selectedPriority
+          : true;
 
       const matchesSprint = this.selectedSprint
-        ? this.getId(task.sprint) === this.selectedSprint
-        : true;
+          ? this.getId(task.sprint) === this.selectedSprint
+          : true;
 
       const matchesAssignee = this.filterAssignee
-        ? task.assignee_username === this.filterAssignee
-        : true;
+          ? task.assignee_username === this.filterAssignee
+          : true;
 
       return matchesSearch && matchesPriority && matchesSprint && matchesAssignee;
     });
@@ -213,15 +213,15 @@ export class TaskListComponent implements OnInit, OnDestroy {
     };
 
     const req = this.isEditMode
-      ? this.taskService.updateTask(this.selectedTask.id, payload)
-      : this.taskService.createTask(payload);
+        ? this.taskService.updateTask(this.selectedTask.id, payload)
+        : this.taskService.createTask(payload);
 
     req.pipe(
-      take(1),
-      finalize(() => {
-        this.isSaving = false;
-        this.cdr.detectChanges();
-      })
+        take(1),
+        finalize(() => {
+          this.isSaving = false;
+          this.cdr.detectChanges();
+        })
     ).subscribe({
       next: res => {
         if (this.isEditMode) {
@@ -235,20 +235,6 @@ export class TaskListComponent implements OnInit, OnDestroy {
         console.error('Save Task Error:', err);
       }
     });
-  }
-
-  toggleTaskStatus(task: Task, event: Event): void {
-    event.stopPropagation();
-    
-    const input = event.target as HTMLInputElement;
-    const newVal = input.checked;
-
-    this.taskService.updateTask(task.id, { is_completed: newVal })
-      .pipe(take(1))
-      .subscribe(res => {
-        this.tasks = this.tasks.map(t => t.id === res.id ? res : t);
-        this.cdr.detectChanges();
-      });
   }
 
   deleteTask(id: number, e: MouseEvent): void {
@@ -345,7 +331,7 @@ export class TaskListComponent implements OnInit, OnDestroy {
   closeAddGroup() {
     this.showAddGroupModal = false;
   }
-  
+
   applyMarkdown(field: string, prefix: string, suffix: string) {
     const area = document.getElementById('descTextarea') as HTMLTextAreaElement;
     if (!area) return;
