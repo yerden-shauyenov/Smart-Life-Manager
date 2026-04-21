@@ -1,12 +1,119 @@
 Smart Life Manager
 
-Project Overview Smart Life Manager is a web application designed to help users organize their schedule, plan their day or education, track their tasks, and monitor their progress. The project is built using Angular for the frontend and Django REST Framework for the backend.
+📖 Описание проекта
 
-Group members for the project:
-- Shauyenov Yerden
-- Gorbachyov Artyom
-- Romanov Alexey
+Smart Life Manager — это комплексное веб-приложение, разработанное для помощи пользователям в организации их расписания, планировании дня или учебного процесса, отслеживании задач и мониторинге личного прогресса.
 
-Technologies Used:
-- Frontend: Angular
-- Backend: Django, Django REST Framework
+🚀 Основной функционал
+
+Управление задачами и расписанием: Создание, редактирование и отслеживание статуса задач.
+
+Поддержка форматирования Markdown: Форматирование описаний задач с поддержкой синтаксиса Markdown (безопасный рендеринг через marked и dompurify).
+
+Безопасная аутентификация: Система входа реализована на основе JWT токенов (JSON Web Tokens) с использованием библиотеки djangorestframework-simplejwt.
+
+Профили пользователей: Поддержка загрузки и обработки пользовательских аватаров (с помощью Pillow) и управление сессиями (анализ устройств через user-agents).
+
+Адаптивный и современный интерфейс: Удобный UI, построенный на современных компонентах Angular 21, стилизованный с помощью фреймворка TailwindCSS (v3.4) и использующий иконки Lucide и FontAwesome.
+
+🛠 Стек технологий
+
+Фронтенд:
+
+Фреймворк: Angular (v21.1)
+
+Стилизация: TailwindCSS (v3.4)
+
+Иконки: FontAwesome
+
+Бэкенд:
+
+Язык/Фреймворк: Python, Django (v6.0)
+
+API: Django REST Framework (v3.17)
+
+База данных: SQLite (по умолчанию для разработки)
+
+Аутентификация: PyJWT, SimpleJWT
+
+Работа с медиа: Pillow
+
+Инфраструктура:
+
+Контейнеризация: Docker, Docker Compose
+
+⚙️ Установка и запуск
+
+Запуск через Docker (Рекомендуется)
+
+Убедитесь, что у вас на компьютере установлены Docker и Docker Compose.
+
+Клонируйте репозиторий:
+
+git clone <ссылка_на_репозиторий>
+cd smart-life-manager
+
+
+Соберите и запустите контейнеры в фоновом режиме:
+
+docker-compose up --build -d
+
+
+После успешного запуска сервисы будут доступны по следующим адресам:
+
+Frontend (Пользовательский интерфейс): http://localhost:8080
+
+Backend (API): http://localhost:8000
+
+Локальный запуск (Режим разработки)
+
+Развертывание бэкенда:
+
+Перейдите в директорию бэкенда:
+
+cd backend
+
+
+Создайте виртуальное окружение и активируйте его.
+
+Установите зависимости:
+
+pip install -r requirements.txt
+
+
+Примените миграции к базе данных:
+
+python manage.py migrate
+
+
+Запустите сервер разработки:
+
+python manage.py runserver
+
+
+Развертывание фронтенда:
+
+Перейдите в директорию фронтенда:
+
+cd frontend
+
+
+Установите необходимые пакеты npm:
+
+npm install
+
+
+Запустите Angular сервер разработки:
+
+npm start
+
+
+(Приложение будет доступно по умолчанию на http://localhost:4200)
+
+👥 Команда разработчиков
+
+Shauyenov Yerden
+
+Gorbachyov Artyom
+
+Romanov Alexey
