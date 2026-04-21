@@ -17,7 +17,8 @@ html, body {
 .dark input[type="datetime-local"],
 .dark input[type="month"],
 .dark input[type="week"],
-.dark input[type="color"] {
+.dark input[type="color"],
+.dark input[type="file"] {
     color-scheme: dark;
 }
 
