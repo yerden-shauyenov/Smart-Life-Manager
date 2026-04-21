@@ -26,11 +26,10 @@ export class BoardSettingsComponent implements OnInit {
   private confirmService = inject(ConfirmService);
   private toastService = inject(ToastService);
   private cdr = inject(ChangeDetectorRef);
+  private authService = inject(AuthService);
 
   currentUser: any = null;
-  private authService = inject(AuthService);
   userPermissions: any = null;
-
   boardId!: number;
   board: any;
 
@@ -133,8 +132,12 @@ export class BoardSettingsComponent implements OnInit {
 
   updateBoard(): void {
     if (!this.editData.name.trim()) return;
-    this.boardService.updateBoard(this.boardId, this.editData).subscribe(() => {
-      this.loadData();
+    this.boardService.updateBoard(this.boardId, this.editData).subscribe({
+      next: () => {
+        this.toastService.show('Board settings updated', 'success');
+        this.loadData();
+      },
+      error: () => this.toastService.show('Error updating board', 'error')
     });
   }
 
@@ -150,50 +153,70 @@ export class BoardSettingsComponent implements OnInit {
     const email = this.inviteEmail.trim().toLowerCase();
 
     if (this.currentUser?.email?.toLowerCase() === email) {
-      this.toastService.show('You cannot invite yourself.', 'error');
+      this.toastService.show('You cannot invite yourself', 'error');
       return;
     }
 
     const alreadyMember = this.memberships.some(m => m.user_email?.toLowerCase() === email);
     if (alreadyMember) {
-      this.toastService.show('This user is already a member of this board.', 'error');
+      this.toastService.show('This user is already a member', 'error');
       return;
     }
 
-    this.boardService.inviteMember(this.boardId, this.inviteEmail, this.inviteRole).subscribe(() => {
-      this.inviteEmail = '';
-      this.loadData();
+    this.boardService.inviteMember(this.boardId, this.inviteEmail, this.inviteRole).subscribe({
+      next: () => {
+        this.toastService.show('Invitation sent', 'success');
+        this.inviteEmail = '';
+        this.loadData();
+      },
+      error: () => this.toastService.show('Failed to send invitation', 'error')
     });
   }
 
   removeMember(userId: number): void {
-    this.confirmService.requestConfirm('Are you sure you want to remove this member from the board?', () => {
-      this.boardService.removeMember(this.boardId, userId).subscribe(() => {
-        this.loadData();
+    this.confirmService.requestConfirm('Are you sure you want to remove this member?', () => {
+      this.boardService.removeMember(this.boardId, userId).subscribe({
+        next: () => {
+          this.toastService.show('Member removed', 'success');
+          this.loadData();
+        },
+        error: () => this.toastService.show('Error removing member', 'error')
       });
     });
   }
 
   transferOwnership(userId: number): void {
-    this.confirmService.requestConfirm('Are you sure you want to transfer ownership to this user? They will need to accept the transfer.', () => {
-      this.boardService.transferOwnership(this.boardId, userId).subscribe(() => {
-        this.loadData();
+    this.confirmService.requestConfirm('Transfer ownership to this user?', () => {
+      this.boardService.transferOwnership(this.boardId, userId).subscribe({
+        next: () => {
+          this.toastService.show('Ownership transfer initiated', 'success');
+          this.loadData();
+        },
+        error: () => this.toastService.show('Error transferring ownership', 'error')
       });
     });
   }
 
   leaveBoard(): void {
-    this.confirmService.requestConfirm('Are you absolutely sure you want to leave this board?', () => {
-      this.boardService.leaveBoard(this.boardId).subscribe(() => {
-        this.router.navigate(['/']);
+    this.confirmService.requestConfirm('Are you sure you want to leave this board?', () => {
+      this.boardService.leaveBoard(this.boardId).subscribe({
+        next: () => {
+          this.toastService.show('You left the board', 'success');
+          this.router.navigate(['/']);
+        },
+        error: () => this.toastService.show('Error leaving board', 'error')
       });
     });
   }
 
   deleteBoard(): void {
-    this.confirmService.requestConfirm('Warning! This will permanently delete the board and all its tasks. Continue?', () => {
-      this.boardService.deleteBoard(this.boardId).subscribe(() => {
-        this.router.navigate(['/']);
+    this.confirmService.requestConfirm('Permanently delete the board?', () => {
+      this.boardService.deleteBoard(this.boardId).subscribe({
+        next: () => {
+          this.toastService.show('Board deleted', 'success');
+          this.router.navigate(['/']);
+        },
+        error: () => this.toastService.show('Error deleting board', 'error')
       });
     });
   }
@@ -218,75 +241,112 @@ export class BoardSettingsComponent implements OnInit {
     };
 
     if (actions[type]) {
-      actions[type]().subscribe(() => this.loadData());
+      actions[type]().subscribe({
+        next: () => {
+          this.toastService.show('Deleted successfully', 'success');
+          this.loadData();
+        },
+        error: () => {
+          this.toastService.show('Error deleting item', 'error');
+        }
+      });
     }
   }
 
   saveEdit(type: string): void {
     const id = this.editBuffer.id;
+    const payload = { ...this.editBuffer };
+    this.editingId = null;
+
     const actions: Record<string, () => any> = {
-      status: () => this.boardService.updateStatus(id, this.editBuffer),
-      priority: () => this.boardService.updatePriority(id, this.editBuffer),
-      type: () => this.boardService.updateTaskType(id, this.editBuffer),
-      role: () => this.boardService.updateRole(id, this.editBuffer)
+      status: () => this.boardService.updateStatus(id, payload),
+      priority: () => this.boardService.updatePriority(id, payload),
+      type: () => this.boardService.updateTaskType(id, payload),
+      role: () => this.boardService.updateRole(id, payload)
     };
 
     if (actions[type]) {
-      actions[type]().subscribe(() => {
-        this.editingId = null;
-        this.loadData();
+      actions[type]().subscribe({
+        next: () => {
+          this.toastService.show('Changes saved', 'success');
+          this.loadData();
+        },
+        error: () => {
+          this.toastService.show('Error saving changes', 'error');
+          this.loadData();
+        }
       });
     }
   }
 
   addStatus(): void {
     if (!this.newStatus.name) return;
-    this.boardService.createStatus({ ...this.newStatus, board: this.boardId }).subscribe(() => {
-      this.newStatus = { name: '', order: 0 };
-      this.loadData();
+    this.boardService.createStatus({ ...this.newStatus, board: this.boardId }).subscribe({
+      next: () => {
+        this.toastService.show('Status added', 'success');
+        this.newStatus = { name: '', order: 0 };
+        this.loadData();
+      },
+      error: () => this.toastService.show('Error adding status', 'error')
     });
   }
 
   addPriority(): void {
     if (!this.newPriority.name) return;
-    this.boardService.createPriority({ ...this.newPriority, board: this.boardId }).subscribe(() => {
-      this.newPriority = { name: '', color_hex: '#808080', level: 0 };
-      this.loadData();
+    this.boardService.createPriority({ ...this.newPriority, board: this.boardId }).subscribe({
+      next: () => {
+        this.toastService.show('Priority added', 'success');
+        this.newPriority = { name: '', color_hex: '#808080', level: 0 };
+        this.loadData();
+      },
+      error: () => this.toastService.show('Error adding priority', 'error')
     });
   }
 
   addType(): void {
     if (!this.newType.name) return;
-    this.boardService.createTaskType({ ...this.newType, board: this.boardId }).subscribe(() => {
-      this.newType = { name: '', icon_name: 'fa-solid fa-tag' };
-      this.loadData();
+    this.boardService.createTaskType({ ...this.newType, board: this.boardId }).subscribe({
+      next: () => {
+        this.toastService.show('Task type added', 'success');
+        this.newType = { name: '', icon_name: 'fa-solid fa-tag' };
+        this.loadData();
+      },
+      error: () => this.toastService.show('Error adding task type', 'error')
     });
   }
 
   addRole(): void {
     if (!this.newRole.name) return;
-    this.boardService.createRole({ ...this.newRole, board: this.boardId }).subscribe(() => {
-      this.newRole = {
-        name: '',
-        can_manage_board: false,
-        can_manage_members: false,
-        can_manage_sprints: false,
-        can_create_tasks: true,
-        can_edit_tasks: true,
-        can_delete_tasks: false
-      };
-      this.loadData();
+    this.boardService.createRole({ ...this.newRole, board: this.boardId }).subscribe({
+      next: () => {
+        this.toastService.show('Role added', 'success');
+        this.newRole = {
+          name: '',
+          can_manage_board: false,
+          can_manage_members: false,
+          can_manage_sprints: false,
+          can_create_tasks: true,
+          can_edit_tasks: true,
+          can_delete_tasks: false
+        };
+        this.loadData();
+      },
+      error: () => this.toastService.show('Error adding role', 'error')
     });
   }
 
   assignRole(membership: any, roleId: number): void {
     if (this.currentUser && membership.user.id === this.currentUser.id) {
-      this.confirmService.requestConfirm('You can not change your Role.', () => {});
+      this.confirmService.requestConfirm('You cannot change your own role', () => {});
       return;
     }
 
-    this.boardService.updateMembership(membership.id, { role: roleId }).subscribe(() => {
-      this.loadData();
+    this.boardService.updateMembership(membership.id, { role: roleId }).subscribe({
+      next: () => {
+        this.toastService.show('Role updated', 'success');
+        this.loadData();
+      },
+      error: () => this.toastService.show('Error updating role', 'error')
     });
   }
 

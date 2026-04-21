@@ -247,6 +247,13 @@ export class TaskListComponent implements OnInit, OnDestroy {
     });
   }
 
+  getTaskTypeIcon(typeId: any): string {
+    const id = this.getId(typeId);
+    if (!id) return 'fa-solid fa-tag';
+    const type = this.taskTypes.find(t => t.id === id);
+    return type?.icon_name || 'fa-solid fa-tag';
+  }
+
   private loadComments(taskId: number): void {
     this.commentLoading = true;
     this.taskService.getComments(taskId).subscribe({

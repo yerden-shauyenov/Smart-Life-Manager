@@ -88,8 +88,7 @@
                                     <div class="flex items-center justify-between mt-1">
                                         <div class="flex items-center gap-1.5">
                                             @if (task.type_name) {
-                                                <div class="flex items-center gap-1.5 text-[11px] font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-600 px-1.5 py-0.5 rounded" [title]="'tasks.task_type' | t">
-                                                    <i class="fa-solid fa-tag text-[10px]"></i>
+                                                <div class="flex items-center gap-1.5 text-[11px] font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-600 px-1.5 py-0.5 rounded" [title]="'tasks.task_type' | t">                                                    <i [class]="getTaskTypeIcon(task.task_type) + ' text-[10px]'"></i>
                                                     <span class="truncate max-w-[80px]">{{ task.type_name }}</span>
                                                 </div>
                                             }
@@ -144,7 +143,7 @@
 
                                 <div class="flex items-center gap-2 text-sm font-medium text-slate-500 dark:text-slate-400 truncate">
                                     @if (task.type_name) {
-                                        <i class="fa-solid fa-tag text-[12px] flex-shrink-0"></i>
+                                        <i [class]="getTaskTypeIcon(task.task_type) + ' text-[10px]'"></i>
                                         <span class="truncate">{{ task.type_name }}</span>
                                     } @else {
                                         <span class="truncate">-</span>
