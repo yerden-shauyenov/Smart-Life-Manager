@@ -12,6 +12,27 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         data = super().validate(attrs)
         request = self.context.get('request')
 
+        ip = request.META.get('REMOTE_ADDR')
+        x_forwarded = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded:
+            ip = x_forwarded.split(',')[0]
+
+        user_agent_str = request.META.get('HTTP_USER_AGENT', '')
+        user_agent = parse(user_agent_str)
+
+        os_family = user_agent.os.family
+        browser_family = user_agent.browser.family
+        device_family = user_agent.device.family
+
+        UserSession.objects.filter(
+            user=self.user,
+            ip_address=ip,
+            os=os_family,
+            browser=browser_family,
+            device=device_family,
+            is_active=True
+        ).update(is_active=False)
+
         session_id = str(uuid.uuid4())
 
         refresh = RefreshToken.for_user(self.user)
@@ -23,22 +44,15 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         data['refresh'] = str(refresh)
         data['access'] = str(access)
 
-        ip = request.META.get('REMOTE_ADDR')
-        x_forwarded = request.META.get('HTTP_X_FORWARDED_FOR')
-        if x_forwarded:
-            ip = x_forwarded.split(',')[0]
-
-        user_agent_str = request.META.get('HTTP_USER_AGENT', '')
-        user_agent = parse(user_agent_str)
-
         UserSession.objects.create(
             user=self.user,
             session_key=session_id,
             ip_address=ip,
-            os=user_agent.os.family,
-            browser=user_agent.browser.family,
-            device=user_agent.device.family
+            os=os_family,
+            browser=browser_family,
+            device=device_family
         )
+
         return data
 
 
