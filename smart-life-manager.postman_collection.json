@@ -1,0 +1,687 @@
+{
+  "info": {
+    "name": "Smart Life Manager API",
+    "description": "Postman collection for Smart Life Manager backend (Users, Boards, Tasks, Sprints, etc.)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Users & Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"testuser\",\n    \"email\": \"test@example.com\",\n    \"password\": \"strongpassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/register/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "register", ""]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.access || (jsonData.token && jsonData.token.access)) {",
+                  "    var token = jsonData.access || jsonData.token.access;",
+                  "    pm.collectionVariables.set(\"access_token\", token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"testuser\",\n    \"password\": \"strongpassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/login/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "login", ""]
+            }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"refresh\": \"your_refresh_token_here\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/login/refresh/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "login", "refresh", ""]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/logout/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "logout", ""]
+            }
+          }
+        },
+        {
+          "name": "Get Current User Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/me/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "me", ""]
+            }
+          }
+        },
+        {
+          "name": "Update User Profile",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"first_name\": \"Updated\",\n    \"last_name\": \"Name\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/me/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "me", ""]
+            }
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"old_password\": \"strongpassword123\",\n    \"new_password\": \"newpassword456\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/me/change-password/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "me", "change-password", ""]
+            }
+          }
+        },
+        {
+          "name": "List Active Sessions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/me/sessions/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "me", "sessions", ""]
+            }
+          }
+        },
+        {
+          "name": "Delete Session",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/me/sessions/:id/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "me", "sessions", ":id", ""],
+              "variable": [
+                { "key": "id", "value": "1" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Boards",
+      "item": [
+        {
+          "name": "List Boards",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/boards/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "boards", ""]
+            }
+          }
+        },
+        {
+          "name": "Create Board",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"My New Board\",\n    \"description\": \"Description for the board\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/boards/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "boards", ""]
+            }
+          }
+        },
+        {
+          "name": "Get Board Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/boards/:id/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "boards", ":id", ""],
+              "variable": [
+                { "key": "id", "value": "1" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Invite Member",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"colleague@example.com\",\n    \"role\": \"Developer\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/boards/:id/invite_member/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "boards", ":id", "invite_member", ""],
+              "variable": [
+                { "key": "id", "value": "1" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Remove Member",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"user_id\": 2\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/boards/:id/remove_member/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "boards", ":id", "remove_member", ""],
+              "variable": [
+                { "key": "id", "value": "1" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Leave Board",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/boards/:id/leave/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "boards", ":id", "leave", ""],
+              "variable": [
+                { "key": "id", "value": "1" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Transfer Ownership",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"user_id\": 2\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/boards/:id/transfer_ownership/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "boards", ":id", "transfer_ownership", ""],
+              "variable": [
+                { "key": "id", "value": "1" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sprints",
+      "item": [
+        {
+          "name": "List Sprints",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/sprints/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "sprints", ""]
+            }
+          }
+        },
+        {
+          "name": "Create Sprint",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"board\": 1,\n    \"name\": \"Sprint 1\",\n    \"goal\": \"Setup the project\",\n    \"start_date\": \"2026-05-01T00:00:00Z\",\n    \"end_date\": \"2026-05-14T00:00:00Z\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/sprints/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "sprints", ""]
+            }
+          }
+        },
+        {
+          "name": "Start Sprint",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/sprints/:id/start/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "sprints", ":id", "start", ""],
+              "variable": [
+                { "key": "id", "value": "1" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Pause Sprint",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/sprints/:id/pause/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "sprints", ":id", "pause", ""],
+              "variable": [
+                { "key": "id", "value": "1" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Complete Sprint",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/sprints/:id/complete/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "sprints", ":id", "complete", ""],
+              "variable": [
+                { "key": "id", "value": "1" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tasks",
+      "item": [
+        {
+          "name": "List Tasks (with filters)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/tasks/?board=1&sprint=1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tasks", ""],
+              "query": [
+                { "key": "board", "value": "1", "description": "Filter by board ID" },
+                { "key": "sprint", "value": "1", "description": "Filter by sprint ID (or 'none' for backlog)" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Task",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"board\": 1,\n    \"title\": \"Implement authentication\",\n    \"description\": \"Write views for login and register.\",\n    \"status\": 1,\n    \"priority\": 1,\n    \"type\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/tasks/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tasks", ""]
+            }
+          }
+        },
+        {
+          "name": "Update Task",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": 2,\n    \"is_completed\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/tasks/:id/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tasks", ":id", ""],
+              "variable": [
+                { "key": "id", "value": "1" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Board Settings (Statuses, Priorities, Types, Roles, Members)",
+      "item": [
+        {
+          "name": "List Statuses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/statuses/?board=1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "statuses", ""],
+              "query": [
+                { "key": "board", "value": "1" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Priorities",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/priorities/?board=1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "priorities", ""],
+              "query": [
+                { "key": "board", "value": "1" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Types",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/types/?board=1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "types", ""],
+              "query": [
+                { "key": "board", "value": "1" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Roles",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/roles/?board=1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "roles", ""],
+              "query": [
+                { "key": "board", "value": "1" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Memberships",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/memberships/?board=1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "memberships", ""],
+              "query": [
+                { "key": "board", "value": "1" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Comments",
+      "item": [
+        {
+          "name": "List Comments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/comments/?task=1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "comments", ""],
+              "query": [
+                { "key": "task", "value": "1" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Comment",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"task\": 1,\n    \"content\": \"This is a comment on the task.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/comments/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "comments", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invitations & Transfers",
+      "item": [
+        {
+          "name": "Get Pending Invitations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/invitations/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "invitations", ""]
+            }
+          }
+        },
+        {
+          "name": "Accept Invitation",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/invitations/:id/accept/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "invitations", ":id", "accept", ""],
+              "variable": [
+                { "key": "id", "value": "1" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Reject Invitation",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/invitations/:id/reject/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "invitations", ":id", "reject", ""],
+              "variable": [
+                { "key": "id", "value": "1" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Pending Ownership Transfers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/transfers/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "transfers", ""]
+            }
+          }
+        },
+        {
+          "name": "Accept Transfer",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/transfers/:id/accept/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "transfers", ":id", "accept", ""],
+              "variable": [
+                { "key": "id", "value": "1" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Reject Transfer",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/transfers/:id/reject/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "transfers", ":id", "reject", ""],
+              "variable": [
+                { "key": "id", "value": "1" }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
