@@ -1,3 +1,5 @@
+from django.utils import timezone
+
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
@@ -16,7 +18,8 @@ from .serializers import (
     BoardInvitationSerializer
 )
 from .permissions import (
-    CanManageBoardSettings, CanManageBoardMembers, CanManageTasks, IsCommentAuthorOrBoardAdmin, get_user_role
+    CanManageBoardSettings, CanManageBoardMembers, CanManageTasks, IsCommentAuthorOrBoardAdmin, get_user_role,
+    CanManageSprints
 )
 from .services import initialize_board_defaults
 
@@ -181,19 +184,51 @@ class UserTransfersViewSet(viewsets.ReadOnlyModelViewSet):
         transfer.save()
         return Response({'detail': 'Ownership transfer rejected.'})
 
+
 class SprintViewSet(viewsets.ModelViewSet):
     serializer_class = SprintSerializer
-    permission_classes = [IsAuthenticated, CanManageBoardSettings]
+    permission_classes = [IsAuthenticated, CanManageSprints]
 
     def get_queryset(self):
-        queryset = Sprint.objects.filter(
+        return Sprint.objects.filter(
             Q(board__owner=self.request.user) |
             Q(board__board_memberships__user=self.request.user)
         ).distinct()
-        board_id = self.request.query_params.get('board')
-        if board_id:
-            queryset = queryset.filter(board_id=board_id)
-        return queryset
+
+    @action(detail=True, methods=['post'])
+    def start(self, request, pk=None):
+        sprint = self.get_object()
+        if sprint.status == 'active':
+            return Response({'detail': 'Sprint already active.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        sprint.status = 'active'
+        if not sprint.start_date:
+            sprint.start_date = timezone.now()
+        sprint.save()
+        return Response(SprintSerializer(sprint).data)
+
+    @action(detail=True, methods=['post'])
+    def pause(self, request, pk=None):
+        sprint = self.get_object()
+        if sprint.status != 'active':
+            return Response({'detail': 'Sprint is not active.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        sprint.status = 'paused'
+        sprint.save()
+        return Response(SprintSerializer(sprint).data)
+
+    @action(detail=True, methods=['post'])
+    def complete(self, request, pk=None):
+        sprint = self.get_object()
+        if sprint.status == 'completed':
+            return Response({'detail': 'Sprint is already completed.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        sprint.status = 'completed'
+        if not sprint.end_date:
+            sprint.end_date = timezone.now()
+        sprint.save()
+        return Response(SprintSerializer(sprint).data)
 
 class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer

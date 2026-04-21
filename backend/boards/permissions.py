@@ -8,9 +8,10 @@ def get_user_role(user, board):
         return SimpleNamespace(
             can_manage_board=True,
             can_manage_members=True,
+            can_manage_sprints=True,
             can_create_tasks=True,
             can_edit_tasks=True,
-            can_delete_tasks=True
+            can_delete_tasks=True,
         )
     try:
         return BoardMembership.objects.get(user=user, board=board).role
