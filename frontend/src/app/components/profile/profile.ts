@@ -7,6 +7,8 @@ import { AuthService } from '../../services/auth.service';
 import { ConfirmService } from '../../services/confirm.service';
 import { User, UserSession, BoardInvitation, OwnershipTransfer } from '../../models/user.model';
 import { BoardService } from '../../services/board.service';
+import { forkJoin } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-profile',
@@ -30,6 +32,8 @@ export class ProfileComponent implements OnInit {
   changePasswordError: string = '';
   changePasswordSuccess: string = '';
 
+  loading = true;
+
   constructor(
       private userService: UserService,
       private authService: AuthService,
@@ -39,10 +43,25 @@ export class ProfileComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.loadProfile();
-    this.loadSessions();
-    this.loadInvitations();
-    this.loadTransfers();
+    this.loading = true;
+    forkJoin({
+      profile: this.userService.getProfile(),
+      sessions: this.userService.getSessions(),
+      invitations: this.userService.getInvitations(),
+      transfers: this.userService.getTransfers()
+    }).pipe(
+        finalize(() => {
+          this.loading = false;
+          this.cdr.detectChanges();
+        })
+    ).subscribe(res => {
+      this.user = res.profile;
+      this.editData.first_name = res.profile.first_name;
+      this.editData.last_name = res.profile.last_name;
+      this.sessions = res.sessions;
+      this.invitations = res.invitations;
+      this.transfers = res.transfers;
+    });
   }
 
   loadProfile() {

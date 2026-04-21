@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { forkJoin } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 import { BoardService } from '../../services/board.service';
 import { ConfirmService } from '../../services/confirm.service';
 import { ToastService } from '../../services/toast.service';
@@ -32,6 +33,7 @@ export class BoardSettingsComponent implements OnInit {
   userPermissions: any = null;
   boardId!: number;
   board: any;
+  loading = true;
 
   statuses: TaskStatus[] = [];
   priorities: TaskPriority[] = [];
@@ -85,6 +87,7 @@ export class BoardSettingsComponent implements OnInit {
   }
 
   loadData(): void {
+    this.loading = true;
     forkJoin({
       board: this.boardService.getBoard(this.boardId),
       statuses: this.boardService.getStatuses(this.boardId),
@@ -92,7 +95,12 @@ export class BoardSettingsComponent implements OnInit {
       types: this.boardService.getTaskTypes(this.boardId),
       roles: this.boardService.getRoles(this.boardId),
       memberships: this.boardService.getMemberships(this.boardId)
-    }).subscribe({
+    }).pipe(
+        finalize(() => {
+          this.loading = false;
+          this.cdr.detectChanges();
+        })
+    ).subscribe({
       next: (res) => {
         this.board = res.board;
         this.editData.name = res.board.title;
@@ -117,8 +125,6 @@ export class BoardSettingsComponent implements OnInit {
         if (myMembership) {
           this.userPermissions = this.roles.find(r => r.id === myMembership.role);
         }
-
-        this.cdr.detectChanges();
       }
     });
   }
@@ -353,4 +359,4 @@ export class BoardSettingsComponent implements OnInit {
   get isOwner(): boolean {
     return this.board?.owner === this.currentUser?.username?.toString();
   }
-}
+}``

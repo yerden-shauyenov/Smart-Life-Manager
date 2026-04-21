@@ -1,365 +1,392 @@
-<div class="p-6 max-w-4xl mx-auto flex flex-col space-y-12 bg-white dark:bg-slate-900 min-h-screen text-slate-900 dark:text-slate-100 transition-colors" *ngIf="board">
-    <header class="border-b border-slate-200 dark:border-slate-700 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div class="flex items-center gap-4">
-            <a [routerLink]="['/boards', boardId]" class="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
-                <i class="fa-solid fa-arrow-left text-2xl"></i>
-            </a>
-            <h1 class="text-3xl font-bold text-slate-800 dark:text-slate-100">{{ 'board.settings_header' | t }} {{ board?.name }}</h1>
-        </div>
-        <button (click)="leaveBoard()"
-                [disabled]="isOwner"
-                [title]="isOwner ? ('board.owner_leave_tip' | t) : ''"
-                [ngClass]="{'opacity-50 cursor-not-allowed': isOwner, 'hover:bg-slate-50 dark:hover:bg-slate-700': !isOwner}"
-                class="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md focus:outline-none transition-colors">
-            {{ 'board.leave' | t }}
-        </button>
-    </header>
+<div class="p-6 max-w-4xl mx-auto flex flex-col space-y-12 bg-white dark:bg-slate-900 min-h-screen text-slate-900 dark:text-slate-100 transition-colors">
+    <ng-container *ngIf="loading">
+        <header class="border-b border-slate-200 dark:border-slate-700 pb-4 flex justify-between animate-pulse">
+            <div class="h-8 w-64 bg-slate-200 dark:bg-slate-700 rounded"></div>
+            <div class="h-8 w-24 bg-slate-200 dark:bg-slate-700 rounded"></div>
+        </header>
 
-    <section class="flex flex-col space-y-4">
-        <div class="flex items-center gap-4">
-            <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-100">{{ 'board.general' | t }}</h2>
-            <span *ngIf="!can('can_manage_board')" class="text-red-500 dark:text-red-400 text-sm font-medium">
-                {{ 'board.no_perm' | t }}
-            </span>
-        </div>
+        <section class="flex flex-col space-y-4 animate-pulse">
+            <div class="h-6 w-32 bg-slate-200 dark:bg-slate-700 rounded"></div>
+            <div class="bg-slate-100 dark:bg-slate-800 h-48 rounded-lg border border-slate-200 dark:border-slate-700"></div>
+        </section>
 
-        <div class="bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700 space-y-4">
-            <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'board.board_name' | t }}</label>
-                <input type="text"
-                       [(ngModel)]="editData.name"
-                       [disabled]="!can('can_manage_board')"
-                       class="w-full border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-md shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-slate-100 dark:disabled:bg-slate-600 disabled:cursor-not-allowed transition-colors">
+        <section class="flex flex-col space-y-4 animate-pulse">
+            <div class="h-6 w-32 bg-slate-200 dark:bg-slate-700 rounded"></div>
+            <div class="space-y-3">
+                <div class="bg-slate-100 dark:bg-slate-800 h-20 rounded-lg border border-slate-200 dark:border-slate-700"></div>
+                <div class="bg-slate-100 dark:bg-slate-800 h-20 rounded-lg border border-slate-200 dark:border-slate-700"></div>
             </div>
-            <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'board.description' | t }}</label>
-                <textarea [(ngModel)]="editData.description"
-                          rows="3"
-                          [disabled]="!can('can_manage_board')"
-                          class="w-full border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-md shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-slate-100 dark:disabled:bg-slate-600 disabled:cursor-not-allowed transition-colors"></textarea>
+        </section>
+
+        <section class="flex flex-col space-y-4 animate-pulse">
+            <div class="h-6 w-32 bg-slate-200 dark:bg-slate-700 rounded"></div>
+            <div class="bg-slate-100 dark:bg-slate-800 h-32 rounded-lg border border-slate-200 dark:border-slate-700"></div>
+        </section>
+    </ng-container>
+
+    <ng-container *ngIf="!loading && board">
+        <header class="border-b border-slate-200 dark:border-slate-700 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <a [routerLink]="['/boards', boardId]" class="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
+                    <i class="fa-solid fa-arrow-left text-2xl"></i>
+                </a>
+                <h1 class="text-3xl font-bold text-slate-800 dark:text-slate-100">{{ 'board.settings_header' | t }} {{ board?.name }}</h1>
             </div>
-            <button *ngIf="can('can_manage_board')"
-                    (click)="updateBoard()"
-                    [disabled]="!editData.name"
-                    class="bg-indigo-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-indigo-700 disabled:opacity-50">
-                {{ 'board.save_changes' | t }}
+            <button (click)="leaveBoard()"
+                    [disabled]="isOwner"
+                    [title]="isOwner ? ('board.owner_leave_tip' | t) : ''"
+                    [ngClass]="{'opacity-50 cursor-not-allowed': isOwner, 'hover:bg-slate-50 dark:hover:bg-slate-700': !isOwner}"
+                    class="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md focus:outline-none transition-colors">
+                {{ 'board.leave' | t }}
             </button>
-        </div>
-    </section>
+        </header>
 
-    <section class="flex flex-col space-y-4">
-        <div class="flex items-center gap-4">
-            <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-100">{{ 'board.members' | t }}</h2>
-            <span *ngIf="!can('can_manage_members')" class="text-red-500 dark:text-red-400 text-sm font-medium">
-                {{ 'board.read_only' | t }}
-            </span>
-        </div>
+        <section class="flex flex-col space-y-4">
+            <div class="flex items-center gap-4">
+                <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-100">{{ 'board.general' | t }}</h2>
+                <span *ngIf="!can('can_manage_board')" class="text-red-500 dark:text-red-400 text-sm font-medium">
+                    {{ 'board.no_perm' | t }}
+                </span>
+            </div>
 
-        <div class="flex flex-col space-y-3">
-            <div *ngFor="let m of memberships" class="flex items-center justify-between p-4 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 shadow-sm">
-                <div class="flex items-center gap-3">
-                    <img [src]="m.user_avatar || 'assets/default-avatar.png'"
-                         class="w-10 h-10 rounded-full object-cover bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600">
-                    <div>
-                        <p class="font-bold text-lg text-slate-800 dark:text-slate-100">{{ m.user_username }}</p>
-                        <p class="text-sm text-slate-500 dark:text-slate-400">{{ 'board.role_prefix' | t }} {{ m.role_name }}</p>
-                    </div>
+            <div class="bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'board.board_name' | t }}</label>
+                    <input type="text"
+                           [(ngModel)]="editData.name"
+                           [disabled]="!can('can_manage_board')"
+                           class="w-full border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-md shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-slate-100 dark:disabled:bg-slate-600 disabled:cursor-not-allowed transition-colors">
                 </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'board.description' | t }}</label>
+                    <textarea [(ngModel)]="editData.description"
+                              rows="3"
+                              [disabled]="!can('can_manage_board')"
+                              class="w-full border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-md shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-slate-100 dark:disabled:bg-slate-600 disabled:cursor-not-allowed transition-colors"></textarea>
+                </div>
+                <button *ngIf="can('can_manage_board')"
+                        (click)="updateBoard()"
+                        [disabled]="!editData.name"
+                        class="bg-indigo-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-indigo-700 disabled:opacity-50">
+                    {{ 'board.save_changes' | t }}
+                </button>
+            </div>
+        </section>
 
-                <div class="flex items-center gap-4">
-                    <select [ngModel]="m.role"
-                            (ngModelChange)="assignRole(m, $event)"
-                            [disabled]="m.user === currentUser?.id || !can('can_manage_members')"
-                            [ngClass]="{'opacity-50 cursor-not-allowed': m.user === currentUser?.id || !can('can_manage_members')}"
-                            class="border border-slate-300 dark:border-slate-600 p-2 rounded bg-white dark:bg-slate-700 dark:text-slate-200 text-sm transition-colors">
-                        <option *ngFor="let r of roles" [ngValue]="r.id">{{ r.name }}</option>
-                    </select>
+        <section class="flex flex-col space-y-4">
+            <div class="flex items-center gap-4">
+                <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-100">{{ 'board.members' | t }}</h2>
+                <span *ngIf="!can('can_manage_members')" class="text-red-500 dark:text-red-400 text-sm font-medium">
+                    {{ 'board.read_only' | t }}
+                </span>
+            </div>
 
-                    <div class="relative group" *ngIf="m.user !== currentUser?.id && can('can_manage_members')">
-                        <button class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 focus:outline-none transition-colors">
-                            <i class="fa-solid fa-ellipsis-vertical text-xl"></i>
-                        </button>
-                        <div class="absolute right-0 w-48 mt-2 origin-top-right bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md shadow-lg hidden group-hover:block z-10">
-                            <div class="py-1">
-                                <button *ngIf="m.role_name !== 'Administrator'"
-                                        (click)="transferOwnership(m.user)"
-                                        class="block w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
-                                    {{ 'board.make_owner' | t }}
-                                </button>
-                                <button *ngIf="m.role_name !== 'Administrator'"
-                                        (click)="removeMember(m.user)"
-                                        class="block w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
-                                    {{ 'board.remove' | t }}
-                                </button>
+            <div class="flex flex-col space-y-3">
+                <div *ngFor="let m of memberships" class="flex items-center justify-between p-4 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 shadow-sm">
+                    <div class="flex items-center gap-3">
+                        <img [src]="m.user_avatar || 'assets/default-avatar.png'"
+                             class="w-10 h-10 rounded-full object-cover bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600">
+                        <div>
+                            <p class="font-bold text-lg text-slate-800 dark:text-slate-100">{{ m.user_username }}</p>
+                            <p class="text-sm text-slate-500 dark:text-slate-400">{{ 'board.role_prefix' | t }} {{ m.role_name }}</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        <select [ngModel]="m.role"
+                                (ngModelChange)="assignRole(m, $event)"
+                                [disabled]="m.user === currentUser?.id || !can('can_manage_members')"
+                                [ngClass]="{'opacity-50 cursor-not-allowed': m.user === currentUser?.id || !can('can_manage_members')}"
+                                class="border border-slate-300 dark:border-slate-600 p-2 rounded bg-white dark:bg-slate-700 dark:text-slate-200 text-sm transition-colors">
+                            <option *ngFor="let r of roles" [ngValue]="r.id">{{ r.name }}</option>
+                        </select>
+
+                        <div class="relative group" *ngIf="m.user !== currentUser?.id && can('can_manage_members')">
+                            <button class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 focus:outline-none transition-colors">
+                                <i class="fa-solid fa-ellipsis-vertical text-xl"></i>
+                            </button>
+                            <div class="absolute right-0 w-48 mt-2 origin-top-right bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md shadow-lg hidden group-hover:block z-10">
+                                <div class="py-1">
+                                    <button *ngIf="m.role_name !== 'Administrator'"
+                                            (click)="transferOwnership(m.user)"
+                                            class="block w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                                        {{ 'board.make_owner' | t }}
+                                    </button>
+                                    <button *ngIf="m.role_name !== 'Administrator'"
+                                            (click)="removeMember(m.user)"
+                                            class="block w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                                        {{ 'board.remove' | t }}
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <section class="flex flex-col space-y-4" *ngIf="can('can_manage_members')">
-        <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-100">{{ 'board.invite' | t }}</h2>
-        <div class="flex flex-col sm:flex-row gap-4 p-4 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 sm:items-end">
-            <div class="flex-1">
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'board.email' | t }}</label>
-                <input type="email" [(ngModel)]="inviteEmail" class="w-full border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 rounded-md shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
-            </div>
-            <div class="w-full sm:w-48">
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'board.role_label' | t }}</label>
-                <select [(ngModel)]="inviteRole" class="w-full border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200 rounded-md shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
-                    <option *ngFor="let r of invitableRoles" [value]="r.name">{{ r.name }}</option>
-                </select>
-            </div>
-            <button (click)="inviteMember()" [disabled]="!inviteEmail" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 disabled:opacity-50">{{ 'board.send_invite' | t }}</button>
-        </div>
-    </section>
-
-    <section class="flex flex-col space-y-4">
-        <div class="flex items-center gap-4">
-            <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-100">{{ 'board.statuses' | t }}</h2>
-            <span *ngIf="!can('can_manage_board')" class="text-red-500 dark:text-red-400 text-sm font-medium">
-                {{ 'board.read_only' | t }}
-            </span>
-        </div>
-
-        <div *ngIf="can('can_manage_board')" class="flex gap-2 p-4 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
-            <input [(ngModel)]="newStatus.name" [placeholder]="'board.status_name_ph' | t" class="border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 p-2 rounded flex-1 focus:ring-indigo-500 focus:outline-none transition-colors">
-            <input [(ngModel)]="newStatus.order" type="number" class="border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 p-2 rounded w-20 focus:ring-indigo-500 focus:outline-none transition-colors">
-            <button (click)="addStatus()" [disabled]="!newStatus.name" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 disabled:opacity-50">{{ 'board.add' | t }}</button>
-        </div>
-
-        <div class="flex flex-col space-y-2">
-            <div *ngFor="let s of statuses" class="flex items-center justify-between p-3 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-700/50 bg-white dark:bg-slate-800 transition-colors">
-                <div *ngIf="editingId !== 'status-' + s.id" class="flex gap-4">
-                    <span class="font-medium text-slate-700 dark:text-slate-200">{{ s.name }}</span>
-                    <span class="text-slate-400 dark:text-slate-500 text-sm">{{ 'board.order_prefix' | t }} {{ s.order }}</span>
-                </div>
-
-                <div *ngIf="editingId === 'status-' + s.id" class="flex gap-2 flex-1 mr-4">
-                    <input [(ngModel)]="editBuffer.name" class="border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 p-1 rounded flex-1 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors">
-                    <input [(ngModel)]="editBuffer.order" type="number" class="border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 p-1 rounded w-20 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors">
-                </div>
-
-                <div class="flex gap-2" *ngIf="can('can_manage_board')">
-                    <button *ngIf="editingId !== 'status-' + s.id" (click)="startEdit('status', s)" class="text-blue-600 dark:text-blue-400 px-2 text-sm hover:underline">{{ 'board.edit' | t }}</button>
-                    <button *ngIf="editingId === 'status-' + s.id" (click)="saveEdit('status')" class="text-green-600 dark:text-green-400 px-2 font-bold text-sm hover:underline">{{ 'board.save' | t }}</button>
-                    <button *ngIf="editingId === 'status-' + s.id" (click)="cancelEdit()" class="text-slate-600 dark:text-slate-400 px-2 text-sm hover:underline">{{ 'board.cancel' | t }}</button>
-                    <button (click)="deleteItem('status', s.id)" class="text-red-600 dark:text-red-400 px-2 text-sm hover:underline">{{ 'board.delete' | t }}</button>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="flex flex-col space-y-4">
-        <div class="flex items-center gap-4">
-            <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-100">{{ 'board.priorities' | t }}</h2>
-            <span *ngIf="!can('can_manage_board')" class="text-red-500 dark:text-red-400 text-sm font-medium">
-                {{ 'board.read_only' | t }}
-            </span>
-        </div>
-
-        <div *ngIf="can('can_manage_board')" class="flex gap-2 p-4 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
-            <input [(ngModel)]="newPriority.name" [placeholder]="'board.name_ph' | t" class="w-full border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 rounded-md shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
-            <input [(ngModel)]="newPriority.color_hex" type="color" class="w-12 h-10 border border-slate-300 dark:border-slate-600 rounded-md cursor-pointer">
-            <input [(ngModel)]="newPriority.level" type="number" class="w-24 border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-md shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
-            <button (click)="addPriority()" [disabled]="!newPriority.name" class="bg-indigo-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-indigo-700 disabled:opacity-50">
-                {{ 'board.add' | t }}
-            </button>
-        </div>
-
-        <div class="flex flex-col space-y-2">
-            <div *ngFor="let p of priorities" class="flex items-center justify-between p-3 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                <div *ngIf="editingId !== 'priority-' + p.id" class="flex items-center gap-3">
-                    <div class="w-4 h-4 rounded-full shadow-sm" [style.background-color]="p.color_hex"></div>
-                    <span class="font-medium text-slate-800 dark:text-slate-100">{{ p.name }}</span>
-                    <span class="text-slate-400 dark:text-slate-500 text-sm">{{ 'board.level_prefix' | t }} {{ p.level }}</span>
-                </div>
-
-                <div *ngIf="editingId === 'priority-' + p.id" class="flex gap-2 flex-1 mr-4">
-                    <input [(ngModel)]="editBuffer.name" class="border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 p-1 rounded flex-1 focus:ring-1 focus:ring-indigo-500 transition-colors">
-                    <input [(ngModel)]="editBuffer.color_hex" type="color" class="w-10 h-8 border border-slate-300 dark:border-slate-600 rounded cursor-pointer">
-                    <input [(ngModel)]="editBuffer.level" type="number" class="border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 p-1 rounded w-16 transition-colors">
-                </div>
-
-                <div class="flex gap-2" *ngIf="can('can_manage_board')">
-                    <button *ngIf="editingId !== 'priority-' + p.id" (click)="startEdit('priority', p)" class="text-blue-600 dark:text-blue-400 px-2 text-sm font-medium hover:underline">{{ 'board.edit' | t }}</button>
-                    <button *ngIf="editingId === 'priority-' + p.id" (click)="saveEdit('priority')" class="text-green-600 dark:text-green-400 px-2 text-sm font-bold hover:underline">{{ 'board.save' | t }}</button>
-                    <button *ngIf="editingId === 'priority-' + p.id" (click)="cancelEdit()" class="text-slate-500 dark:text-slate-400 px-2 text-sm hover:underline">{{ 'board.cancel' | t }}</button>
-                    <button (click)="deleteItem('priority', p.id)" class="text-red-600 dark:text-red-400 px-2 text-sm font-medium hover:underline">{{ 'board.delete' | t }}</button>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="flex flex-col space-y-4">
-        <div class="flex items-center gap-4">
-            <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-100">{{ 'board.types' | t }}</h2>
-            <span *ngIf="!can('can_manage_board')" class="text-red-500 dark:text-red-400 text-sm font-medium">
-                {{ 'board.read_only' | t }}
-            </span>
-        </div>
-
-        <div *ngIf="can('can_manage_board')" class="flex flex-col gap-4 p-4 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
-            <div class="flex flex-col sm:flex-row gap-2 sm:items-end">
+        <section class="flex flex-col space-y-4" *ngIf="can('can_manage_members')">
+            <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-100">{{ 'board.invite' | t }}</h2>
+            <div class="flex flex-col sm:flex-row gap-4 p-4 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 sm:items-end">
                 <div class="flex-1">
-                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'board.type_name_label' | t }}</label>
-                    <input [(ngModel)]="newType.name" placeholder="e.g. Bug"
-                           class="w-full border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 rounded-md shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'board.email' | t }}</label>
+                    <input type="email" [(ngModel)]="inviteEmail" class="w-full border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 rounded-md shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
                 </div>
+                <div class="w-full sm:w-48">
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'board.role_label' | t }}</label>
+                    <select [(ngModel)]="inviteRole" class="w-full border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200 rounded-md shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                        <option *ngFor="let r of invitableRoles" [value]="r.name">{{ r.name }}</option>
+                    </select>
+                </div>
+                <button (click)="inviteMember()" [disabled]="!inviteEmail" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 disabled:opacity-50">{{ 'board.send_invite' | t }}</button>
+            </div>
+        </section>
 
-                <button (click)="addType()" [disabled]="!newType.name"
-                        class="bg-indigo-600 text-white px-6 py-2 rounded text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 h-10">
+        <section class="flex flex-col space-y-4">
+            <div class="flex items-center gap-4">
+                <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-100">{{ 'board.statuses' | t }}</h2>
+                <span *ngIf="!can('can_manage_board')" class="text-red-500 dark:text-red-400 text-sm font-medium">
+                    {{ 'board.read_only' | t }}
+                </span>
+            </div>
+
+            <div *ngIf="can('can_manage_board')" class="flex gap-2 p-4 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                <input [(ngModel)]="newStatus.name" [placeholder]="'board.status_name_ph' | t" class="border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 p-2 rounded flex-1 focus:ring-indigo-500 focus:outline-none transition-colors">
+                <input [(ngModel)]="newStatus.order" type="number" class="border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 p-2 rounded w-20 focus:ring-indigo-500 focus:outline-none transition-colors">
+                <button (click)="addStatus()" [disabled]="!newStatus.name" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 disabled:opacity-50">{{ 'board.add' | t }}</button>
+            </div>
+
+            <div class="flex flex-col space-y-2">
+                <div *ngFor="let s of statuses" class="flex items-center justify-between p-3 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-700/50 bg-white dark:bg-slate-800 transition-colors">
+                    <div *ngIf="editingId !== 'status-' + s.id" class="flex gap-4">
+                        <span class="font-medium text-slate-700 dark:text-slate-200">{{ s.name }}</span>
+                        <span class="text-slate-400 dark:text-slate-500 text-sm">{{ 'board.order_prefix' | t }} {{ s.order }}</span>
+                    </div>
+
+                    <div *ngIf="editingId === 'status-' + s.id" class="flex gap-2 flex-1 mr-4">
+                        <input [(ngModel)]="editBuffer.name" class="border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 p-1 rounded flex-1 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors">
+                        <input [(ngModel)]="editBuffer.order" type="number" class="border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 p-1 rounded w-20 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors">
+                    </div>
+
+                    <div class="flex gap-2" *ngIf="can('can_manage_board')">
+                        <button *ngIf="editingId !== 'status-' + s.id" (click)="startEdit('status', s)" class="text-blue-600 dark:text-blue-400 px-2 text-sm hover:underline">{{ 'board.edit' | t }}</button>
+                        <button *ngIf="editingId === 'status-' + s.id" (click)="saveEdit('status')" class="text-green-600 dark:text-green-400 px-2 font-bold text-sm hover:underline">{{ 'board.save' | t }}</button>
+                        <button *ngIf="editingId === 'status-' + s.id" (click)="cancelEdit()" class="text-slate-600 dark:text-slate-400 px-2 text-sm hover:underline">{{ 'board.cancel' | t }}</button>
+                        <button (click)="deleteItem('status', s.id)" class="text-red-600 dark:text-red-400 px-2 text-sm hover:underline">{{ 'board.delete' | t }}</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="flex flex-col space-y-4">
+            <div class="flex items-center gap-4">
+                <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-100">{{ 'board.priorities' | t }}</h2>
+                <span *ngIf="!can('can_manage_board')" class="text-red-500 dark:text-red-400 text-sm font-medium">
+                    {{ 'board.read_only' | t }}
+                </span>
+            </div>
+
+            <div *ngIf="can('can_manage_board')" class="flex gap-2 p-4 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                <input [(ngModel)]="newPriority.name" [placeholder]="'board.name_ph' | t" class="w-full border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 rounded-md shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                <input [(ngModel)]="newPriority.color_hex" type="color" class="w-12 h-10 border border-slate-300 dark:border-slate-600 rounded-md cursor-pointer">
+                <input [(ngModel)]="newPriority.level" type="number" class="w-24 border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-md shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                <button (click)="addPriority()" [disabled]="!newPriority.name" class="bg-indigo-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-indigo-700 disabled:opacity-50">
                     {{ 'board.add' | t }}
                 </button>
             </div>
 
-            <div class="flex flex-wrap gap-2 items-center">
-                <span class="text-xs font-medium text-slate-500 dark:text-slate-400 w-full mb-1">{{ 'board.select_icon' | t }}</span>
-                <button *ngFor="let iconOption of availableIcons"
-                        (click)="newType.icon_name = iconOption.id"
-                        type="button"
-                        [class.ring-2]="newType.icon_name === iconOption.id"
-                        [class.ring-indigo-500]="newType.icon_name === iconOption.id"
-                        [class.bg-white]="newType.icon_name === iconOption.id"
-                        class="w-10 h-10 flex items-center justify-center border border-slate-300 dark:border-slate-600 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-all bg-slate-50 dark:bg-slate-700"
-                        [title]="iconOption.name">
-                    <i [class]="iconOption.id + ' text-slate-700 dark:text-slate-300 text-lg'"></i>
-                </button>
-            </div>
-        </div>
-
-        <div class="flex flex-col space-y-2">
-            <div *ngFor="let t of types" class="flex items-center justify-between p-3 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-
-                <div *ngIf="editingId !== 'type-' + t.id" class="flex items-center gap-4">
-                    <div class="w-10 h-10 flex items-center justify-center bg-indigo-50 dark:bg-indigo-900/30 rounded-md">
-                        <i [class]="(t.icon_name && t.icon_name.startsWith('fa-') ? t.icon_name : 'fa-solid fa-tag') + ' text-indigo-600 dark:text-indigo-400 text-lg'"></i>
+            <div class="flex flex-col space-y-2">
+                <div *ngFor="let p of priorities" class="flex items-center justify-between p-3 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                    <div *ngIf="editingId !== 'priority-' + p.id" class="flex items-center gap-3">
+                        <div class="w-4 h-4 rounded-full shadow-sm" [style.background-color]="p.color_hex"></div>
+                        <span class="font-medium text-slate-800 dark:text-slate-100">{{ p.name }}</span>
+                        <span class="text-slate-400 dark:text-slate-500 text-sm">{{ 'board.level_prefix' | t }} {{ p.level }}</span>
                     </div>
-                    <div class="flex flex-col">
-                        <span class="font-medium text-slate-800 dark:text-slate-100">{{ t.name }}</span>
-                        <span class="text-slate-400 dark:text-slate-500 text-[10px] uppercase tracking-wider">{{ 'board.icon_prefix' | t }} {{ t.icon_name }}</span>
+
+                    <div *ngIf="editingId === 'priority-' + p.id" class="flex gap-2 flex-1 mr-4">
+                        <input [(ngModel)]="editBuffer.name" class="border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 p-1 rounded flex-1 focus:ring-1 focus:ring-indigo-500 transition-colors">
+                        <input [(ngModel)]="editBuffer.color_hex" type="color" class="w-10 h-8 border border-slate-300 dark:border-slate-600 rounded cursor-pointer">
+                        <input [(ngModel)]="editBuffer.level" type="number" class="border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 p-1 rounded w-16 transition-colors">
+                    </div>
+
+                    <div class="flex gap-2" *ngIf="can('can_manage_board')">
+                        <button *ngIf="editingId !== 'priority-' + p.id" (click)="startEdit('priority', p)" class="text-blue-600 dark:text-blue-400 px-2 text-sm font-medium hover:underline">{{ 'board.edit' | t }}</button>
+                        <button *ngIf="editingId === 'priority-' + p.id" (click)="saveEdit('priority')" class="text-green-600 dark:text-green-400 px-2 text-sm font-bold hover:underline">{{ 'board.save' | t }}</button>
+                        <button *ngIf="editingId === 'priority-' + p.id" (click)="cancelEdit()" class="text-slate-500 dark:text-slate-400 px-2 text-sm hover:underline">{{ 'board.cancel' | t }}</button>
+                        <button (click)="deleteItem('priority', p.id)" class="text-red-600 dark:text-red-400 px-2 text-sm font-medium hover:underline">{{ 'board.delete' | t }}</button>
                     </div>
                 </div>
+            </div>
+        </section>
 
-                <div *ngIf="editingId === 'type-' + t.id" class="flex gap-2 flex-1 mr-4">
-                    <input [(ngModel)]="editBuffer.name" class="border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 p-1 rounded flex-1 focus:ring-1 focus:ring-indigo-500 transition-colors" [placeholder]="'board.name_ph' | t">
-                    <select [(ngModel)]="editBuffer.icon_name" class="border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200 p-1 rounded flex-1 focus:ring-1 focus:ring-indigo-500 transition-colors">
-                        <option *ngFor="let iconOption of availableIcons" [value]="iconOption.id">
-                            {{ iconOption.name }}
-                        </option>
-                    </select>
+        <section class="flex flex-col space-y-4">
+            <div class="flex items-center gap-4">
+                <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-100">{{ 'board.types' | t }}</h2>
+                <span *ngIf="!can('can_manage_board')" class="text-red-500 dark:text-red-400 text-sm font-medium">
+                    {{ 'board.read_only' | t }}
+                </span>
+            </div>
+
+            <div *ngIf="can('can_manage_board')" class="flex flex-col gap-4 p-4 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                <div class="flex flex-col sm:flex-row gap-2 sm:items-end">
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'board.type_name_label' | t }}</label>
+                        <input [(ngModel)]="newType.name" placeholder="e.g. Bug"
+                               class="w-full border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 rounded-md shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                    </div>
+
+                    <button (click)="addType()" [disabled]="!newType.name"
+                            class="bg-indigo-600 text-white px-6 py-2 rounded text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 h-10">
+                        {{ 'board.add' | t }}
+                    </button>
                 </div>
 
-                <div class="flex gap-2" *ngIf="can('can_manage_board')">
-                    <button *ngIf="editingId !== 'type-' + t.id" (click)="startEdit('type', t)"
-                            class="text-blue-600 dark:text-blue-400 px-2 text-sm font-medium hover:underline">{{ 'board.edit' | t }}</button>
-
-                    <button *ngIf="editingId === 'type-' + t.id" (click)="saveEdit('type')"
-                            class="text-green-600 dark:text-green-400 px-2 text-sm font-bold hover:underline">{{ 'board.save' | t }}</button>
-
-                    <button *ngIf="editingId === 'type-' + t.id" (click)="cancelEdit()"
-                            class="text-slate-500 dark:text-slate-400 px-2 text-sm hover:underline">{{ 'board.cancel' | t }}</button>
-
-                    <button (click)="deleteItem('type', t.id)"
-                            class="text-red-600 dark:text-red-400 px-2 text-sm font-medium hover:underline">{{ 'board.delete' | t }}</button>
+                <div class="flex flex-wrap gap-2 items-center">
+                    <span class="text-xs font-medium text-slate-500 dark:text-slate-400 w-full mb-1">{{ 'board.select_icon' | t }}</span>
+                    <button *ngFor="let iconOption of availableIcons"
+                            (click)="newType.icon_name = iconOption.id"
+                            type="button"
+                            [class.ring-2]="newType.icon_name === iconOption.id"
+                            [class.ring-indigo-500]="newType.icon_name === iconOption.id"
+                            [class.bg-white]="newType.icon_name === iconOption.id"
+                            class="w-10 h-10 flex items-center justify-center border border-slate-300 dark:border-slate-600 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-all bg-slate-50 dark:bg-slate-700"
+                            [title]="iconOption.name">
+                        <i [class]="iconOption.id + ' text-slate-700 dark:text-slate-300 text-lg'"></i>
+                    </button>
                 </div>
             </div>
-        </div>
-    </section>
 
-    <section class="flex flex-col space-y-4">
-        <div class="flex items-center gap-4">
-            <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-100">{{ 'board.roles' | t }}</h2>
-            <span *ngIf="!can('can_manage_board')" class="text-red-500 dark:text-red-400 text-sm font-medium">
-                {{ 'board.read_only' | t }}
-            </span>
-        </div>
+            <div class="flex flex-col space-y-2">
+                <div *ngFor="let t of types" class="flex items-center justify-between p-3 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
 
-        <div *ngIf="can('can_manage_board')" class="flex flex-col p-4 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 space-y-4">
-            <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'board.new_role_name' | t }}</label>
-                <input [(ngModel)]="newRole.name" placeholder="e.g. Designer"
-                       class="w-full border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 rounded-md shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
-            </div>
-
-            <div class="flex flex-wrap gap-4 text-sm bg-slate-50 dark:bg-slate-700/50 p-3 rounded-md border border-slate-200 dark:border-slate-600">
-                <span class="w-full text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{{ 'board.permissions' | t }}</span>
-                <label class="flex items-center gap-2 cursor-pointer hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400">
-                    <input type="checkbox" [(ngModel)]="newRole.can_manage_board" class="rounded text-indigo-600"> {{ 'board.perm_board' | t }}
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400">
-                    <input type="checkbox" [(ngModel)]="newRole.can_manage_members" class="rounded text-indigo-600"> {{ 'board.perm_members' | t }}
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400">
-                    <input type="checkbox" [(ngModel)]="newRole.can_manage_sprints" class="rounded text-indigo-600"> {{ 'board.perm_sprints' | t }}
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400">
-                    <input type="checkbox" [(ngModel)]="newRole.can_create_tasks" class="rounded text-indigo-600"> {{ 'board.perm_create' | t }}
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400">
-                    <input type="checkbox" [(ngModel)]="newRole.can_edit_tasks" class="rounded text-indigo-600"> {{ 'board.perm_edit' | t }}
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400">
-                    <input type="checkbox" [(ngModel)]="newRole.can_delete_tasks" class="rounded text-indigo-600"> {{ 'board.perm_delete' | t }}
-                </label>
-            </div>
-            <button (click)="addRole()" [disabled]="!newRole.name"
-                    class="bg-indigo-600 text-white px-4 py-2 rounded w-full font-medium hover:bg-indigo-700 disabled:opacity-50 transition-colors">
-                {{ 'board.create_role' | t }}
-            </button>
-        </div>
-
-        <div class="flex flex-col space-y-2">
-            <div *ngFor="let r of roles" class="flex flex-col p-4 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                <div *ngIf="editingId !== 'role-' + r.id">
-                    <div class="flex justify-between items-start mb-3">
-                        <span class="font-bold text-lg text-slate-800 dark:text-slate-100">{{ r.name }}</span>
-                        <div class="flex gap-2" *ngIf="can('can_manage_board')">
-                            <button (click)="startEdit('role', r)" class="text-blue-600 dark:text-blue-400 text-sm font-medium hover:underline">{{ 'board.edit' | t }}</button>
-                            <button (click)="deleteItem('role', r.id)" class="text-red-600 dark:text-red-400 text-sm font-medium hover:underline">{{ 'board.delete' | t }}</button>
+                    <div *ngIf="editingId !== 'type-' + t.id" class="flex items-center gap-4">
+                        <div class="w-10 h-10 flex items-center justify-center bg-indigo-50 dark:bg-indigo-900/30 rounded-md">
+                            <i [class]="(t.icon_name && t.icon_name.startsWith('fa-') ? t.icon_name : 'fa-solid fa-tag') + ' text-indigo-600 dark:text-indigo-400 text-lg'"></i>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="font-medium text-slate-800 dark:text-slate-100">{{ t.name }}</span>
+                            <span class="text-slate-400 dark:text-slate-500 text-[10px] uppercase tracking-wider">{{ 'board.icon_prefix' | t }} {{ t.icon_name }}</span>
                         </div>
                     </div>
-                    <div class="flex flex-wrap gap-2">
-                        <span *ngIf="r.can_manage_board" class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs rounded-md">{{ 'board.perm_badge_board' | t }}</span>
-                        <span *ngIf="r.can_manage_members" class="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 text-xs rounded-md">{{ 'board.perm_badge_members' | t }}</span>
-                        <span *ngIf="r.can_manage_sprints" class="px-2 py-1 bg-teal-100 dark:bg-teal-900/30 text-teal-800 dark:text-teal-300 text-xs rounded-md">{{ 'board.perm_badge_sprints' | t }}</span>
-                        <span *ngIf="r.can_create_tasks" class="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 text-xs rounded-md">{{ 'board.perm_badge_create' | t }}</span>
-                        <span *ngIf="r.can_edit_tasks" class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 text-xs rounded-md">{{ 'board.perm_badge_edit' | t }}</span>
-                        <span *ngIf="r.can_delete_tasks" class="px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 text-xs rounded-md">{{ 'board.perm_badge_delete' | t }}</span>
-                    </div>
-                </div>
 
-                <div *ngIf="editingId === 'role-' + r.id" class="flex flex-col space-y-3">
-                    <input [(ngModel)]="editBuffer.name" class="border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 p-2 rounded w-full focus:ring-2 focus:ring-indigo-500 outline-none transition-colors">
-                    <div class="flex flex-wrap gap-3 bg-slate-50 dark:bg-slate-700/50 p-2 rounded border border-slate-200 dark:border-slate-600">
-                        <label class="flex items-center gap-2 dark:text-slate-300"><input type="checkbox" [(ngModel)]="editBuffer.can_manage_board"> {{ 'board.perm_board' | t }}</label>
-                        <label class="flex items-center gap-2 dark:text-slate-300"><input type="checkbox" [(ngModel)]="editBuffer.can_manage_members"> {{ 'board.perm_members' | t }}</label>
-                        <label class="flex items-center gap-2 dark:text-slate-300"><input type="checkbox" [(ngModel)]="editBuffer.can_manage_sprints"> {{ 'board.perm_sprints' | t }}</label>
-                        <label class="flex items-center gap-2 dark:text-slate-300"><input type="checkbox" [(ngModel)]="editBuffer.can_create_tasks"> {{ 'board.perm_create' | t }}</label>
-                        <label class="flex items-center gap-2 dark:text-slate-300"><input type="checkbox" [(ngModel)]="editBuffer.can_edit_tasks"> {{ 'board.perm_edit' | t }}</label>
-                        <label class="flex items-center gap-2 dark:text-slate-300"><input type="checkbox" [(ngModel)]="editBuffer.can_delete_tasks"> {{ 'board.perm_delete' | t }}</label>
+                    <div *ngIf="editingId === 'type-' + t.id" class="flex gap-2 flex-1 mr-4">
+                        <input [(ngModel)]="editBuffer.name" class="border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 p-1 rounded flex-1 focus:ring-1 focus:ring-indigo-500 transition-colors" [placeholder]="'board.name_ph' | t">
+                        <select [(ngModel)]="editBuffer.icon_name" class="border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200 p-1 rounded flex-1 focus:ring-1 focus:ring-indigo-500 transition-colors">
+                            <option *ngFor="let iconOption of availableIcons" [value]="iconOption.id">
+                                {{ iconOption.name }}
+                            </option>
+                        </select>
                     </div>
-                    <div class="flex gap-2">
-                        <button (click)="saveEdit('role')" class="bg-green-600 text-white px-4 py-1 rounded text-sm font-bold hover:bg-green-700">{{ 'board.save' | t }}</button>
-                        <button (click)="cancelEdit()" class="bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-200 px-4 py-1 rounded text-sm font-medium hover:bg-slate-300 dark:hover:bg-slate-500">{{ 'board.cancel' | t }}</button>
+
+                    <div class="flex gap-2" *ngIf="can('can_manage_board')">
+                        <button *ngIf="editingId !== 'type-' + t.id" (click)="startEdit('type', t)"
+                                class="text-blue-600 dark:text-blue-400 px-2 text-sm font-medium hover:underline">{{ 'board.edit' | t }}</button>
+
+                        <button *ngIf="editingId === 'type-' + t.id" (click)="saveEdit('type')"
+                                class="text-green-600 dark:text-green-400 px-2 text-sm font-bold hover:underline">{{ 'board.save' | t }}</button>
+
+                        <button *ngIf="editingId === 'type-' + t.id" (click)="cancelEdit()"
+                                class="text-slate-500 dark:text-slate-400 px-2 text-sm hover:underline">{{ 'board.cancel' | t }}</button>
+
+                        <button (click)="deleteItem('type', t.id)"
+                                class="text-red-600 dark:text-red-400 px-2 text-sm font-medium hover:underline">{{ 'board.delete' | t }}</button>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <section class="flex flex-col space-y-4" *ngIf="can('can_manage_board')">
-        <h2 class="text-xl font-semibold text-red-600 dark:text-red-400">{{ 'board.danger' | t }}</h2>
-        <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
-            <p class="text-sm text-red-600 dark:text-red-400 mb-4">
-                {{ 'board.delete_warning' | t }}
-            </p>
-            <button (click)="deleteBoard()"
-                    class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 font-medium text-sm transition-colors shadow-sm">
-                {{ 'board.delete_permanently' | t }}
-            </button>
-        </div>
-    </section>
+        <section class="flex flex-col space-y-4">
+            <div class="flex items-center gap-4">
+                <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-100">{{ 'board.roles' | t }}</h2>
+                <span *ngIf="!can('can_manage_board')" class="text-red-500 dark:text-red-400 text-sm font-medium">
+                    {{ 'board.read_only' | t }}
+                </span>
+            </div>
+
+            <div *ngIf="can('can_manage_board')" class="flex flex-col p-4 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'board.new_role_name' | t }}</label>
+                    <input [(ngModel)]="newRole.name" placeholder="e.g. Designer"
+                           class="w-full border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 rounded-md shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                </div>
+
+                <div class="flex flex-wrap gap-4 text-sm bg-slate-50 dark:bg-slate-700/50 p-3 rounded-md border border-slate-200 dark:border-slate-600">
+                    <span class="w-full text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{{ 'board.permissions' | t }}</span>
+                    <label class="flex items-center gap-2 cursor-pointer hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400">
+                        <input type="checkbox" [(ngModel)]="newRole.can_manage_board" class="rounded text-indigo-600"> {{ 'board.perm_board' | t }}
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400">
+                        <input type="checkbox" [(ngModel)]="newRole.can_manage_members" class="rounded text-indigo-600"> {{ 'board.perm_members' | t }}
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400">
+                        <input type="checkbox" [(ngModel)]="newRole.can_manage_sprints" class="rounded text-indigo-600"> {{ 'board.perm_sprints' | t }}
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400">
+                        <input type="checkbox" [(ngModel)]="newRole.can_create_tasks" class="rounded text-indigo-600"> {{ 'board.perm_create' | t }}
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400">
+                        <input type="checkbox" [(ngModel)]="newRole.can_edit_tasks" class="rounded text-indigo-600"> {{ 'board.perm_edit' | t }}
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400">
+                        <input type="checkbox" [(ngModel)]="newRole.can_delete_tasks" class="rounded text-indigo-600"> {{ 'board.perm_delete' | t }}
+                    </label>
+                </div>
+                <button (click)="addRole()" [disabled]="!newRole.name"
+                        class="bg-indigo-600 text-white px-4 py-2 rounded w-full font-medium hover:bg-indigo-700 disabled:opacity-50 transition-colors">
+                    {{ 'board.create_role' | t }}
+                </button>
+            </div>
+
+            <div class="flex flex-col space-y-2">
+                <div *ngFor="let r of roles" class="flex flex-col p-4 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                    <div *ngIf="editingId !== 'role-' + r.id">
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="font-bold text-lg text-slate-800 dark:text-slate-100">{{ r.name }}</span>
+                            <div class="flex gap-2" *ngIf="can('can_manage_board')">
+                                <button (click)="startEdit('role', r)" class="text-blue-600 dark:text-blue-400 text-sm font-medium hover:underline">{{ 'board.edit' | t }}</button>
+                                <button (click)="deleteItem('role', r.id)" class="text-red-600 dark:text-red-400 text-sm font-medium hover:underline">{{ 'board.delete' | t }}</button>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <span *ngIf="r.can_manage_board" class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs rounded-md">{{ 'board.perm_badge_board' | t }}</span>
+                            <span *ngIf="r.can_manage_members" class="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 text-xs rounded-md">{{ 'board.perm_badge_members' | t }}</span>
+                            <span *ngIf="r.can_manage_sprints" class="px-2 py-1 bg-teal-100 dark:bg-teal-900/30 text-teal-800 dark:text-teal-300 text-xs rounded-md">{{ 'board.perm_badge_sprints' | t }}</span>
+                            <span *ngIf="r.can_create_tasks" class="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 text-xs rounded-md">{{ 'board.perm_badge_create' | t }}</span>
+                            <span *ngIf="r.can_edit_tasks" class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 text-xs rounded-md">{{ 'board.perm_badge_edit' | t }}</span>
+                            <span *ngIf="r.can_delete_tasks" class="px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 text-xs rounded-md">{{ 'board.perm_badge_delete' | t }}</span>
+                        </div>
+                    </div>
+
+                    <div *ngIf="editingId === 'role-' + r.id" class="flex flex-col space-y-3">
+                        <input [(ngModel)]="editBuffer.name" class="border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 p-2 rounded w-full focus:ring-2 focus:ring-indigo-500 outline-none transition-colors">
+                        <div class="flex flex-wrap gap-3 bg-slate-50 dark:bg-slate-700/50 p-2 rounded border border-slate-200 dark:border-slate-600">
+                            <label class="flex items-center gap-2 dark:text-slate-300"><input type="checkbox" [(ngModel)]="editBuffer.can_manage_board"> {{ 'board.perm_board' | t }}</label>
+                            <label class="flex items-center gap-2 dark:text-slate-300"><input type="checkbox" [(ngModel)]="editBuffer.can_manage_members"> {{ 'board.perm_members' | t }}</label>
+                            <label class="flex items-center gap-2 dark:text-slate-300"><input type="checkbox" [(ngModel)]="editBuffer.can_manage_sprints"> {{ 'board.perm_sprints' | t }}</label>
+                            <label class="flex items-center gap-2 dark:text-slate-300"><input type="checkbox" [(ngModel)]="editBuffer.can_create_tasks"> {{ 'board.perm_create' | t }}</label>
+                            <label class="flex items-center gap-2 dark:text-slate-300"><input type="checkbox" [(ngModel)]="editBuffer.can_edit_tasks"> {{ 'board.perm_edit' | t }}</label>
+                            <label class="flex items-center gap-2 dark:text-slate-300"><input type="checkbox" [(ngModel)]="editBuffer.can_delete_tasks"> {{ 'board.perm_delete' | t }}</label>
+                        </div>
+                        <div class="flex gap-2">
+                            <button (click)="saveEdit('role')" class="bg-green-600 text-white px-4 py-1 rounded text-sm font-bold hover:bg-green-700">{{ 'board.save' | t }}</button>
+                            <button (click)="cancelEdit()" class="bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-200 px-4 py-1 rounded text-sm font-medium hover:bg-slate-300 dark:hover:bg-slate-500">{{ 'board.cancel' | t }}</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="flex flex-col space-y-4" *ngIf="can('can_manage_board')">
+            <h2 class="text-xl font-semibold text-red-600 dark:text-red-400">{{ 'board.danger' | t }}</h2>
+            <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
+                <p class="text-sm text-red-600 dark:text-red-400 mb-4">
+                    {{ 'board.delete_warning' | t }}
+                </p>
+                <button (click)="deleteBoard()"
+                        class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 font-medium text-sm transition-colors shadow-sm">
+                    {{ 'board.delete_permanently' | t }}
+                </button>
+            </div>
+        </section>
+    </ng-container>
 </div>
