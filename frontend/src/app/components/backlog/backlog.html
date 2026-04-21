@@ -1,42 +1,42 @@
 <div class="p-8 max-w-5xl mx-auto flex flex-col space-y-8 bg-white dark:bg-slate-900 min-h-screen text-slate-900 dark:text-slate-100 transition-colors">
     <header class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-5">
         <div>
-            <h1 class="text-3xl font-bold text-slate-800 dark:text-slate-100">Backlog</h1>
+            <h1 class="text-3xl font-bold text-slate-800 dark:text-slate-100">{{ 'backlog.title' | t }}</h1>
             <p class="text-slate-500 dark:text-slate-400 mt-1 text-sm font-medium">{{ board?.title }}</p>
         </div>
         @if (canManageSprints) {
             <button (click)="showCreateSprint = !showCreateSprint"
                     class="bg-indigo-600 text-white px-5 py-2.5 rounded-lg shadow-sm hover:bg-indigo-700 transition-colors text-sm font-semibold">
-                Create Sprint
+                {{ 'backlog.create_sprint' | t }}
             </button>
         }
     </header>
 
     @if (showCreateSprint && canManageSprints) {
         <div class="p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm space-y-4">
-            <h3 class="font-bold text-slate-700 dark:text-slate-200">New Sprint</h3>
+            <h3 class="font-bold text-slate-700 dark:text-slate-200">{{ 'backlog.new_sprint' | t }}</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input [(ngModel)]="newSprint.name" placeholder="Sprint Name"
+                <input [(ngModel)]="newSprint.name" [placeholder]="'backlog.sprint_name_ph' | t"
                        class="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 p-2.5 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm text-slate-700">
                 <div class="flex gap-2">
                     <div class="w-full">
-                        <label class="block text-xs text-slate-500 mb-1">Start Date</label>
+                        <label class="block text-xs text-slate-500 mb-1">{{ 'backlog.start_date' | t }}</label>
                         <input type="datetime-local" [(ngModel)]="newSprint.start_date"
                                class="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
                     </div>
                     <div class="w-full">
-                        <label class="block text-xs text-slate-500 mb-1">End Date</label>
+                        <label class="block text-xs text-slate-500 mb-1">{{ 'backlog.end_date' | t }}</label>
                         <input type="datetime-local" [(ngModel)]="newSprint.end_date"
                                class="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
                     </div>
                 </div>
             </div>
-            <textarea [(ngModel)]="newSprint.goal" placeholder="What is the goal of this sprint?"
+            <textarea [(ngModel)]="newSprint.goal" [placeholder]="'backlog.goal_ph' | t"
                       class="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 p-2.5 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm text-slate-700 min-h-[80px]"></textarea>
             <div class="flex gap-3 pt-2">
-                <button (click)="createSprint()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg text-sm font-medium transition-colors">Save</button>
+                <button (click)="createSprint()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg text-sm font-medium transition-colors">{{ 'backlog.save' | t }}</button>
                 <button (click)="showCreateSprint = false"
-                        class="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 px-5 py-2 rounded-lg text-sm font-medium transition-colors">Cancel</button>
+                        class="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 px-5 py-2 rounded-lg text-sm font-medium transition-colors">{{ 'backlog.cancel' | t }}</button>
             </div>
         </div>
     }
@@ -52,16 +52,16 @@
                                 <h3 class="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-3 text-lg">
                                     {{ sprint.name }}
                                     @if (sprint.status === 'active') {
-                                        <span class="text-xs bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 px-2.5 py-1 rounded-full font-bold uppercase tracking-wider border border-indigo-200 dark:border-indigo-800">Active</span>
+                                        <span class="text-xs bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 px-2.5 py-1 rounded-full font-bold uppercase tracking-wider border border-indigo-200 dark:border-indigo-800">{{ 'backlog.active' | t }}</span>
                                     }
                                     @if (sprint.status === 'planned') {
-                                        <span class="text-xs bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-full font-bold uppercase tracking-wider border border-slate-300 dark:border-slate-600">Planned</span>
+                                        <span class="text-xs bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-full font-bold uppercase tracking-wider border border-slate-300 dark:border-slate-600">{{ 'backlog.planned' | t }}</span>
                                     }
                                     @if (sprint.status === 'paused') {
-                                        <span class="text-xs bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-400 px-2.5 py-1 rounded-full font-bold uppercase tracking-wider border border-yellow-200 dark:border-yellow-800">Paused</span>
+                                        <span class="text-xs bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-400 px-2.5 py-1 rounded-full font-bold uppercase tracking-wider border border-yellow-200 dark:border-yellow-800">{{ 'backlog.paused' | t }}</span>
                                     }
                                     @if (sprint.status === 'completed') {
-                                        <span class="text-xs bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 px-2.5 py-1 rounded-full font-bold uppercase tracking-wider border border-green-200 dark:border-green-800">Completed</span>
+                                        <span class="text-xs bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 px-2.5 py-1 rounded-full font-bold uppercase tracking-wider border border-green-200 dark:border-green-800">{{ 'backlog.completed' | t }}</span>
                                     }
                                 </h3>
                                 <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">{{ sprint.goal }}</p>
@@ -73,26 +73,26 @@
                             </div>
                             <div class="flex flex-col items-end gap-2">
                                 <div class="flex items-center gap-2">
-                                    <span class="text-sm font-medium text-slate-400 bg-white dark:bg-slate-700 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-600 shadow-sm">{{ sprint.tasks?.length || 0 }} tasks</span>
+                                    <span class="text-sm font-medium text-slate-400 bg-white dark:bg-slate-700 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-600 shadow-sm">{{ sprint.tasks?.length || 0 }} {{ 'backlog.tasks' | t }}</span>
                                     @if (canManageSprints) {
-                                        <button (click)="startEditSprint(sprint)" class="text-xs text-blue-500 hover:text-blue-600 font-medium ml-2">Edit</button>
+                                        <button (click)="startEditSprint(sprint)" class="text-xs text-blue-500 hover:text-blue-600 font-medium ml-2">{{ 'backlog.edit' | t }}</button>
                                     }
                                 </div>
                                 @if (canManageSprints) {
                                     <div class="flex gap-2 mt-2">
                                         @if (sprint.status === 'planned' || sprint.status === 'paused') {
                                             <button (click)="startSprint(sprint)" class="text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition-colors font-medium shadow-sm">
-                                                {{ sprint.status === 'paused' ? 'Resume' : 'Start' }}
+                                                {{ sprint.status === 'paused' ? ('backlog.resume' | t) : ('backlog.start' | t) }}
                                             </button>
                                         }
                                         @if (sprint.status === 'active') {
                                             <button (click)="pauseSprint(sprint)" class="text-xs bg-yellow-500 text-white px-3 py-1.5 rounded-lg hover:bg-yellow-600 transition-colors font-medium shadow-sm">
-                                                Pause
+                                                {{ 'backlog.pause' | t }}
                                             </button>
                                         }
                                         @if (sprint.status === 'active' || sprint.status === 'paused') {
                                             <button (click)="completeSprint(sprint)" class="text-xs bg-green-600 text-white px-3 py-1.5 rounded-lg hover:bg-green-700 transition-colors font-medium shadow-sm">
-                                                Complete
+                                                {{ 'backlog.complete' | t }}
                                             </button>
                                         }
                                     </div>
@@ -102,26 +102,26 @@
                     } @else {
                         <div class="space-y-4">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <input [(ngModel)]="editSprintBuffer.name" placeholder="Sprint Name"
+                                <input [(ngModel)]="editSprintBuffer.name" [placeholder]="'backlog.sprint_name_ph' | t"
                                        class="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
                                 <div class="flex gap-2">
                                     <div class="w-full">
-                                        <label class="block text-xs text-slate-500 mb-1">Start Date</label>
+                                        <label class="block text-xs text-slate-500 mb-1">{{ 'backlog.start_date' | t }}</label>
                                         <input type="datetime-local" [(ngModel)]="editSprintBuffer.start_date"
                                                class="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
                                     </div>
                                     <div class="w-full">
-                                        <label class="block text-xs text-slate-500 mb-1">End Date</label>
+                                        <label class="block text-xs text-slate-500 mb-1">{{ 'backlog.end_date' | t }}</label>
                                         <input type="datetime-local" [(ngModel)]="editSprintBuffer.end_date"
                                                class="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
                                     </div>
                                 </div>
                             </div>
-                            <textarea [(ngModel)]="editSprintBuffer.goal" placeholder="Goal"
+                            <textarea [(ngModel)]="editSprintBuffer.goal" [placeholder]="'backlog.goal_edit_ph' | t"
                                       class="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm min-h-[60px]"></textarea>
                             <div class="flex gap-2">
-                                <button (click)="saveSprint(sprint.id)" class="bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-colors">Save</button>
-                                <button (click)="cancelEditSprint()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-700 dark:text-slate-200 px-4 py-1.5 rounded-lg text-sm font-medium transition-colors">Cancel</button>
+                                <button (click)="saveSprint(sprint.id)" class="bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-colors">{{ 'backlog.save' | t }}</button>
+                                <button (click)="cancelEditSprint()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-700 dark:text-slate-200 px-4 py-1.5 rounded-lg text-sm font-medium transition-colors">{{ 'backlog.cancel' | t }}</button>
                             </div>
                         </div>
                     }
@@ -134,12 +134,12 @@
                                 <span class="font-medium text-slate-700 dark:text-slate-200 text-sm">{{ task.title }}</span>
                             </div>
                             <button (click)="moveTask(task.id, null)"
-                                    class="opacity-0 group-hover:opacity-100 text-xs font-medium text-slate-400 hover:text-red-500 dark:hover:text-red-400 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 px-3 py-1 rounded-md shadow-sm transition-all">Move to Backlog</button>
+                                    class="opacity-0 group-hover:opacity-100 text-xs font-medium text-slate-400 hover:text-red-500 dark:hover:text-red-400 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 px-3 py-1 rounded-md shadow-sm transition-all">{{ 'backlog.move_to_backlog' | t }}</button>
                         </div>
                     }
                     @if (sprint.tasks?.length === 0) {
                         <div class="p-10 text-center text-slate-400 dark:text-slate-500 text-sm bg-slate-50/50 dark:bg-slate-800/30">
-                            Sprint is empty. Move tasks here from the backlog.
+                            {{ 'backlog.sprint_empty' | t }}
                         </div>
                     }
                 </div>
@@ -148,8 +148,8 @@
 
         <div class="border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 shadow-sm overflow-hidden">
             <div class="bg-slate-100 dark:bg-slate-700/50 text-slate-800 dark:text-slate-100 p-5 flex items-center justify-between border-b border-slate-200 dark:border-slate-700">
-                <h3 class="font-bold text-lg">Backlog</h3>
-                <span class="text-xs bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-full font-bold uppercase tracking-wider">{{ backlogTasks.length }} tasks</span>
+                <h3 class="font-bold text-lg">{{ 'backlog.title' | t }}</h3>
+                <span class="text-xs bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-full font-bold uppercase tracking-wider">{{ backlogTasks.length }} {{ 'backlog.tasks' | t }}</span>
             </div>
             <div class="flex flex-col divide-y divide-slate-100 dark:divide-slate-700">
                 @for (task of backlogTasks; track task.id) {
@@ -157,14 +157,14 @@
                         <span class="font-medium text-slate-700 dark:text-slate-200 text-sm">{{ task.title }}</span>
                         <select (change)="moveTask(task.id, $any($event.target).value)"
                                 class="opacity-0 group-hover:opacity-100 text-xs border border-slate-300 dark:border-slate-600 rounded-md py-1.5 px-2 bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none shadow-sm transition-all">
-                            <option value="">Move to...</option>
+                            <option value="">{{ 'backlog.move_to' | t }}</option>
                             @for (s of sprints; track s.id) { <option [value]="s.id">{{ s.name }}</option> }
                         </select>
                     </div>
                 }
                 @if (backlogTasks.length === 0) {
                     <div class="p-10 text-center text-slate-400 dark:text-slate-500 text-sm bg-slate-50/50 dark:bg-slate-800/30">
-                        No tasks in backlog.
+                        {{ 'backlog.no_tasks' | t }}
                     </div>
                 }
             </div>

@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 import { UserService } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
 import { ConfirmService } from '../../services/confirm.service';
@@ -10,7 +11,7 @@ import { BoardService } from '../../services/board.service';
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslatePipe],
   templateUrl: './profile.html'
 })
 export class ProfileComponent implements OnInit {

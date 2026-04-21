@@ -1,6 +1,6 @@
 import { Injectable, Inject, PLATFORM_ID, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap, switchMap } from 'rxjs';
+import { BehaviorSubject, Observable, of, tap, switchMap, catchError } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { environment } from "../../environments/environment";
@@ -50,7 +50,9 @@ export class AuthService {
             this.toastService.show('Successfully logged in');
           }
         }),
-        switchMap(() => this.getCurrentUserProfile())
+        switchMap(() => this.getCurrentUserProfile().pipe(
+            catchError(() => of(null))
+        ))
     );
   }
 

@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 import { BoardService } from '../../services/board.service';
 import { TaskService } from '../../services/task.service';
 import { of, forkJoin } from 'rxjs';
@@ -12,7 +13,7 @@ import { Task } from '../../models/task.model';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, TranslatePipe],
   templateUrl: './dashboard.html'
 })
 export class DashboardComponent implements OnInit {

@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, ChangeDetectorRef, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 import { BoardService } from '../../services/board.service';
 import { AuthService } from '../../services/auth.service';
 import { Board } from '../../models/board.model';
@@ -8,7 +9,7 @@ import { Board } from '../../models/board.model';
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, TranslatePipe],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.css'
 })

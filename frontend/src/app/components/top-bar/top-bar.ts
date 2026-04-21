@@ -3,13 +3,16 @@ import { Component, Output, EventEmitter, OnInit, inject, ChangeDetectorRef } fr
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ThemeService } from '../../services/theme.service';
+import { LangService } from '../../services/lang.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
+import { LangDropdownComponent } from '../lang-dropdown/lang-dropdown';
 import { User } from '../../models/user.model';
 import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-top-bar',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, TranslatePipe, LangDropdownComponent],
   templateUrl: './top-bar.html',
   styleUrl: './top-bar.css',
 })
@@ -18,6 +21,7 @@ export class TopBarComponent implements OnInit {
 
   private authService = inject(AuthService);
   public themeService = inject(ThemeService);
+  public langService = inject(LangService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
 

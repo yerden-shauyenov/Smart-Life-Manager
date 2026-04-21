@@ -3,11 +3,15 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { ThemeService } from '../../services/theme.service';
+import { LangService } from '../../services/lang.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
+import { LangDropdownComponent } from '../lang-dropdown/lang-dropdown';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe, LangDropdownComponent],
   templateUrl: './register.html'
 })
 export class RegisterComponent {
@@ -25,7 +29,9 @@ export class RegisterComponent {
   constructor(
       private authService: AuthService,
       private router: Router,
-      private cdr: ChangeDetectorRef
+      private cdr: ChangeDetectorRef,
+      public themeService: ThemeService,
+      public langService: LangService
   ) {}
 
   onSubmit() {

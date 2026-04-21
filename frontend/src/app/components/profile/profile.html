@@ -1,82 +1,82 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div class="flex items-baseline justify-between mb-6">
-        <h1 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">User Profile</h1>
+        <h1 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{{ 'profile.title' | t }}</h1>
     </div>
 
     <div class="flex flex-col md:flex-row gap-8">
         <div class="w-full md:w-64 flex flex-col gap-2">
             <button (click)="activeTab = 'general'"
                     [ngClass]="{'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400': activeTab === 'general', 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700': activeTab !== 'general'}"
-                    class="px-4 py-2 text-sm font-medium text-left rounded-md transition-colors">General Settings</button>
+                    class="px-4 py-2 text-sm font-medium text-left rounded-md transition-colors">{{ 'profile.general' | t }}</button>
             <button (click)="activeTab = 'security'"
                     [ngClass]="{'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400': activeTab === 'security', 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700': activeTab !== 'security'}"
-                    class="px-4 py-2 text-sm font-medium text-left rounded-md transition-colors">Security</button>
+                    class="px-4 py-2 text-sm font-medium text-left rounded-md transition-colors">{{ 'profile.security' | t }}</button>
             <button (click)="activeTab = 'sessions'"
                     [ngClass]="{'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400': activeTab === 'sessions', 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700': activeTab !== 'sessions'}"
                     class="px-4 py-2 text-sm font-medium text-left rounded-md flex justify-between transition-colors">
-                Sessions
+                {{ 'profile.sessions' | t }}
                 <span *ngIf="sessions.length" class="bg-slate-100 dark:bg-slate-600 text-slate-600 dark:text-slate-300 py-0.5 px-2 rounded-full text-xs">{{sessions.length}}</span>
             </button>
             <button (click)="activeTab = 'invitations'"
                     [ngClass]="{'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400': activeTab === 'invitations', 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700': activeTab !== 'invitations'}"
                     class="px-4 py-2 text-sm font-medium text-left rounded-md flex justify-between transition-colors">
-                Invitations
+                {{ 'profile.invitations' | t }}
                 <span *ngIf="invitations.length + transfers.length" class="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 py-0.5 px-2 rounded-full text-xs">{{invitations.length + transfers.length}}</span>
             </button>
         </div>
 
         <div class="flex-1 bg-white dark:bg-slate-800 shadow rounded-lg p-6">
             <div *ngIf="activeTab === 'general'">
-                <h2 class="text-lg font-medium text-slate-900 dark:text-slate-100 mb-4">Profile Information</h2>
+                <h2 class="text-lg font-medium text-slate-900 dark:text-slate-100 mb-4">{{ 'profile.info' | t }}</h2>
                 <div class="flex items-center gap-6 mb-6">
                     <img [src]="previewUrl || user?.avatar || 'assets/default-avatar.png'" alt="Avatar"
                          class="w-20 h-20 rounded-full object-cover bg-slate-100 dark:bg-slate-700 border dark:border-slate-600">
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Change Photo</label>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">{{ 'profile.change_photo' | t }}</label>
                         <input type="file" (change)="onFileSelected($event)" accept="image/*" class="text-sm dark:text-slate-300">
                     </div>
                 </div>
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 mb-6">
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">First Name</label>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'profile.first_name' | t }}</label>
                         <input type="text" [(ngModel)]="editData.first_name"
                                class="w-full border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border p-2">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Last Name</label>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'profile.last_name' | t }}</label>
                         <input type="text" [(ngModel)]="editData.last_name"
                                class="w-full border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border p-2">
                     </div>
                 </div>
-                <button (click)="updateProfile()" class="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm font-medium hover:bg-indigo-700">Save Changes</button>
+                <button (click)="updateProfile()" class="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm font-medium hover:bg-indigo-700">{{ 'profile.save' | t }}</button>
             </div>
 
             <div *ngIf="activeTab === 'security'">
-                <h2 class="text-lg font-medium text-slate-900 dark:text-slate-100 mb-4">Change Password</h2>
+                <h2 class="text-lg font-medium text-slate-900 dark:text-slate-100 mb-4">{{ 'profile.change_password' | t }}</h2>
                 <div class="flex flex-col gap-4 max-w-sm mb-6">
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Current Password</label>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'profile.current_password' | t }}</label>
                         <input type="password" [(ngModel)]="passwordData.old_password"
                                class="w-full border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border p-2">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">New Password</label>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'profile.new_password' | t }}</label>
                         <input type="password" [(ngModel)]="passwordData.new_password"
                                class="w-full border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border p-2">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Confirm New Password</label>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ 'profile.confirm_password' | t }}</label>
                         <input type="password" [(ngModel)]="passwordData.confirm_password"
                                class="w-full border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border p-2">
                         <p *ngIf="passwordData.new_password && passwordData.confirm_password && passwordData.new_password !== passwordData.confirm_password"
                            class="text-xs text-red-600 dark:text-red-400 mt-1">
-                            Passwords do not match
+                            {{ 'profile.passwords_no_match' | t }}
                         </p>
                     </div>
                 </div>
                 <button (click)="changePassword()"
                         [disabled]="!passwordData.old_password || !passwordData.new_password || !passwordData.confirm_password || passwordData.new_password !== passwordData.confirm_password"
-                        class="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm font-medium hover:bg-indigo-700 disabled:opacity-50">Update Password</button>
+                        class="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm font-medium hover:bg-indigo-700 disabled:opacity-50">{{ 'profile.update_password' | t }}</button>
 
                 <div *ngIf="changePasswordError != ''" class="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 rounded-md text-sm font-medium">
                     {{ changePasswordError }}
@@ -88,7 +88,7 @@
             </div>
 
             <div *ngIf="activeTab === 'sessions'">
-                <h2 class="text-lg font-medium text-slate-900 dark:text-slate-100 mb-4">Active Sessions</h2>
+                <h2 class="text-lg font-medium text-slate-900 dark:text-slate-100 mb-4">{{ 'profile.active_sessions' | t }}</h2>
                 <div class="flex flex-col gap-4">
                     <div *ngFor="let session of sessions"
                          class="flex items-center justify-between p-4 border dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-700">
@@ -97,48 +97,48 @@
                             <p class="text-sm text-slate-500 dark:text-slate-400">IP: {{ session.ip_address }} | Device: {{ session.device }}</p>
                             <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">Last Activity: {{ session.last_activity | date:'short' }}</p>
                         </div>
-                        <button (click)="revokeSession(session.id)" class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 text-sm font-medium">Revoke</button>
+                        <button (click)="revokeSession(session.id)" class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 text-sm font-medium">{{ 'profile.revoke' | t }}</button>
                     </div>
-                    <p *ngIf="!sessions.length" class="text-sm text-slate-500 dark:text-slate-400">No active sessions found.</p>
+                    <p *ngIf="!sessions.length" class="text-sm text-slate-500 dark:text-slate-400">{{ 'profile.no_sessions' | t }}</p>
                 </div>
             </div>
 
             <div *ngIf="activeTab === 'invitations'">
-                <h2 class="text-lg font-medium text-slate-900 dark:text-slate-100 mb-4">Incoming Invitations</h2>
+                <h2 class="text-lg font-medium text-slate-900 dark:text-slate-100 mb-4">{{ 'profile.incoming_invitations' | t }}</h2>
 
                 <div class="mb-8">
-                    <h3 class="text-sm font-medium text-slate-700 dark:text-slate-400 uppercase mb-3">Board Invitations</h3>
+                    <h3 class="text-sm font-medium text-slate-700 dark:text-slate-400 uppercase mb-3">{{ 'profile.board_invitations' | t }}</h3>
                     <div class="flex flex-col gap-3">
                         <div *ngFor="let inv of invitations"
                              class="p-4 border dark:border-slate-700 rounded-lg flex items-center justify-between bg-white dark:bg-slate-700">
                             <div>
                                 <p class="font-medium text-slate-900 dark:text-slate-100">{{ inv.board.name }}</p>
-                                <p class="text-sm text-slate-500 dark:text-slate-400">From: {{ inv.inviter.first_name }} {{ inv.inviter.last_name }} ({{ inv.inviter.email }})</p>
+                                <p class="text-sm text-slate-500 dark:text-slate-400">{{ 'profile.from' | t }} {{ inv.inviter.first_name }} {{ inv.inviter.last_name }} ({{ inv.inviter.email }})</p>
                             </div>
                             <div class="flex gap-2">
-                                <button (click)="respondInvitation(inv.id, 'accept')" class="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700">Accept</button>
-                                <button (click)="respondInvitation(inv.id, 'reject')" class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">Decline</button>
+                                <button (click)="respondInvitation(inv.id, 'accept')" class="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700">{{ 'profile.accept' | t }}</button>
+                                <button (click)="respondInvitation(inv.id, 'reject')" class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">{{ 'profile.decline' | t }}</button>
                             </div>
                         </div>
-                        <p *ngIf="!invitations.length" class="text-sm text-slate-500 dark:text-slate-400">You have no new invitations.</p>
+                        <p *ngIf="!invitations.length" class="text-sm text-slate-500 dark:text-slate-400">{{ 'profile.no_invitations' | t }}</p>
                     </div>
                 </div>
 
                 <div>
-                    <h3 class="text-sm font-medium text-slate-700 dark:text-slate-400 uppercase mb-3">Ownership Transfers</h3>
+                    <h3 class="text-sm font-medium text-slate-700 dark:text-slate-400 uppercase mb-3">{{ 'profile.ownership_transfers' | t }}</h3>
                     <div class="flex flex-col gap-3">
                         <div *ngFor="let trans of transfers"
                              class="p-4 border border-yellow-200 dark:border-yellow-800 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg flex items-center justify-between">
                             <div>
                                 <p class="font-medium text-slate-900 dark:text-slate-100">{{ trans.board.name }}</p>
-                                <p class="text-sm text-slate-500 dark:text-slate-400">Current Owner: {{ trans.from_user.first_name }} ({{ trans.from_user.email }}) is transferring ownership to you.</p>
+                                <p class="text-sm text-slate-500 dark:text-slate-400">{{ trans.from_user.first_name }} ({{ trans.from_user.email }}) {{ 'profile.transferring' | t }}</p>
                             </div>
                             <div class="flex gap-2">
-                                <button (click)="respondTransfer(trans.id, 'accept')" class="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700">Accept Ownership</button>
-                                <button (click)="respondTransfer(trans.id, 'reject')" class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">Decline</button>
+                                <button (click)="respondTransfer(trans.id, 'accept')" class="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700">{{ 'profile.accept_ownership' | t }}</button>
+                                <button (click)="respondTransfer(trans.id, 'reject')" class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">{{ 'profile.decline' | t }}</button>
                             </div>
                         </div>
-                        <p *ngIf="!transfers.length" class="text-sm text-slate-500 dark:text-slate-400">No ownership transfer requests.</p>
+                        <p *ngIf="!transfers.length" class="text-sm text-slate-500 dark:text-slate-400">{{ 'profile.no_transfers' | t }}</p>
                     </div>
                 </div>
             </div>

@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { BoardService } from '../../services/board.service';
@@ -13,7 +14,7 @@ import { AuthService } from '../../services/auth.service';
 @Component({
   selector: 'app-board-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, TranslatePipe],
   templateUrl: './board-settings.html'
 })
 export class BoardSettingsComponent implements OnInit {

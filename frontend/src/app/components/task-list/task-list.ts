@@ -12,11 +12,12 @@ import { AuthService } from '../../services/auth.service';
 import { Task, Comment } from '../../models/task.model';
 import { Board, TaskStatus, TaskPriority, Sprint, TaskType, BoardMembership } from '../../models/board.model';
 import { MarkdownPipe } from '../../pipes/markdown.pipe';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 @Component({
   selector: 'app-task-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, MarkdownPipe],
+  imports: [CommonModule, FormsModule, RouterModule, MarkdownPipe, TranslatePipe],
   templateUrl: './task-list.html',
   styleUrl: './task-list.css'
 })

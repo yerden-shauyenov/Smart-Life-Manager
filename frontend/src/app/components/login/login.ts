@@ -4,12 +4,15 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ThemeService } from '../../services/theme.service';
+import { LangService } from '../../services/lang.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
+import { LangDropdownComponent } from '../lang-dropdown/lang-dropdown';
 
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, TranslatePipe, LangDropdownComponent],
   templateUrl: './login.html'
 })
 export class LoginComponent {
@@ -24,7 +27,8 @@ export class LoginComponent {
       private authService: AuthService,
       private router: Router,
       private cdr: ChangeDetectorRef,
-      public themeService: ThemeService
+      public themeService: ThemeService,
+      public langService: LangService
   ) {}
 
   onSubmit() {

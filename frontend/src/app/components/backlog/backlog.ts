@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BoardService } from '../../services/board.service';
 import { AuthService } from '../../services/auth.service';
@@ -10,7 +11,7 @@ import { forkJoin } from 'rxjs';
 @Component({
   selector: 'app-backlog',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslatePipe],
   templateUrl: './backlog.html'
 })
 export class BacklogComponent implements OnInit {
