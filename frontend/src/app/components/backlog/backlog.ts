@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BoardService } from '../../services/board.service';
-import { Sprint, Board } from '../../models/board.model';
+import { AuthService } from '../../services/auth.service';
+import { Sprint, Board, BoardRole, BoardMembership } from '../../models/board.model';
 import { forkJoin } from 'rxjs';
 
 @Component({
@@ -16,6 +17,7 @@ export class BacklogComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private boardService = inject(BoardService);
+  private authService = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
 
   boardId!: number;
@@ -23,13 +25,25 @@ export class BacklogComponent implements OnInit {
   sprints: any[] = [];
   backlogTasks: any[] = [];
 
+  currentUser: any = null;
+  userPermissions: any = null;
+  roles: BoardRole[] = [];
+  memberships: BoardMembership[] = [];
+
   showCreateSprint = false;
-  newSprint: Partial<Sprint> = { name: '', goal: '' };
+  newSprint: Partial<Sprint> = { name: '', goal: '', start_date: '', end_date: '' };
+
+  editingSprintId: number | null = null;
+  editSprintBuffer: Partial<Sprint> = {};
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
       this.boardId = Number(params.get('id'));
       this.loadData();
+    });
+    this.authService.currentUser$.subscribe(user => {
+      this.currentUser = user;
+      this.cdr.detectChanges();
     });
   }
 
@@ -37,11 +51,21 @@ export class BacklogComponent implements OnInit {
     forkJoin({
       board: this.boardService.getBoard(this.boardId),
       sprints: this.boardService.getSprints(this.boardId),
-      tasks: this.boardService.getTasks(this.boardId, 'none')
+      tasks: this.boardService.getTasks(this.boardId, 'none'),
+      roles: this.boardService.getRoles(this.boardId),
+      memberships: this.boardService.getMemberships(this.boardId)
     }).subscribe({
       next: (res) => {
         this.board = res.board;
         this.backlogTasks = res.tasks;
+        this.roles = res.roles;
+        this.memberships = res.memberships;
+
+        const myMembership = this.memberships.find(m => m.user === this.currentUser?.id);
+        if (myMembership) {
+          this.userPermissions = this.roles.find(r => r.id === myMembership.role);
+        }
+
         this.sprints = res.sprints.map((s: any) => ({ ...s, tasks: [] }));
 
         let loadedSprints = 0;
@@ -62,18 +86,68 @@ export class BacklogComponent implements OnInit {
     });
   }
 
+  get canManageSprints(): boolean {
+    if (this.board?.owner === this.currentUser?.username?.toString() || this.board?.owner === this.currentUser?.id?.toString()) {
+      return true;
+    }
+    return this.userPermissions ? (!!this.userPermissions.can_manage_sprints || !!this.userPermissions.can_manage_board) : false;
+  }
+
   createSprint(): void {
     if (!this.newSprint.name) return;
-    this.boardService.createSprint({ ...this.newSprint, board: this.boardId }).subscribe(() => {
-      this.newSprint = { name: '', goal: '' };
+
+    const payload: any = { ...this.newSprint, board: this.boardId };
+    if (!payload.start_date) payload.start_date = null;
+    if (!payload.end_date) payload.end_date = null;
+
+    this.boardService.createSprint(payload).subscribe(() => {
+      this.newSprint = { name: '', goal: '', start_date: '', end_date: '' };
       this.showCreateSprint = false;
       this.loadData();
     });
   }
 
+  startEditSprint(sprint: Sprint): void {
+    this.editingSprintId = sprint.id;
+    this.editSprintBuffer = {
+      name: sprint.name,
+      goal: sprint.goal,
+      start_date: sprint.start_date ? sprint.start_date.substring(0, 16) : '',
+      end_date: sprint.end_date ? sprint.end_date.substring(0, 16) : ''
+    };
+  }
+
+  cancelEditSprint(): void {
+    this.editingSprintId = null;
+    this.editSprintBuffer = {};
+  }
+
+  saveSprint(sprintId: number): void {
+    const payload: any = { ...this.editSprintBuffer };
+    if (!payload.start_date) payload.start_date = null;
+    if (!payload.end_date) payload.end_date = null;
+
+    this.boardService.updateSprint(sprintId, payload).subscribe(() => {
+      this.editingSprintId = null;
+      this.loadData();
+    });
+  }
+
   startSprint(sprint: Sprint): void {
-    this.boardService.updateSprint(sprint.id, { is_active: true }).subscribe(() => {
-      this.router.navigate(['/boards', this.boardId]);
+    this.boardService.startSprint(sprint.id).subscribe(() => {
+      this.loadData();
+    });
+  }
+
+  pauseSprint(sprint: Sprint): void {
+    this.boardService.pauseSprint(sprint.id).subscribe(() => {
+      this.loadData();
+    });
+  }
+
+  completeSprint(sprint: Sprint): void {
+    this.boardService.completeSprint(sprint.id).subscribe(() => {
+      this.loadData();
     });
   }
 

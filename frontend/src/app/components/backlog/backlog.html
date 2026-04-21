@@ -4,17 +4,33 @@
             <h1 class="text-3xl font-bold text-slate-800 dark:text-slate-100">Backlog</h1>
             <p class="text-slate-500 dark:text-slate-400 mt-1 text-sm font-medium">{{ board?.title }}</p>
         </div>
-        <button (click)="showCreateSprint = !showCreateSprint"
-                class="bg-indigo-600 text-white px-5 py-2.5 rounded-lg shadow-sm hover:bg-indigo-700 transition-colors text-sm font-semibold">
-            Create Sprint
-        </button>
+        @if (canManageSprints) {
+            <button (click)="showCreateSprint = !showCreateSprint"
+                    class="bg-indigo-600 text-white px-5 py-2.5 rounded-lg shadow-sm hover:bg-indigo-700 transition-colors text-sm font-semibold">
+                Create Sprint
+            </button>
+        }
     </header>
 
-    @if (showCreateSprint) {
+    @if (showCreateSprint && canManageSprints) {
         <div class="p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm space-y-4">
             <h3 class="font-bold text-slate-700 dark:text-slate-200">New Sprint</h3>
-            <input [(ngModel)]="newSprint.name" placeholder="Sprint Name"
-                   class="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 p-2.5 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm text-slate-700">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input [(ngModel)]="newSprint.name" placeholder="Sprint Name"
+                       class="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 p-2.5 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm text-slate-700">
+                <div class="flex gap-2">
+                    <div class="w-full">
+                        <label class="block text-xs text-slate-500 mb-1">Start Date</label>
+                        <input type="datetime-local" [(ngModel)]="newSprint.start_date"
+                               class="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
+                    </div>
+                    <div class="w-full">
+                        <label class="block text-xs text-slate-500 mb-1">End Date</label>
+                        <input type="datetime-local" [(ngModel)]="newSprint.end_date"
+                               class="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
+                    </div>
+                </div>
+            </div>
             <textarea [(ngModel)]="newSprint.goal" placeholder="What is the goal of this sprint?"
                       class="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 p-2.5 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm text-slate-700 min-h-[80px]"></textarea>
             <div class="flex gap-3 pt-2">
@@ -28,25 +44,87 @@
     <section class="flex flex-col space-y-8">
         @for (sprint of sprints; track sprint.id) {
             <div class="border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 shadow-sm overflow-hidden">
-                <div class="bg-slate-50 dark:bg-slate-700/50 p-5 flex justify-between items-center border-b border-slate-200 dark:border-slate-700">
-                    <div>
-                        <h3 class="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-3 text-lg">
-                            {{ sprint.name }}
-                            @if (sprint.is_active) {
-                                <span class="text-xs bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 px-2.5 py-1 rounded-full font-bold uppercase tracking-wider border border-indigo-200 dark:border-indigo-800">Active</span>
-                            }
-                        </h3>
-                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">{{ sprint.goal }}</p>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <span class="text-sm font-medium text-slate-400 bg-white dark:bg-slate-700 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-600 shadow-sm">{{ sprint.tasks?.length || 0 }} tasks</span>
-                        @if (!sprint.is_active) {
-                            <button (click)="startSprint(sprint)"
-                                    class="text-sm bg-indigo-600 dark:bg-slate-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 dark:hover:bg-slate-500 transition-colors font-medium shadow-sm">
-                                Start Sprint
-                            </button>
-                        }
-                    </div>
+                <div class="bg-slate-50 dark:bg-slate-700/50 p-5 border-b border-slate-200 dark:border-slate-700">
+
+                    @if (editingSprintId !== sprint.id) {
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-3 text-lg">
+                                    {{ sprint.name }}
+                                    @if (sprint.status === 'active') {
+                                        <span class="text-xs bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 px-2.5 py-1 rounded-full font-bold uppercase tracking-wider border border-indigo-200 dark:border-indigo-800">Active</span>
+                                    }
+                                    @if (sprint.status === 'planned') {
+                                        <span class="text-xs bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-full font-bold uppercase tracking-wider border border-slate-300 dark:border-slate-600">Planned</span>
+                                    }
+                                    @if (sprint.status === 'paused') {
+                                        <span class="text-xs bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-400 px-2.5 py-1 rounded-full font-bold uppercase tracking-wider border border-yellow-200 dark:border-yellow-800">Paused</span>
+                                    }
+                                    @if (sprint.status === 'completed') {
+                                        <span class="text-xs bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 px-2.5 py-1 rounded-full font-bold uppercase tracking-wider border border-green-200 dark:border-green-800">Completed</span>
+                                    }
+                                </h3>
+                                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">{{ sprint.goal }}</p>
+                                @if (sprint.start_date || sprint.end_date) {
+                                    <p class="text-xs text-slate-400 mt-2 font-medium">
+                                        {{ sprint.start_date | date:'short' }} - {{ sprint.end_date | date:'short' }}
+                                    </p>
+                                }
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm font-medium text-slate-400 bg-white dark:bg-slate-700 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-600 shadow-sm">{{ sprint.tasks?.length || 0 }} tasks</span>
+                                    @if (canManageSprints) {
+                                        <button (click)="startEditSprint(sprint)" class="text-xs text-blue-500 hover:text-blue-600 font-medium ml-2">Edit</button>
+                                    }
+                                </div>
+                                @if (canManageSprints) {
+                                    <div class="flex gap-2 mt-2">
+                                        @if (sprint.status === 'planned' || sprint.status === 'paused') {
+                                            <button (click)="startSprint(sprint)" class="text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition-colors font-medium shadow-sm">
+                                                {{ sprint.status === 'paused' ? 'Resume' : 'Start' }}
+                                            </button>
+                                        }
+                                        @if (sprint.status === 'active') {
+                                            <button (click)="pauseSprint(sprint)" class="text-xs bg-yellow-500 text-white px-3 py-1.5 rounded-lg hover:bg-yellow-600 transition-colors font-medium shadow-sm">
+                                                Pause
+                                            </button>
+                                        }
+                                        @if (sprint.status === 'active' || sprint.status === 'paused') {
+                                            <button (click)="completeSprint(sprint)" class="text-xs bg-green-600 text-white px-3 py-1.5 rounded-lg hover:bg-green-700 transition-colors font-medium shadow-sm">
+                                                Complete
+                                            </button>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    } @else {
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <input [(ngModel)]="editSprintBuffer.name" placeholder="Sprint Name"
+                                       class="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
+                                <div class="flex gap-2">
+                                    <div class="w-full">
+                                        <label class="block text-xs text-slate-500 mb-1">Start Date</label>
+                                        <input type="datetime-local" [(ngModel)]="editSprintBuffer.start_date"
+                                               class="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
+                                    </div>
+                                    <div class="w-full">
+                                        <label class="block text-xs text-slate-500 mb-1">End Date</label>
+                                        <input type="datetime-local" [(ngModel)]="editSprintBuffer.end_date"
+                                               class="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
+                                    </div>
+                                </div>
+                            </div>
+                            <textarea [(ngModel)]="editSprintBuffer.goal" placeholder="Goal"
+                                      class="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm min-h-[60px]"></textarea>
+                            <div class="flex gap-2">
+                                <button (click)="saveSprint(sprint.id)" class="bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-colors">Save</button>
+                                <button (click)="cancelEditSprint()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-700 dark:text-slate-200 px-4 py-1.5 rounded-lg text-sm font-medium transition-colors">Cancel</button>
+                            </div>
+                        </div>
+                    }
                 </div>
 
                 <div class="flex flex-col divide-y divide-slate-100 dark:divide-slate-700">

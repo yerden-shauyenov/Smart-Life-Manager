@@ -214,6 +214,24 @@ export class BoardService {
     );
   }
 
+  startSprint(id: number): Observable<Sprint> {
+    return this.http.post<Sprint>(`${this.apiUrl}sprints/${id}/start/`, {}).pipe(
+        tap(() => this.toastService.show('Sprint started'))
+    );
+  }
+
+  pauseSprint(id: number): Observable<Sprint> {
+    return this.http.post<Sprint>(`${this.apiUrl}sprints/${id}/pause/`, {}).pipe(
+        tap(() => this.toastService.show('Sprint paused'))
+    );
+  }
+
+  completeSprint(id: number): Observable<Sprint> {
+    return this.http.post<Sprint>(`${this.apiUrl}sprints/${id}/complete/`, {}).pipe(
+        tap(() => this.toastService.show('Sprint completed'))
+    );
+  }
+
   getTasks(boardId: number, sprintId?: number | 'none'): Observable<any[]> {
     let params = new HttpParams().set('board', boardId.toString());
     if (sprintId) {

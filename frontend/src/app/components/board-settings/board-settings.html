@@ -59,7 +59,7 @@
             <div *ngFor="let m of memberships" class="flex items-center justify-between p-4 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 shadow-sm">
                 <div class="flex items-center gap-3">
                     <img [src]="m.user_avatar || 'assets/default-avatar.png'"
-                        class="w-10 h-10 rounded-full object-cover bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600">
+                         class="w-10 h-10 rounded-full object-cover bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600">
                     <div>
                         <p class="font-bold text-lg text-slate-800 dark:text-slate-100">{{ m.user_username }}</p>
                         <p class="text-sm text-slate-500 dark:text-slate-400">Role: {{ m.role_name }}</p>
@@ -208,7 +208,7 @@
                 <div class="flex-1">
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Type Name</label>
                     <input [(ngModel)]="newType.name" placeholder="e.g. Bug"
-                        class="w-full border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 rounded-md shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                           class="w-full border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 rounded-md shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
                 </div>
 
                 <button (click)="addType()" [disabled]="!newType.name"
@@ -238,11 +238,11 @@
                 <div *ngIf="editingId !== 'type-' + t.id" class="flex items-center gap-4">
                     <div class="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-md">
                         <lucide-icon
-                            [name]="t.icon_name === 'task-icon' ? 'check-square' :
+                                [name]="t.icon_name === 'task-icon' ? 'check-square' :
                                     t.icon_name === 'story-icon' ? 'book-open' :
                                     t.icon_name === 'epic-icon' ? 'zap' :
                                     (t.icon_name || 'bookmark').split('-icon')[0]"
-                            class="w-5 h-5 text-indigo-600 dark:text-indigo-400">
+                                class="w-5 h-5 text-indigo-600 dark:text-indigo-400">
                         </lucide-icon>
                     </div>
                     <div class="flex flex-col">
@@ -289,7 +289,7 @@
             <div>
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">New Role Name</label>
                 <input [(ngModel)]="newRole.name" placeholder="e.g. Designer"
-                    class="w-full border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 rounded-md shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                       class="w-full border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 rounded-md shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
             </div>
 
             <div class="flex flex-wrap gap-4 text-sm bg-slate-50 dark:bg-slate-700/50 p-3 rounded-md border border-slate-200 dark:border-slate-600">
@@ -299,6 +299,9 @@
                 </label>
                 <label class="flex items-center gap-2 cursor-pointer hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400">
                     <input type="checkbox" [(ngModel)]="newRole.can_manage_members" class="rounded text-indigo-600"> Members
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400">
+                    <input type="checkbox" [(ngModel)]="newRole.can_manage_sprints" class="rounded text-indigo-600"> Sprints
                 </label>
                 <label class="flex items-center gap-2 cursor-pointer hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400">
                     <input type="checkbox" [(ngModel)]="newRole.can_create_tasks" class="rounded text-indigo-600"> Create
@@ -329,6 +332,7 @@
                     <div class="flex flex-wrap gap-2">
                         <span *ngIf="r.can_manage_board" class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs rounded-md">Board Management</span>
                         <span *ngIf="r.can_manage_members" class="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 text-xs rounded-md">Members Management</span>
+                        <span *ngIf="r.can_manage_sprints" class="px-2 py-1 bg-teal-100 dark:bg-teal-900/30 text-teal-800 dark:text-teal-300 text-xs rounded-md">Manage Sprints</span>
                         <span *ngIf="r.can_create_tasks" class="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 text-xs rounded-md">Create Tasks</span>
                         <span *ngIf="r.can_edit_tasks" class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 text-xs rounded-md">Edit Tasks</span>
                         <span *ngIf="r.can_delete_tasks" class="px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 text-xs rounded-md">Delete Tasks</span>
@@ -340,6 +344,7 @@
                     <div class="flex flex-wrap gap-3 bg-slate-50 dark:bg-slate-700/50 p-2 rounded border border-slate-200 dark:border-slate-600">
                         <label class="flex items-center gap-2 dark:text-slate-300"><input type="checkbox" [(ngModel)]="editBuffer.can_manage_board"> Board</label>
                         <label class="flex items-center gap-2 dark:text-slate-300"><input type="checkbox" [(ngModel)]="editBuffer.can_manage_members"> Members</label>
+                        <label class="flex items-center gap-2 dark:text-slate-300"><input type="checkbox" [(ngModel)]="editBuffer.can_manage_sprints"> Sprints</label>
                         <label class="flex items-center gap-2 dark:text-slate-300"><input type="checkbox" [(ngModel)]="editBuffer.can_create_tasks"> Create</label>
                         <label class="flex items-center gap-2 dark:text-slate-300"><input type="checkbox" [(ngModel)]="editBuffer.can_edit_tasks"> Edit</label>
                         <label class="flex items-center gap-2 dark:text-slate-300"><input type="checkbox" [(ngModel)]="editBuffer.can_delete_tasks"> Delete</label>

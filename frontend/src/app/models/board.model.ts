@@ -13,7 +13,7 @@ export interface Sprint {
     goal: string;
     start_date: string | null;
     end_date: string | null;
-    is_active: boolean;
+    status: 'planned' | 'active' | 'paused' | 'completed';
     created_at: string;
 }
 
@@ -45,6 +45,7 @@ export interface BoardRole {
     name: string;
     can_manage_board: boolean;
     can_manage_members: boolean;
+    can_manage_sprints: boolean;
     can_create_tasks: boolean;
     can_edit_tasks: boolean;
     can_delete_tasks: boolean;

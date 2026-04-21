@@ -7,7 +7,7 @@ import { BoardService } from '../../services/board.service';
 import { ConfirmService } from '../../services/confirm.service';
 import { ToastService } from '../../services/toast.service';
 import { TaskStatus, TaskPriority, TaskType, BoardRole, BoardMembership } from '../../models/board.model';
-import {environment} from "../../../environments/environment";
+import { environment } from "../../../environments/environment";
 import { AuthService } from '../../services/auth.service';
 
 import {
@@ -62,6 +62,7 @@ export class BoardSettingsComponent implements OnInit {
     name: '',
     can_manage_board: false,
     can_manage_members: false,
+    can_manage_sprints: false,
     can_create_tasks: true,
     can_edit_tasks: true,
     can_delete_tasks: false
@@ -134,7 +135,7 @@ export class BoardSettingsComponent implements OnInit {
 
   can(permission: keyof BoardRole): boolean {
     if (this.board?.owner === this.currentUser?.id?.toString()) {
-        return true;
+      return true;
     }
     return this.userPermissions ? !!this.userPermissions[permission] : false;
   }
@@ -147,9 +148,9 @@ export class BoardSettingsComponent implements OnInit {
   }
 
   get invitableRoles(): BoardRole[] {
-    const perms: (keyof BoardRole)[] = ['can_manage_board', 'can_manage_members', 'can_create_tasks', 'can_edit_tasks', 'can_delete_tasks'];
+    const perms: (keyof BoardRole)[] = ['can_manage_board', 'can_manage_members', 'can_manage_sprints', 'can_create_tasks', 'can_edit_tasks', 'can_delete_tasks'];
     return this.roles.filter(role =>
-      perms.every(p => !role[p] || this.can(p))
+        perms.every(p => !role[p] || this.can(p))
     );
   }
 
@@ -278,6 +279,7 @@ export class BoardSettingsComponent implements OnInit {
         name: '',
         can_manage_board: false,
         can_manage_members: false,
+        can_manage_sprints: false,
         can_create_tasks: true,
         can_edit_tasks: true,
         can_delete_tasks: false
