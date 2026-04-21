@@ -4,12 +4,13 @@ import { provideHttpClient, withInterceptors, withInterceptorsFromDi, HTTP_INTER
 import { routes } from './app.routes';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { errorInterceptor } from './interceptors/error.interceptor';
+import { loadingInterceptor } from './interceptors/loading.interceptor';
 
 export const appConfig: ApplicationConfig = {
     providers: [
         provideRouter(routes),
         provideHttpClient(
-            withInterceptors([errorInterceptor]),
+            withInterceptors([loadingInterceptor, errorInterceptor]),
             withInterceptorsFromDi()
         ),
         {

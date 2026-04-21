@@ -7,6 +7,7 @@ import { filter, map, startWith } from 'rxjs';
 import {AuthService} from "./services/auth.service";
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog';
 import {ToastComponent} from "./components/toast/toast";
+import { LoadingService } from './services/loading.service';
 
 @Component({
   selector: 'app-root',
@@ -17,6 +18,7 @@ import {ToastComponent} from "./components/toast/toast";
 export class AppComponent {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
+  public loadingService = inject(LoadingService);
 
   readonly authRoutes = ['/login', '/register', '/'];
   isAuthPage$ = this.router.events.pipe(

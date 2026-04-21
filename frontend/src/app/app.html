@@ -15,10 +15,16 @@
             </app-sidebar>
         }
 
-        <main class="flex-1 overflow-y-auto bg-white dark:bg-slate-950 transition-colors">
+        <main class="flex-1 overflow-y-auto bg-white dark:bg-slate-950 transition-colors relative">
             <router-outlet></router-outlet>
             <app-confirm-dialog></app-confirm-dialog>
             <app-toast></app-toast>
         </main>
     </div>
+
+    @if (loadingService.isLoading()) {
+        <div class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm pointer-events-auto animate-[fade-in_0.2s_ease-out]">
+            <div class="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+    }
 </div>
