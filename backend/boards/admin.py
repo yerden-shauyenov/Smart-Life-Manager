@@ -14,8 +14,8 @@ class BoardAdmin(admin.ModelAdmin):
 
 @admin.register(Sprint)
 class SprintAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'board', 'is_active', 'start_date', 'end_date')
-    list_filter = ('is_active', 'board')
+    list_display = ('id', 'name', 'board', 'status', 'start_date', 'end_date')
+    list_filter = ('status', 'board')
     search_fields = ('name',)
     ordering = ('-created_at',)
 

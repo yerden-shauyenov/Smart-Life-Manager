@@ -3,16 +3,51 @@ from .models import Board, BoardRole, TaskStatus, TaskPriority, TaskType, BoardM
 
 def initialize_board_defaults(board):
     roles_data = [
-        {'name': 'Administrator', 'can_manage_board': True, 'can_manage_members': True, 'can_create_tasks': True,
-         'can_edit_tasks': True, 'can_delete_tasks': True},
-        {'name': 'Scrum Master', 'can_manage_board': False, 'can_manage_members': True, 'can_create_tasks': True,
-         'can_edit_tasks': True, 'can_delete_tasks': True},
-        {'name': 'Developer', 'can_manage_board': False, 'can_manage_members': False, 'can_create_tasks': True,
-         'can_edit_tasks': True, 'can_delete_tasks': False},
-        {'name': 'Reporter', 'can_manage_board': False, 'can_manage_members': False, 'can_create_tasks': True,
-         'can_edit_tasks': False, 'can_delete_tasks': False},
-        {'name': 'Viewer', 'can_manage_board': False, 'can_manage_members': False, 'can_create_tasks': False,
-         'can_edit_tasks': False, 'can_delete_tasks': False},
+        {
+            'name': 'Administrator',
+            'can_manage_board': True,
+            'can_manage_members': True,
+            'can_manage_sprints': True,
+            'can_create_tasks': True,
+            'can_edit_tasks': True,
+            'can_delete_tasks': True
+        },
+        {
+            'name': 'Scrum Master',
+            'can_manage_board': False,
+            'can_manage_members': True,
+            'can_manage_sprints': True,
+            'can_create_tasks': True,
+            'can_edit_tasks': True,
+            'can_delete_tasks': True
+        },
+        {
+            'name': 'Developer',
+            'can_manage_board': False,
+            'can_manage_members': False,
+            'can_manage_sprints': False,
+            'can_create_tasks': True,
+            'can_edit_tasks': True,
+            'can_delete_tasks': False
+        },
+        {
+            'name': 'Reporter',
+            'can_manage_board': False,
+            'can_manage_members': False,
+            'can_manage_sprints': False,
+            'can_create_tasks': True,
+            'can_edit_tasks': False,
+            'can_delete_tasks': False
+        },
+        {
+            'name': 'Viewer',
+            'can_manage_board': False,
+            'can_manage_members': False,
+            'can_manage_sprints': False,
+            'can_create_tasks': False,
+            'can_edit_tasks': False,
+            'can_delete_tasks': False
+        },
     ]
 
     created_roles = {}

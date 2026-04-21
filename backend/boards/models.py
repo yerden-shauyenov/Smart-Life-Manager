@@ -17,6 +17,7 @@ class BoardRole(models.Model):
     name = models.CharField(max_length=50)
     can_manage_board = models.BooleanField(default=False)
     can_manage_members = models.BooleanField(default=False)
+    can_manage_sprints = models.BooleanField(default=False)
     can_create_tasks = models.BooleanField(default=True)
     can_edit_tasks = models.BooleanField(default=True)
     can_delete_tasks = models.BooleanField(default=False)
@@ -81,12 +82,19 @@ class TaskType(models.Model):
 
 
 class Sprint(models.Model):
+    STATUS_CHOICES = (
+        ('planned', 'Planned'),
+        ('active', 'Active'),
+        ('paused', 'Paused'),
+        ('completed', 'Completed'),
+    )
+
     board = models.ForeignKey(Board, on_delete=models.CASCADE, related_name='sprints')
     name = models.CharField(max_length=255)
     goal = models.TextField(blank=True)
     start_date = models.DateTimeField(null=True, blank=True)
     end_date = models.DateTimeField(null=True, blank=True)
-    is_active = models.BooleanField(default=False)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='planned')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

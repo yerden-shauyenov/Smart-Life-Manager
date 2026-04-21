@@ -101,3 +101,23 @@ class IsCommentAuthorOrBoardAdmin(permissions.BasePermission):
             return True
         role = get_user_role(request.user, obj.task.board)
         return role is not None and role.can_manage_board
+
+class CanManageSprints(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        if request.method == 'POST' and 'board' in request.data:
+            board_id = request.data.get('board')
+            try:
+                board = Board.objects.get(id=board_id)
+                role = get_user_role(request.user, board)
+                return role is not None and (role.can_manage_sprints or role.can_manage_board)
+            except Board.DoesNotExist:
+                return False
+        return True
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        role = get_user_role(request.user, obj.board)
+        return role is not None and (role.can_manage_sprints or role.can_manage_board)

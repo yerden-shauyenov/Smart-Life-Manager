@@ -26,8 +26,11 @@ class TaskTypeSerializer(serializers.ModelSerializer):
 class BoardRoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = BoardRole
-        fields = ['id', 'board', 'name', 'can_manage_board', 'can_manage_members', 'can_create_tasks', 'can_edit_tasks', 'can_delete_tasks']
-
+        fields = [
+            'id', 'board', 'name',
+            'can_manage_board', 'can_manage_members', 'can_manage_sprints',
+            'can_create_tasks', 'can_edit_tasks', 'can_delete_tasks'
+        ]
 
 class BoardMembershipSerializer(serializers.ModelSerializer):
     user_username = serializers.ReadOnlyField(source='user.username')
@@ -72,7 +75,7 @@ class OwnershipTransferSerializer(serializers.ModelSerializer):
 class SprintSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sprint
-        fields = ['id', 'board', 'name', 'goal', 'start_date', 'end_date', 'is_active', 'created_at']
+        fields = ['id', 'board', 'name', 'goal', 'start_date', 'end_date', 'status', 'created_at']
         read_only_fields = ['created_at']
 
 
