@@ -18,7 +18,7 @@ export const translations: Record<Lang, Record<string, string>> = {
 
     // Home
     'home.hero_title': 'Manage your projects on higher level',
-    'home.hero_subtitle': 'SmartLife helps teams bring order to chaos: from sprint planning to detailed tracking of every task.',
+    'home.hero_subtitle': 'JAAB helps teams bring order to chaos: from sprint planning to detailed tracking of every task.',
     'home.cta': 'Create workflow',
     'home.feature1_title': 'Flexible Boards',
     'home.feature1_desc': 'Visualize your workflow. Create unlimited boards for different projects and directions.',
@@ -26,7 +26,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     'home.feature2_desc': 'Stay focused on what matters, set deadlines, and monitor progress in real time.',
     'home.feature3_title': 'Team access',
     'home.feature3_desc': 'Collaborate seamlessly. Invite teammates, assign responsibilities, and discuss tasks in one place.',
-    'home.footer': '© 2026 SmartLife. Designed for effective teams.',
+    'home.footer': '© 2026 JAAB. Designed for effective teams.',
 
     // Login
     'login.title': 'Sign in to your account',
@@ -252,7 +252,7 @@ export const translations: Record<Lang, Record<string, string>> = {
 
     // Home
     'home.hero_title': 'Управляйте проектами на новом уровне',
-    'home.hero_subtitle': 'SmartLife помогает командам навести порядок: от планирования спринтов до детального отслеживания каждой задачи.',
+    'home.hero_subtitle': 'JAAB помогает командам навести порядок: от планирования спринтов до детального отслеживания каждой задачи.',
     'home.cta': 'Создать рабочий процесс',
     'home.feature1_title': 'Гибкие доски',
     'home.feature1_desc': 'Визуализируйте рабочий процесс. Создавайте неограниченное количество досок для разных проектов.',
@@ -260,7 +260,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     'home.feature2_desc': 'Сосредоточьтесь на главном, устанавливайте сроки и отслеживайте прогресс в реальном времени.',
     'home.feature3_title': 'Командный доступ',
     'home.feature3_desc': 'Сотрудничайте легко. Приглашайте коллег, назначайте ответственных и обсуждайте задачи в одном месте.',
-    'home.footer': '© 2026 SmartLife. Создано для эффективных команд.',
+    'home.footer': '© 2026 JAAB. Создано для эффективных команд.',
 
     // Login
     'login.title': 'Войти в аккаунт',
